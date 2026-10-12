@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+
+[build.environment]
+  # firebase-config.js holds the Firebase *web* API key. It is public by design
+  # (Firestore security rules protect the data), so Netlify's secret scan must not block it.
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+  SECRETS_SCAN_OMIT_PATHS = "firebase-config.js,index.html"
