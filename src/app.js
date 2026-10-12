@@ -529,22 +529,34 @@
     return h('div', null, kidBar(), main);
   }
   function buildQuestions(u) {
-    if (u.g && GEN[u.g]) { const out = []; let guard = 0; while (out.length < 5 && guard++ < 40) { const p = GEN[u.g](); if (p && p.w && p.w.length >= 2 && !out.some((x) => x.q === p.q)) out.push({ q: p.q, a: p.a, choices: shuffle([p.a, ...p.w.slice(0, 3)]) }); } return out; }
-    return shuffle(u.q).map((row) => ({ q: row[0], a: row[1], choices: shuffle(row.slice(1)) }));
+    if (u.g && GEN[u.g]) { const out = []; let guard = 0; while (out.length < 5 && guard++ < 40) { const p = GEN[u.g](); if (p && p.w && p.w.length >= 2 && !out.some((x) => x.q === p.q)) out.push({ q: p.q, a: p.a, v: p.v || null, choices: shuffle([p.a, ...p.w.slice(0, 3)]) }); } return out; }
+    return shuffle(u.q).map((row) => ({ q: row[0], a: row[1], v: row[5] && typeof row[5] === 'object' ? row[5] : null, choices: shuffle(row.slice(1, 5).filter((x) => typeof x === 'string')) }));
   }
   function startQuiz(g, s, i) { S.quiz = { g, s, i, qs: buildQuestions(course(g, s).u[i]), at: 0, right: 0, picked: null }; go('quiz', { g, s, i }); }
+  function pic(spec, cls) { const s = spec && window.LH_VIS ? window.LH_VIS(spec) : ''; if (!s) return null; const d = h('div', { class: cls || 'q-pic' }); d.innerHTML = s; return d; }
+  function lumi(mood, text) { const w = h('div', { class: 'lumi-row' }); const m = h('span', { class: 'lumi-wrap' }); m.innerHTML = window.LH_MASCOT ? window.LH_MASCOT(mood) : ''; w.appendChild(m); if (text) w.appendChild(h('p', { class: 'bubble' }, text)); return w; }
+  const CHEER = ['Correct! You\'re glowing!', 'Yes! Great thinking!', 'Nailed it!', 'Brilliant!', 'That\'s right — keep shining!', 'Super job!'];
+  const OOPS = ['Not quite — you\'ve got this!', 'Good try! Mistakes help us learn.', 'Almost! Let\'s look at the answer.', 'Keep going — every try makes you stronger.'];
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  function confetti() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const box = h('div', { class: 'confetti', 'aria-hidden': 'true' });
+    for (let k = 0; k < 28; k++) { const i = h('i'); i.style.left = (Math.random() * 100) + '%'; i.style.animationDelay = (Math.random() * 0.25) + 's'; i.style.setProperty('--dx', ((Math.random() - 0.5) * 160) + 'px'); i.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg'); i.className = 'c' + (k % 5); box.appendChild(i); }
+    document.body.appendChild(box); setTimeout(() => box.remove(), 1800);
+  }
   function viewQuiz() {
     const Q = S.quiz; const c = course(Q.g, Q.s); const u = c.u[Q.i]; const item = Q.qs[Q.at]; const sm = SUBJ.find((x) => x.k === Q.s);
     const answered = Q.picked != null;
     const choices = h('div', { class: 'choices', role: 'group', 'aria-label': 'Answer choices' }, item.choices.map((ch, n) => {
       let cls = 'choice'; if (answered) { if (ch === item.a) cls += ' right'; else if (n === Q.picked) cls += ' wrong'; }
-      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { Q.picked = n; if (ch === item.a) Q.right++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
+      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { Q.picked = n; Q.msg = ch === item.a ? pick(CHEER) : pick(OOPS); if (ch === item.a) { Q.right++; confetti(); } render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
-    const fb = answered ? h('div', { class: 'feedback ' + (item.choices[Q.picked] === item.a ? 'ok' : 'no'), role: 'status' }, item.choices[Q.picked] === item.a ? 'Correct!' : 'Not quite. The answer is ' + item.a + '.') : null;
+    const ok = answered && item.choices[Q.picked] === item.a;
+    const fb = answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? (Q.msg || 'Correct!') : (Q.msg || 'Not quite.') + ' The answer is ' + item.a + '.')) : null;
     const next = answered ? h('button', { class: 'btn primary', onclick: () => { if (Q.at < Q.qs.length - 1) { Q.at++; Q.picked = null; render(); } else finishQuiz(); } }, Q.at < Q.qs.length - 1 ? 'Next question' : 'See my score') : null;
     const main = h('main', { class: 'wrap quiz' },
       h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow ' + sm.c }, u.t), h('div', { class: 'q-progress' }, 'Question ' + (Q.at + 1) + ' of ' + Q.qs.length), bar(Math.round((Q.at / Q.qs.length) * 100), sm.c)),
-      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)));
+      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)));
     setTimeout(() => { const b = answered ? $('.q-actions .primary') : $('.choice'); b && b.focus({ preventScroll: true }); }, 0);
     return h('div', null, kidBar(), main);
   }
@@ -562,7 +574,9 @@
     const r = Q.result; const c = course(Q.g, Q.s); const sm = SUBJ.find((x) => x.k === Q.s); const nextI = Q.i + 1 < c.u.length ? Q.i + 1 : null;
     const main = h('main', { class: 'wrap result' },
       h('section', { class: 'result-card ' + (r.pass ? 'pass' : 'retry') },
+        (() => { const st = h('div', { class: 'result-stars' }); st.innerHTML = window.LH_STARS ? window.LH_STARS(r.score >= 100 ? 3 : r.score >= settings().passMark ? 2 : r.score >= 40 ? 1 : 0) : ''; return st; })(),
         ring(r.score, Q.right + ' of ' + Q.qs.length, 'lg'),
+        lumi(r.pass ? 'cheer' : 'think', r.pass ? (r.score >= 100 ? 'A perfect score! You\'re a superstar!' : 'You did it! I\'m so proud of you.') : 'Let\'s review together and try again. You can do it!'),
         h('h1', null, r.pass ? (r.newly ? 'Unit mastered!' : 'Great work!') : 'Almost there'),
         h('p', { class: 'lede' }, r.pass ? 'You scored ' + r.score + '% on ' + c.u[Q.i].t + '.' : 'You need ' + settings().passMark + '% to master this unit. Review the lesson and try again — every try gets fresh questions.'),
         h('div', { class: 'actions' },
@@ -783,8 +797,8 @@
     if (u.g && GEN[u.g]) {
       if (!Player.example || Player.example.key !== key) Player.example = { key, p: GEN[u.g]() };
       const p = Player.example.p;
-      sc.push({ t: 'exq', text: p.q, say: "Let's try one together. " + p.q + ' Take a moment to think.' });
-      sc.push({ t: 'exa', text: p.q, ans: p.a, say: 'The answer is ' + p.a + '.' });
+      sc.push({ t: 'exq', text: p.q, v: p.v, say: "Let's try one together. " + p.q + ' Take a moment to think.' });
+      sc.push({ t: 'exa', text: p.q, v: p.v, ans: p.a, say: 'The answer is ' + p.a + '.' });
     }
     if (u.try) sc.push({ t: 'try', text: u.try, say: 'Try it at home. ' + u.try });
     sc.push({ t: 'end', say: "Great job watching! When you're ready, take the quiz to show what you know." });
@@ -827,8 +841,8 @@
       let body;
       if (sc.t === 'title') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, c.t + ' · Unit ' + (i + 1) + ' of ' + c.u.length), h('h2', { class: 'vtitle' }, u.t), h('p', { class: 'vsub' }, 'Video lesson · about ' + totalMin + ' min'));
       else if (sc.t === 'point') body = h('div', { class: 'vpoint' }, h('span', { class: 'vnum', 'aria-hidden': 'true' }, String(sc.n + 1)), h('div', null, h('p', { class: 'veyebrow' }, 'Key idea ' + (sc.n + 1) + ' of ' + sc.of), words(sc.text)));
-      else if (sc.t === 'exq') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, "Let's solve one together"), words(sc.text), h('p', { class: 'think' }, 'Think about it', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
-      else if (sc.t === 'exa') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, 'Answer'), h('p', { class: 'vq-small' }, sc.text), h('p', { class: 'vanswer' }, sc.ans));
+      else if (sc.t === 'exq') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, "Let's solve one together"), pic(sc.v, 'v-pic'), words(sc.text), h('p', { class: 'think' }, 'Think about it', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
+      else if (sc.t === 'exa') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, 'Answer'), pic(sc.v, 'v-pic sm'), h('p', { class: 'vq-small' }, sc.text), h('p', { class: 'vanswer' }, sc.ans));
       else if (sc.t === 'try') body = h('div', { class: 'vpoint' }, h('span', { class: 'vlamp', 'aria-hidden': 'true' }), h('div', null, h('p', { class: 'veyebrow' }, 'Try it at home'), words(sc.text)));
       else body = h('div', { class: 'vcenter' }, h('span', { class: 'vcheck', 'aria-hidden': 'true' }), h('h2', { class: 'vtitle' }, 'Lesson complete'), h('p', { class: 'vsub' }, 'Now show what you know.'),
         h('div', { class: 'vend-actions' }, h('button', { class: 'btn primary', type: 'button', onclick: () => { Player.stop(); onQuiz(); } }, 'Take the quiz'), h('button', { class: 'btn vghost', type: 'button', onclick: () => { Player.idx = 0; play(); } }, 'Watch again')));

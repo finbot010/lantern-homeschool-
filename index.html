@@ -356,6 +356,62 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
 @keyframes rise { from { transform: translateY(10px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @media (max-width: 480px) { .topbar { padding: 10px 16px; } main.wrap { padding-inline: 16px; } .brand-sub { display: none; } .hero-card { padding: 20px; justify-content: center; } .sb { grid-template-columns: 90px 1fr 40px 18px; } .pad { grid-template-columns: repeat(3, 64px); } .key-btn { width: 64px; height: 64px; } }
+
+/* ── kid-friendly pictures (LH_VIS) ── */
+:root { --v-a: #E8604C; --v-b: #F2B21B; --v-c: #3FA66B; --v-d: #3E7BD9; --v-a2: #FBD8D1; --v-b2: #FFEDB8; --v-c2: #D3EEDD; --v-d2: #D6E4FA;
+  --v-n: #CBD3CD; --v-brown: #8B5E3C; --v-wood: #C08A55; --v-cell: #FCE3E8; --v-cloud: #E4E9EF; --v-map: #E8F3DF; --v-ruler: #F8E7A8; --v-night: #1F2C46; --v-moon: #F6F2DD; --v-glow: #FFE47A; --v-copper: #C8794A; --v-silver: #CDD3D8; --v-qt: #17241E; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --v-a: #F08A7E; --v-b: #F5C14A; --v-c: #6CCB95; --v-d: #7FA3F0; --v-a2: #5A2D27; --v-b2: #4A3D16; --v-c2: #1F4430; --v-d2: #22355A;
+  --v-n: #3D4A43; --v-brown: #A77852; --v-wood: #B98552; --v-cell: #4A2F37; --v-cloud: #3A4552; --v-map: #20352A; --v-ruler: #5B4C1E; --v-night: #0C1220; --v-moon: #E9E4C8; --v-glow: #FFD84D; --v-copper: #C9825A; --v-silver: #9AA3AA; } }
+:root[data-theme="dark"] { --v-a: #F08A7E; --v-b: #F5C14A; --v-c: #6CCB95; --v-d: #7FA3F0; --v-a2: #5A2D27; --v-b2: #4A3D16; --v-c2: #1F4430; --v-d2: #22355A;
+  --v-n: #3D4A43; --v-brown: #A77852; --v-wood: #B98552; --v-cell: #4A2F37; --v-cloud: #3A4552; --v-map: #20352A; --v-ruler: #5B4C1E; --v-night: #0C1220; --v-moon: #E9E4C8; --v-glow: #FFD84D; --v-copper: #C9825A; --v-silver: #9AA3AA; }
+.q-pic, .v-pic { display: flex; justify-content: center; margin: 4px 0 18px; }
+.q-pic .vis-svg { width: 100%; max-width: 420px; max-height: 280px; height: auto; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 10px; box-sizing: border-box; }
+.v-pic { margin: 0 0 10px; } .v-pic .vis-svg { width: min(100%, 360px); max-height: 38vh; height: auto; background: var(--sheet); border-radius: 12px; padding: 8px; box-sizing: border-box; }
+.v-pic.sm .vis-svg { max-height: 26vh; width: min(100%, 260px); }
+.vis-svg text { font-family: var(--f-body); font-weight: 700; }
+.vis-svg :not([fill="none"]).va { fill: var(--v-a); } .vis-svg :not([fill="none"]).vb { fill: var(--v-b); } .vis-svg :not([fill="none"]).vc { fill: var(--v-c); } .vis-svg :not([fill="none"]).vd { fill: var(--v-d); }
+.vis-svg path[fill="none"].vc { stroke: var(--v-c); }
+.vis-svg .va2 { fill: var(--v-a2); } .vis-svg .vb2 { fill: var(--v-b2); } .vis-svg .vc2 { fill: var(--v-c2); } .vis-svg .vd2 { fill: var(--v-d2); }
+.vis-svg .vm2 { fill: var(--v-n); } .vis-svg .vempty { fill: var(--sheet); } .vis-svg .vbox, .vis-svg .vface { fill: var(--sheet); }
+.vis-svg .vk { stroke: var(--ink); } .vis-svg :not([fill]).vk, .vis-svg .vkf { fill: var(--ink); } .vis-svg path:not([fill]).vk[stroke-width] { fill: none; }
+.vis-svg .vk2 { stroke: var(--ink); } .vis-svg .vk2:not([stroke-width]) { stroke-width: 1.5; }
+.vis-svg .vk3 { stroke: var(--ink-2); stroke-width: 2; }
+.vis-svg .vt { fill: var(--ink); } .vis-svg .vm { fill: var(--ink-2); font-weight: 400; } .vis-svg .vcoin { fill: #17241E; }
+.vis-svg .vq { fill: var(--lamp); stroke: #B7791F; stroke-width: 2; } .vis-svg .vqt { fill: var(--v-qt); }
+.vis-svg .vx { stroke: var(--bad); stroke-linecap: round; } .vis-svg .vw { stroke: #FFFFFF; }
+.vis-svg .vgrid, .vis-svg .vgridline { stroke: var(--rule); fill: none; } .vis-svg .vmap.vgridline { fill: var(--v-map); }
+.vis-svg .vhand { stroke: var(--ink); stroke-linecap: round; } .vis-svg .vhand2 { stroke: var(--v-a); stroke-linecap: round; }
+.vis-svg .vhop { stroke: var(--pine); fill: none; } .vis-svg .vhopf { fill: var(--pine); }
+.vis-svg .vdash { stroke: var(--ink-3); stroke-dasharray: 5 4; fill: none; } .vis-svg .vdash:not([stroke-width]) { stroke-width: 1.5; }
+.vis-svg .vline { stroke: var(--v-d); fill: none; } .vis-svg .vline2 { stroke: var(--v-a); fill: none; } .vis-svg .va2s { stroke: var(--v-a); }
+.vis-svg .vstem, .vis-svg .vstemc { stroke: var(--v-c); fill: none; } .vis-svg .vroot { stroke: var(--v-brown); } .vis-svg .vrain { stroke: var(--v-d); stroke-linecap: round; }
+.vis-svg .vsoil, .vis-svg .vcrust { fill: var(--v-brown); } .vis-svg .vmantle { fill: #E0823A; } .vis-svg .vouter { fill: #F2B21B; } .vis-svg .vinner { fill: #F8E58A; }
+.vis-svg .vbag { fill: #D2AE73; } .vis-svg .vwood { fill: var(--v-wood); stroke: var(--v-wood); } .vis-svg rect.vwood, .vis-svg ellipse.vwood, .vis-svg polygon.vwood { stroke: none; }
+.vis-svg .vcloud { fill: var(--v-cloud); } .vis-svg .vcell { fill: var(--v-cell); } .vis-svg .vmap { fill: var(--v-map); } .vis-svg .vruler { fill: var(--v-ruler); }
+.vis-svg .vnight { fill: var(--v-night); stroke: var(--ink-3); stroke-width: 1.5; } .vis-svg .vmoon { fill: var(--v-moon); } .vis-svg .vglow { fill: var(--v-glow); } .vis-svg .vwire { stroke: var(--ink); fill: none; }
+.vis-svg .vcopper { fill: var(--v-copper); stroke: #8A4E2B; stroke-width: 1.5; } .vis-svg .vsilver { fill: var(--v-silver); stroke: #7D868D; stroke-width: 1.5; }
+
+/* ── Lumi the lantern helper, confetti, stars ── */
+.lumi .lbody { fill: #FFD45C; } .lumi .lcap { fill: #1E4D3B; } .lumi .lglow { fill: #FFF2CC; opacity: .75; } .lumi .lcheek { fill: #F59A8B; opacity: .8; }
+.lumi .lk { fill: #17241E; } .lumi .lks { stroke: #17241E; } .lumi path.lk { stroke: none; }
+.lumi-row { display: flex; align-items: center; gap: 12px; }
+.lumi-wrap { flex: none; width: 54px; height: 66px; } .lumi-wrap svg { width: 100%; height: 100%; display: block; }
+.lumi-cheer { animation: lumiHop .6s ease-out; } .lumi-oops, .lumi-think { animation: lumiTilt .7s ease-in-out; }
+.bubble { position: relative; margin: 0; padding: 10px 14px; border-radius: 14px; background: var(--sheet); color: var(--ink); font-weight: 700; border: 1.5px solid currentColor; border-color: color-mix(in srgb, currentColor 30%, transparent); }
+.feedback .bubble { background: transparent; border: 0; padding: 0; color: inherit; }
+.result-card .lumi-row { justify-content: center; margin: 6px 0 4px; } .result-card .lumi-wrap { width: 64px; height: 78px; }
+.result-stars { display: flex; justify-content: center; } .result-stars .stars { width: 168px; height: 60px; }
+.stars .sfull { fill: var(--lamp); stroke: #B7791F; stroke-width: 1.5; animation: starPop .5s cubic-bezier(.3,1.6,.5,1) both; } .stars .sempty { fill: var(--rule); }
+.stars polygon:nth-child(2) { animation-delay: .15s; } .stars polygon:nth-child(3) { animation-delay: .3s; }
+.stars polygon { transform-box: fill-box; transform-origin: center; }
+.confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+.confetti i { position: absolute; top: 35%; width: 9px; height: 14px; border-radius: 2px; animation: confetti 1.5s ease-out forwards; }
+.confetti .c0 { background: var(--v-a); } .confetti .c1 { background: var(--v-b); } .confetti .c2 { background: var(--v-c); } .confetti .c3 { background: var(--v-d); } .confetti .c4 { background: var(--soc); }
+@keyframes confetti { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), 70vh) rotate(var(--r)); opacity: 0; } }
+@keyframes lumiHop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px) rotate(-4deg); } }
+@keyframes lumiTilt { 0%, 100% { transform: rotate(0); } 35% { transform: rotate(-8deg); } 70% { transform: rotate(5deg); } }
+@keyframes starPop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lumi-cheer, .lumi-oops, .lumi-think, .stars .sfull { animation: none; } }
 </style>
 </head>
 <body>
@@ -364,7 +420,6 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
-
 <script>
 /* Lantern Homeschool — curriculum content, grades 1–4.
    Quiz format: [question, correctAnswer, wrong1, wrong2, wrong3]  (choices are shuffled at runtime)
@@ -1544,6 +1599,395 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
   };
 })();
 
+/* Lantern Homeschool — added units for grades 1–6 (appended after the original 5 so saved progress stays matched).
+   Quiz rows: [question, correct, wrong1, wrong2, wrong3, picture?]  where picture is a visual spec for LH_VIS. */
+(function () {
+  const C = window.LH_COURSES, KA = 'https://www.khanacademy.org/';
+  const add = (k, units) => { C[k].u.push(...units); };
+  const D = (d, mark) => ({ t: 'd', d, mark });
+
+  /* ───────── GRADE 1 ───────── */
+  add('1-math', [
+    { t: 'Shapes all around', g: 'shapes1', l: ['Flat shapes have sides and corners: a triangle has 3 sides, a square and a rectangle have 4.', 'A circle is round and has no sides or corners.', 'Solid shapes take up space: a cube is like a box, a sphere is like a ball, a cylinder is like a can, a cone is like an ice cream cone.'], try: 'Go on a shape hunt at home. Find something shaped like each: circle, rectangle, cube, cylinder.' },
+    { t: 'Measuring length', g: 'length1', l: ['Length tells how long something is.', 'Line the object up with the 0 on the ruler, then read the number at its other end.', 'We can measure in inches. A paper clip is about 1 inch long.'], try: 'Measure 5 things on your table with a ruler. Which is longest?' },
+    { t: 'Reading bar graphs', g: 'graph1', l: ['A bar graph uses bars to show how many.', 'Read the number at the top of each bar on the side of the graph.', 'The tallest bar shows the most. The shortest bar shows the least.'], try: 'Ask your family their favorite fruit and make a bar graph on paper.' }
+  ]);
+  add('1-ela', [
+    { t: 'Long vowels and silent e', r: [['Starfall · Learn to Read', 'https://www.starfall.com/h/learn-to-read/']],
+      l: ['A silent e at the end of a word makes the vowel say its name.', 'cap → cape, kit → kite, hop → hope, cub → cube.', 'The e is quiet, but it changes the word.'], try: 'Write cap, kit, hop and tub. Add an e to each and read the new word.',
+      q: [['Add a silent e to "kit." What word do you get?', 'kite', 'kitten', 'kits', 'cat'], ['Which word has a long a sound?', 'cake', 'cat', 'cap', 'can'], ['Which word has a silent e?', 'bone', 'bond', 'bun', 'ban']] },
+    { t: 'Rhyming word families', l: ['Words that rhyme end with the same sound: cat, hat, mat.', 'A word family shares an ending, like -an: can, fan, man, pan.', 'Change the first letter to make a new word in the family.'], try: 'How many -at words can you make in one minute?',
+      q: [['Which word is in the -an family?', 'fan', 'fin', 'fun', 'fat'], ['Which word rhymes with "bug"?', 'rug', 'bag', 'big', 'bun'], ['Which word does NOT rhyme with "hop"?', 'hat', 'top', 'mop', 'pop']] },
+    { t: 'Asking and answering questions', l: ['Question words help us learn about a story: who, what, where, when, why.', 'Who asks about a person. Where asks about a place. When asks about time.', 'Good readers ask questions before, during and after reading.'], try: 'After a story, ask your grown-up one who, one where and one why question.',
+      q: [['Which question word asks about a place?', 'Where', 'Who', 'When', 'Why'], ['"___ is your teacher?" Which word fits?', 'Who', 'Where', 'When', 'What'], ['Which word asks about time?', 'When', 'Who', 'Where', 'Which']] }
+  ]);
+  add('1-sci', [
+    { t: 'The five senses', l: ['We learn about the world with five senses: sight, hearing, smell, taste and touch.', 'Eyes see, ears hear, nose smells, tongue tastes and skin feels.', 'Our senses help keep us safe, like smelling smoke.'], try: 'Close your eyes and guess 3 objects using only touch.',
+      q: [['Which body part do you use to hear?', 'Ears', 'Eyes', 'Nose', 'Hands'], ['How many senses do people have?', 'Five', 'Three', 'Seven', 'Ten'], ['You can tell a lemon is sour by using your sense of…', 'Taste', 'Hearing', 'Sight', 'Touch']] },
+    { t: 'Weather and seasons', l: ['Weather can be sunny, rainy, cloudy, windy or snowy.', 'The four seasons are spring, summer, fall (autumn) and winter.', 'People dress for the weather: coats in cold weather, shorts in hot weather.'], try: 'Draw yourself dressed for each of the four seasons.',
+      q: [['Which season is usually the coldest?', 'Winter', 'Summer', 'Spring', 'Fall'], ['What should you wear on a rainy day?', 'A raincoat', 'A swimsuit', 'Sandals only', 'Sunglasses only'], ['In which season do many leaves fall from trees?', 'Fall', 'Spring', 'Summer', 'Winter']] },
+    { t: 'Pushes and pulls', l: ['A push moves something away from you. A pull moves it toward you.', 'A harder push makes things move faster and farther.', 'Pushes and pulls can start, stop or turn moving things.'], try: 'Push a toy car softly, then harder. Which went farther?',
+      q: [['Opening a drawer toward you is a…', 'Pull', 'Push', 'Spin', 'Bounce'], ['Kicking a ball is a…', 'Push', 'Pull', 'Melt', 'Sound'], ['What happens when you push a swing harder?', 'It goes higher', 'It stops', 'It gets smaller', 'Nothing']] }
+  ]);
+  add('1-soc', [
+    { t: 'Then and now', l: ['Long ago, people did many things differently than we do today.', 'Long ago people used candles and lamps; now we use electric lights.', 'Some things stay the same, like families eating together.'], try: 'Ask a grandparent what toys they played with as a child.',
+      q: [['Long ago, people traveled long distances by…', 'Horse and wagon', 'Airplane', 'Electric car', 'Rocket'], ['Which is from today?', 'A tablet computer', 'A butter churn', 'A quill pen', 'An oil lamp'], ['What is something that is the same now and long ago?', 'Families eat together', 'Everyone has phones', 'Cars are everywhere', 'Homes have TVs']] },
+    { t: 'Directions and location words', l: ['Location words tell where things are: above, below, left, right, near, far.', 'North, south, east and west are directions on a map.', 'Maps often show north at the top.'], try: 'Give a family member directions to a hidden toy using left, right, near and far.',
+      q: [['On most maps, which direction is at the top?', 'North', 'South', 'East', 'West'], ['Look at the map. Which square has the school?', 'B2', 'A1', 'C3', 'A3', { t: 'mapgrid', cols: 3, rows: 3, items: [[1, 1, 'school', 'school'], [0, 0, 'park', 'tree'], [2, 2, 'pond', 'water']] }], ['The opposite of "near" is…', 'Far', 'Under', 'Left', 'Up']] },
+    { t: 'Earning and saving money', l: ['People work at jobs to earn money.', 'Money can be spent on needs and wants, or saved for later.', 'Saving a little at a time helps you buy something bigger.'], try: 'Make a savings jar. Write what you are saving for on the label.',
+      q: [['Why do people work at jobs?', 'To earn money', 'To lose money', 'To stay home', 'To sleep'], ['Putting money away for later is called…', 'Saving', 'Spending', 'Borrowing', 'Trading'], ['You have 5¢ and want a 25¢ sticker. What should you do?', 'Save more money', 'Take the sticker', 'Spend the 5¢', 'Give up forever']] }
+  ]);
+
+  /* ───────── GRADE 2 ───────── */
+  add('2-math', [
+    { t: 'Time to 5 minutes', g: 'time5', l: ['The long minute hand counts by 5s as it moves from number to number.', 'When it points to 3, it is 15 minutes after the hour. At 6, it is 30 minutes.', 'Read the hour hand first, then count by 5s with the minute hand.'], try: 'Read a clock 3 times today and write down each time.' },
+    { t: 'Measuring in inches and centimeters', g: 'measure2', l: ['Inches and centimeters are units of length.', 'A centimeter is smaller than an inch, so it takes more centimeters to measure the same thing.', 'Always start measuring at 0.'], try: 'Measure your hand in inches and in centimeters. Which number is bigger?' },
+    { t: 'Bar graphs and data', g: 'graph2', l: ['Data is information we collect, like how many of each fruit.', 'Bar graphs make data easy to compare.', 'You can add bars to find a total, or subtract to find how many more.'], try: 'Count the colors of cars that pass your home in 10 minutes and graph them.' }
+  ]);
+  add('2-ela', [
+    { t: 'Contractions', l: ['A contraction joins two words and uses an apostrophe for missing letters.', 'do not → don\'t, I am → I\'m, it is → it\'s, we will → we\'ll.', 'The apostrophe takes the place of the letters that are left out.'], try: 'Find 5 contractions in a book and write the two words each one stands for.',
+      q: [['What is the contraction for "do not"?', 'don\'t', 'dont', 'do\'nt', 'don\'nt'], ['"I\'m" stands for…', 'I am', 'I will', 'I have', 'I was'], ['What is the contraction for "we will"?', 'we\'ll', 'well', 'we\'ill', 'w\'ll']] },
+    { t: 'Compound words', l: ['A compound word is two words joined to make a new word.', 'sun + flower = sunflower, rain + bow = rainbow.', 'Knowing the two smaller words helps you guess the meaning.'], try: 'Make as many compound words as you can using "sun," "rain" and "foot."',
+      q: [['Which is a compound word?', 'football', 'running', 'happy', 'table'], ['bed + room = ?', 'bedroom', 'bedrom', 'roombed', 'beds'], ['Which two words make "cupcake"?', 'cup + cake', 'cu + pcake', 'cupc + ake', 'cup + cap']] },
+    { t: 'Fiction and nonfiction', l: ['Fiction stories are made up. They can have talking animals or magic.', 'Nonfiction gives true facts about real things.', 'Nonfiction often has photos, labels and headings.'], try: 'Pick 2 books from your shelf. Decide if each is fiction or nonfiction and tell why.',
+      q: [['A book about how real volcanoes erupt is…', 'Nonfiction', 'Fiction', 'A poem', 'A fairy tale'], ['A story about a dragon who bakes cookies is…', 'Fiction', 'Nonfiction', 'A dictionary', 'A map'], ['Which is a nonfiction text feature?', 'Labeled photos', 'Talking animals', 'Once upon a time', 'A magic spell']] }
+  ]);
+  add('2-sci', [
+    { t: 'Plant life cycle', l: ['A plant starts as a seed.', 'The seed sprouts, grows into a seedling, then becomes an adult plant.', 'Adult plants make flowers and new seeds, and the cycle starts again.'], try: 'Sprout a bean in a wet paper towel inside a clear bag and watch it grow.',
+      q: [['What comes first in a plant\'s life cycle?', 'Seed', 'Flower', 'Adult plant', 'Fruit'], ['What stage is shown at the "?"', 'Seedling', 'Seed', 'Flower', 'Root', D('plantcycle', 'seedling')], ['Adult plants make new…', 'Seeds', 'Rocks', 'Eggs', 'Clouds']] },
+    { t: 'Food chains', l: ['A food chain shows who eats whom.', 'Energy starts with the Sun. Plants use sunlight to make food.', 'Animals eat plants, and other animals eat those animals.'], try: 'Draw a food chain from your backyard or a park.',
+      q: [['What does the rabbit eat in this food chain?', 'Grass', 'The fox', 'The sun', 'Rocks', D('foodchain')], ['Which living thing is missing at the "?"', 'rabbit', 'fox', 'sun', 'grass', D('foodchain', 'rabbit')], ['Where does the energy in a food chain start?', 'The Sun', 'The fox', 'Water', 'Soil']] },
+    { t: 'Animal groups', l: ['Mammals have hair or fur and feed milk to their babies.', 'Birds have feathers and lay eggs. Fish live in water and breathe with gills.', 'Reptiles have dry scales. Amphibians, like frogs, live in water and on land.'], try: 'Sort 10 animal pictures into mammals, birds, fish, reptiles and amphibians.',
+      q: [['Which animal is a mammal?', 'Dog', 'Snake', 'Shark', 'Eagle'], ['Animals with feathers are…', 'Birds', 'Fish', 'Mammals', 'Reptiles'], ['A frog is an…', 'Amphibian', 'Mammal', 'Insect', 'Bird']] }
+  ]);
+  add('2-soc', [
+    { t: 'Continents and oceans', l: ['Earth has 7 continents: Africa, Antarctica, Asia, Australia, Europe, North America and South America.', 'Earth has 5 oceans: Pacific, Atlantic, Indian, Arctic and Southern.', 'The Pacific is the largest ocean. Asia is the largest continent.'], try: 'Find all 7 continents on a globe or online map.',
+      q: [['How many continents are there?', '7', '5', '10', '3'], ['Which is the largest ocean?', 'Pacific', 'Atlantic', 'Indian', 'Arctic'], ['The United States is on which continent?', 'North America', 'Europe', 'Asia', 'Africa']] },
+    { t: 'People who made a difference', l: ['George Washington was the first President of the United States.', 'Harriet Tubman led many enslaved people to freedom.', 'Martin Luther King Jr. worked peacefully for equal rights for all people.'], try: 'Pick one hero and draw a picture of something important they did.',
+      q: [['Who was the first U.S. President?', 'George Washington', 'Abraham Lincoln', 'Martin Luther King Jr.', 'Ben Franklin'], ['Who helped enslaved people escape to freedom?', 'Harriet Tubman', 'George Washington', 'Thomas Edison', 'Amelia Earhart'], ['Martin Luther King Jr. worked for…', 'Equal rights', 'Space travel', 'Building cars', 'Writing dictionaries']] },
+    { t: 'Leaders at every level', l: ['A mayor leads a city or town.', 'A governor leads a state.', 'The President leads the whole country.'], try: 'Find out the names of your mayor and governor.',
+      q: [['Who leads a state?', 'Governor', 'Mayor', 'President', 'Principal'], ['Who leads the whole country?', 'President', 'Mayor', 'Governor', 'Sheriff'], ['Who leads a city?', 'Mayor', 'President', 'Governor', 'Senator']] }
+  ]);
+
+  /* ───────── GRADE 3 ───────── */
+  add('3-math', [
+    { t: 'Scaled bar graphs', g: 'graphScaled', l: ['In a scaled graph, each line on the side can stand for more than 1, like 5 or 10.', 'Read where the top of each bar lines up with the scale.', 'Subtract to compare bars and add to find a total.'], try: 'Make a bar graph where each line stands for 2.' },
+    { t: 'Elapsed time', g: 'elapsed', l: ['Elapsed time is how much time passes from start to end.', 'Count on: first the hours, then the minutes.', '2:15 plus 45 minutes is 3:00.'], try: 'Time how long dinner lasts, from start to finish.' },
+    { t: 'Multiplication word problems', g: 'multWord', l: ['Look for equal groups: "3 bags with 4 apples each."', 'Multiply the number of groups by the number in each group.', 'Draw an array or picture to check your answer.'], try: 'Write your own word problem about equal groups and solve it.' }
+  ]);
+  add('3-ela', [
+    { t: 'Prefixes and suffixes', l: ['A prefix goes at the start of a word: un- (not), re- (again), pre- (before).', 'A suffix goes at the end: -ful (full of), -less (without), -er (one who).', 'unhappy = not happy; careful = full of care; teacher = one who teaches.'], try: 'Add "re-" to 5 verbs (read, play…) and use each in a sentence.',
+      q: [['What does "redo" mean?', 'Do again', 'Not do', 'Do before', 'Do badly'], ['The suffix "-less" means…', 'Without', 'Full of', 'Again', 'Before'], ['Which word means "not kind"?', 'unkind', 'kindful', 'rekind', 'kinder']] },
+    { t: 'Poetry: rhyme and rhythm', l: ['Poems are written in lines. Groups of lines are called stanzas.', 'Many poems rhyme at the ends of lines.', 'Rhythm is the beat you hear when you read a poem aloud.'], try: 'Write a 4-line poem where lines 2 and 4 rhyme.',
+      q: [['A group of lines in a poem is a…', 'Stanza', 'Paragraph', 'Chapter', 'Sentence'], ['Which pair rhymes?', 'night / light', 'dog / cat', 'sun / sea', 'tree / rock'], ['The beat you hear in a poem is its…', 'Rhythm', 'Title', 'Setting', 'Glossary']] },
+    { t: 'Biographies and sequence', l: ['A biography is the true story of a person\'s life, written by someone else.', 'Biographies usually go in time order: childhood, growing up, big achievements.', 'Time words help: first, later, after that, finally.'], try: 'Write a short biography of a family member in time order.',
+      q: [['A true story of a person\'s life written by someone else is a…', 'Biography', 'Fable', 'Poem', 'Myth'], ['Biographies are usually told in…', 'Time order', 'Alphabetical order', 'Random order', 'Size order'], ['Which word shows sequence?', 'Finally', 'Purple', 'Happy', 'Quickly']] }
+  ]);
+  add('3-sci', [
+    { t: 'Simple machines', l: ['Simple machines make work easier: lever, pulley, wheel and axle, ramp, wedge and screw.', 'A lever moves on a point called the fulcrum.', 'A ramp lets you lift something by pushing it over a longer distance.'], try: 'Use a ruler and a pencil as a lever to lift a small book.',
+      q: [['What part of the lever is at the "?"', 'fulcrum', 'load', 'effort', 'wheel', D('lever', 'fulcrum')], ['A slide at the playground is an example of a…', 'Ramp (inclined plane)', 'Pulley', 'Screw', 'Wedge'], ['A flagpole uses which machine to raise the flag?', 'Pulley', 'Wedge', 'Ramp', 'Lever']] },
+    { t: 'Magnets', l: ['Magnets have two ends called poles: north (N) and south (S).', 'Opposite poles attract (pull together). Like poles repel (push apart).', 'Magnets attract iron and steel, but not wood, plastic or paper.'], try: 'Test 10 objects to see which ones a magnet picks up.',
+      q: [['The S pole of one magnet faces the N pole of another. What happens?', 'They attract', 'They repel', 'Nothing', 'They melt', D('magnet', 'attract')], ['Two N poles face each other. What happens?', 'They repel', 'They attract', 'They stick forever', 'They spin', D('magnet', 'repel')], ['Which object will a magnet pick up?', 'A steel paper clip', 'A wooden block', 'A plastic cup', 'A paper towel']] },
+    { t: 'Parts of a plant', l: ['Roots hold the plant in the ground and soak up water.', 'The stem carries water up to the leaves.', 'Leaves make food from sunlight. Flowers make seeds.'], try: 'Put a celery stalk in colored water overnight and see the stem carry the water.',
+      q: [['What part is the "?" pointing to?', 'roots', 'stem', 'leaf', 'flower', D('plant', 'roots')], ['Which part makes food from sunlight?', 'leaf', 'roots', 'stem', 'seed', D('plant', 'leaf')], ['What part is the "?" pointing to?', 'flower', 'roots', 'leaf', 'soil', D('plant', 'flower')]] }
+  ]);
+  add('3-soc', [
+    { t: 'Communities around the world', l: ['People around the world live in different kinds of communities.', 'Climate and land shape how people build homes, dress and earn a living.', 'All communities meet the same needs: food, water, shelter and safety.'], try: 'Compare your community with one in another country. List 2 things alike and 2 different.',
+      q: [['In a very cold place, homes are built to…', 'Keep heat in', 'Let snow inside', 'Have no walls', 'Float on water'], ['What do all communities need?', 'Food, water and shelter', 'Skyscrapers', 'Snow', 'Beaches'], ['What shapes how people live in a place?', 'Its climate and land', 'Its favorite color', 'Its flag size', 'Nothing']] },
+    { t: 'Rights and responsibilities', l: ['Rights are freedoms we all have, like speaking freely and practicing our beliefs.', 'Responsibilities are things we should do, like following laws and respecting others.', 'Rights and responsibilities go together.'], try: 'Make a two-column list of your rights and your responsibilities at home.',
+      q: [['Which is a responsibility?', 'Following rules', 'Free speech', 'Going to the park', 'Choosing a hobby'], ['Which is a right?', 'Freedom of speech', 'Cleaning your room', 'Doing homework', 'Paying taxes'], ['Rights and responsibilities…', 'Go together', 'Are the same thing', 'Are only for adults', 'Do not matter']] },
+    { t: 'Immigrants build communities', l: ['Immigrants are people who move to a new country to live.', 'Between 1892 and 1954, millions of immigrants arrived at Ellis Island in New York.', 'Immigrants bring foods, languages, music and ideas that enrich communities.'], try: 'Find out where your family\'s ancestors lived and draw a map.',
+      q: [['People who move to a new country to live are…', 'Immigrants', 'Tourists', 'Mayors', 'Explorers only'], ['Millions of immigrants arrived in New York through…', 'Ellis Island', 'The Alamo', 'Mount Rushmore', 'The Grand Canyon'], ['What do immigrants bring to communities?', 'New foods, languages and ideas', 'Nothing', 'Only problems', 'Only money']] }
+  ]);
+
+  /* ───────── GRADE 4 ───────── */
+  add('4-math', [
+    { t: 'Factors and multiples', g: 'factors', l: ['Factors are numbers you multiply to get another number: 3 × 4 = 12, so 3 and 4 are factors of 12.', 'Multiples are what you get when you skip count: multiples of 4 are 4, 8, 12, 16…', 'An array shows a factor pair as rows and columns.'], try: 'Find all the factor pairs of 24 using arrays of beans.' },
+    { t: 'Adding fractions with like denominators', g: 'fracLike', l: ['When denominators are the same, add the numerators and keep the denominator.', '2/8 + 3/8 = 5/8.', 'The denominator tells the size of the pieces. That does not change when you add.'], try: 'Cut a paper strip into eighths and model 3/8 + 4/8.' },
+    { t: 'Measurement conversions', g: 'convert', l: ['1 foot = 12 inches. 1 yard = 3 feet.', '1 meter = 100 centimeters. 1 kilogram = 1,000 grams.', 'To change to a smaller unit, multiply. 3 feet = 3 × 12 = 36 inches.'], try: 'Measure a room in feet, then convert to inches.' }
+  ]);
+  add('4-ela', [
+    { t: 'Summarizing nonfiction', l: ['A summary tells the main idea and key details in a few sentences.', 'Use your own words and leave out small details.', 'Headings in a nonfiction text can help you find main ideas.'], try: 'Read a short article and write a 3-sentence summary.',
+      q: [['A summary should…', 'Tell main ideas in your own words', 'Copy every sentence', 'Include your opinion', 'Be longer than the text'], ['What can help you find main ideas in nonfiction?', 'Headings', 'Page numbers', 'The barcode', 'The font color'], ['Which detail should be left out of a summary?', 'A small, unimportant fact', 'The main idea', 'The topic', 'The most important event']] },
+    { t: 'Dialogue and quotation marks', l: ['Dialogue is what characters say.', 'Put quotation marks around the exact words: "Let\'s go," said Maya.', 'Start a new paragraph each time a new person speaks.'], try: 'Write a short conversation between two characters with correct quotation marks.',
+      q: [['Which sentence is punctuated correctly?', '"I love pizza," said Leo.', 'I love pizza, "said Leo."', '"I love pizza, said Leo."', 'I love "pizza," said Leo.'], ['Quotation marks show…', 'A character\'s exact words', 'A question', 'The title of a book only', 'A list'], ['When a new character speaks, you should…', 'Start a new paragraph', 'Start a new chapter', 'Use bold letters', 'Skip punctuation']] },
+    { t: 'Opinion writing', l: ['An opinion piece states what you think and gives reasons.', 'Support each reason with facts or examples.', 'End with a conclusion that restates your opinion.'], try: 'Write an opinion paragraph: Which is the best season and why?',
+      q: [['Which is an opinion?', 'Summer is the best season.', 'Summer has the most daylight.', 'There are four seasons.', 'Winter comes after fall.'], ['Reasons in opinion writing should be supported with…', 'Facts and examples', 'Random words', 'Questions only', 'Nothing'], ['An opinion piece ends with…', 'A conclusion', 'A new topic', 'A question only', 'A list of words']] }
+  ]);
+  add('4-sci', [
+    { t: 'Electric circuits', l: ['Electricity flows in a closed loop called a circuit.', 'A simple circuit has a battery (energy source), wires and a bulb.', 'A switch opens or closes the circuit. If there is a gap, the bulb goes out.'], try: 'Use the PhET circuit simulation to build a circuit with a switch.',
+      q: [['What part is the "?" pointing to?', 'battery', 'bulb', 'switch', 'wire', D('circuit', 'battery')], ['In this circuit the switch is open. Will the bulb light?', 'No', 'Yes', 'Only at night', 'Only if it is cold', D('circuit', 'open')], ['What part is the "?" pointing to?', 'bulb', 'battery', 'magnet', 'switch', D('circuit', 'bulb')]] },
+    { t: 'Light and how we see', l: ['Light travels in straight lines.', 'We see objects when light bounces off them (reflects) and enters our eyes.', 'Mirrors reflect light well. Rough or dark surfaces reflect less.'], try: 'Use a mirror to bounce sunlight onto a wall.',
+      q: [['How do we see a book?', 'Light reflects off it into our eyes', 'Our eyes shoot out light', 'The book makes sound', 'We smell it'], ['Light travels in…', 'Straight lines', 'Circles only', 'Zigzags only', 'It does not move'], ['Which reflects light best?', 'A mirror', 'A black towel', 'A rock', 'Soil']] },
+    { t: 'Earthquakes and volcanoes', l: ['Earthquakes happen when rocks underground suddenly move.', 'Volcanoes are openings where melted rock (magma) comes out. Above ground it is called lava.', 'Scientists study these events to warn people and keep them safe.'], try: 'Make a model volcano with baking soda and vinegar (with an adult).',
+      q: [['Melted rock that comes out of a volcano is called…', 'Lava', 'Sand', 'Ice', 'Soil'], ['Earthquakes happen when…', 'Rocks underground suddenly move', 'It rains a lot', 'The Moon is full', 'Wind blows hard'], ['Melted rock still underground is called…', 'Magma', 'Lava', 'Granite', 'Fossil']] }
+  ]);
+  add('4-soc', [
+    { t: 'Latitude and longitude', l: ['Lines of latitude run east–west and measure distance north or south of the equator.', 'Lines of longitude run north–south and measure distance east or west of the prime meridian.', 'Together they give an exact location, like a grid address.'], try: 'Look up the latitude and longitude of your town.',
+      q: [['Lines of latitude measure distance from the…', 'Equator', 'Prime meridian', 'North Pole only', 'Ocean'], ['Lines of longitude measure distance from the…', 'Prime meridian', 'Equator', 'Moon', 'Sun'], ['Look at the map. Which square has the pond?', 'C1', 'A2', 'B3', 'C3', { t: 'mapgrid', cols: 4, rows: 3, items: [[2, 0, 'pond', 'water'], [0, 1, 'house', 'house'], [3, 2, 'trees', 'tree']] }]] },
+    { t: 'The Gold Rush and the trails west', l: ['In 1848, gold was discovered in California, starting the Gold Rush.', 'Thousands of people, called forty-niners, traveled west to find gold.', 'Many pioneers used the Oregon Trail in covered wagons.'], try: 'Write a diary entry as a pioneer on the Oregon Trail.',
+      q: [['In what year was gold found in California?', '1848', '1776', '1920', '1492'], ['People who rushed to California for gold were called…', 'Forty-niners', 'Pilgrims', 'Loyalists', 'Astronauts'], ['Pioneers going to Oregon traveled in…', 'Covered wagons', 'Airplanes', 'Trains under the sea', 'Cars']] },
+    { t: 'Inventors and inventions', l: ['Inventions change how people live and work.', 'Thomas Edison improved the light bulb. The Wright brothers flew the first airplane in 1903.', 'Inventors test ideas many times before they work.'], try: 'Invent something to solve a problem at home and draw a plan.',
+      q: [['Who flew the first successful airplane?', 'The Wright brothers', 'Thomas Edison', 'George Washington', 'Henry Ford'], ['Who is known for improving the light bulb?', 'Thomas Edison', 'The Wright brothers', 'Abraham Lincoln', 'Sacagawea'], ['What do inventors usually do?', 'Test ideas many times', 'Give up after one try', 'Only copy others', 'Never make mistakes']] }
+  ]);
+
+  /* ───────── GRADE 5 ───────── */
+  add('5-math', [
+    { t: 'The coordinate plane', g: 'coordPlot', l: ['A coordinate grid has an x-axis (across) and a y-axis (up).', 'An ordered pair (x, y) tells how far to go across, then how far up.', 'Always start at the origin (0, 0).'], try: 'Play a battleship-style game on graph paper using ordered pairs.' },
+    { t: 'Multiplying and dividing by powers of 10', g: 'pow10', l: ['Multiplying by 10 moves digits one place to the left: 3.4 × 10 = 34.', 'Multiplying by 100 moves them two places; by 1,000, three places.', 'Dividing by 10 moves digits one place to the right: 56 ÷ 10 = 5.6.'], try: 'Change 2.5 meters into centimeters (× 100).' },
+    { t: 'Reading data', g: 'data5', l: ['Graphs help us compare amounts quickly.', 'Find totals by adding the bars.', 'Find differences by subtracting the shorter bar from the taller bar.'], try: 'Track the high temperature for 5 days and make a bar graph.' }
+  ]);
+  add('5-ela', [
+    { t: 'Idioms and hyperbole', l: ['An idiom is a saying that means something different from its words: "It\'s raining cats and dogs" means it is raining hard.', 'Hyperbole is extreme exaggeration: "I\'ve told you a million times!"', 'Writers use them to add humor and feeling.'], try: 'Draw the silly literal meaning of an idiom, then write its real meaning.',
+      q: [['"Break a leg" means…', 'Good luck', 'Get hurt', 'Run fast', 'Be quiet'], ['"This backpack weighs a ton!" is an example of…', 'Hyperbole', 'A fact', 'A simile', 'Alliteration'], ['"A piece of cake" means something is…', 'Easy', 'Delicious', 'Broken', 'Expensive']] },
+    { t: 'Persuasive techniques', l: ['Persuasive writing tries to convince the reader.', 'Writers use facts, expert opinions, emotional language and strong examples.', 'Good readers notice when an ad uses tricks instead of facts.'], try: 'Write a short ad persuading people to read your favorite book.',
+      q: [['"9 out of 10 dentists recommend this toothpaste" uses…', 'Expert opinion', 'A fairy tale', 'Rhyme', 'Hyperbole only'], ['The purpose of persuasive writing is to…', 'Convince the reader', 'Tell a made-up story', 'List steps', 'Describe a setting'], ['Which is the strongest evidence?', 'A fact from a reliable study', 'A rumor', 'A guess', 'An insult']] },
+    { t: 'Poetry forms', l: ['A haiku has 3 lines with 5, 7 and 5 syllables, often about nature.', 'A limerick is a funny 5-line poem with an AABBA rhyme pattern.', 'Free verse does not follow a set rhyme or rhythm.'], try: 'Write a haiku about something you see outside your window.',
+      q: [['How many lines does a haiku have?', '3', '5', '14', '2'], ['A funny five-line poem with an AABBA rhyme is a…', 'Limerick', 'Haiku', 'Sonnet', 'Ode'], ['The syllable pattern of a haiku is…', '5-7-5', '7-5-7', '3-5-3', '10-10-10']] }
+  ]);
+  add('5-sci', [
+    { t: 'Mixtures and solutions', l: ['A mixture is two or more substances mixed together that can be separated, like trail mix.', 'A solution is a mixture where one substance dissolves completely, like salt in water.', 'Mixtures can be separated by filtering, using magnets, or evaporating.'], try: 'Dissolve salt in water, then leave it in the sun to evaporate and get the salt back.',
+      q: [['Salt stirred into water until it disappears makes a…', 'Solution', 'Solid', 'Gas', 'Rock'], ['How could you separate iron filings from sand?', 'Use a magnet', 'Add water', 'Freeze it', 'Shake it'], ['Trail mix is an example of a…', 'Mixture', 'Solution', 'Pure element', 'Gas']] },
+    { t: 'Adaptations', l: ['Adaptations are traits that help living things survive in their environment.', 'Polar bears have thick fur and fat. Cactuses have spines and store water.', 'Behaviors can be adaptations too, like birds migrating south.'], try: 'Invent an animal adapted to live on a windy mountain and draw it.',
+      q: [['A polar bear\'s thick fur helps it…', 'Stay warm', 'Swim faster in the desert', 'Hide in the jungle', 'Fly'], ['Birds flying south for the winter is a…', 'Behavioral adaptation', 'Physical change', 'Life cycle', 'Habitat'], ['Why does a cactus have spines?', 'To protect it and save water', 'To fly', 'To make noise', 'To attract fish']] },
+    { t: 'Phases of the moon', l: ['The Moon does not make its own light. It reflects sunlight.', 'As the Moon orbits Earth, we see different amounts of its lit side. These are phases.', 'The cycle from new moon to full moon and back takes about a month (29.5 days).'], try: 'Use a lamp and a ball in a dark room to model the moon\'s phases.',
+      q: [['What phase is shown at the "?"', 'full moon', 'new moon', 'crescent', 'first quarter', D('moon', 'full')], ['Why does the Moon shine?', 'It reflects sunlight', 'It is on fire', 'It has lights', 'It is made of ice'], ['About how long is one cycle of moon phases?', 'About a month', 'One day', 'One year', 'One week']] }
+  ]);
+  add('5-soc', [
+    { t: 'Daily life in the colonies', l: ['Most colonists were farmers who grew their own food.', 'Children worked on farms or learned trades as apprentices, like blacksmithing.', 'Towns had meeting houses, churches, shops and markets.'], try: 'Make a schedule for a day in the life of a colonial child.',
+      q: [['Most colonists earned a living by…', 'Farming', 'Working in factories', 'Building cars', 'Flying planes'], ['A young person learning a trade from a master was an…', 'Apprentice', 'Governor', 'Explorer', 'Senator'], ['Where did New England colonists often hold town meetings?', 'Meeting houses', 'Shopping malls', 'Airports', 'Stadiums']] },
+    { t: 'Native peoples and European contact', l: ['Native nations had rich cultures, trade networks and governments long before Europeans came.', 'Europeans brought new goods, but also diseases that killed many Native people.', 'Conflicts over land grew as more colonists arrived.'], try: 'Research the Native nation that first lived where you live now.',
+      q: [['What caused the most deaths among Native peoples after Europeans arrived?', 'Diseases', 'Earthquakes', 'Floods', 'Volcanoes'], ['Before Europeans arrived, Native nations had…', 'Their own governments and trade', 'No cultures', 'No food', 'No homes'], ['What did colonists and Native nations often disagree about?', 'Land', 'Music', 'Colors', 'Holidays']] },
+    { t: 'States and capitals', l: ['The United States has 50 states and a national capital, Washington, D.C.', 'Each state has its own capital city where its government meets.', 'Alaska and Hawaii are the only states not connected to the other 48.'], try: 'Learn 10 state capitals with flash cards.',
+      q: [['What is the capital of the United States?', 'Washington, D.C.', 'New York City', 'Los Angeles', 'Chicago'], ['Which state is made of islands in the Pacific Ocean?', 'Hawaii', 'Alaska', 'Florida', 'Maine'], ['What is the capital of Texas?', 'Austin', 'Houston', 'Dallas', 'San Antonio']] }
+  ]);
+
+  /* ───────── GRADE 6 ───────── */
+  add('6-math', [
+    { t: 'Exponents', g: 'exponents', l: ['An exponent shows repeated multiplication: 2³ = 2 × 2 × 2 = 8.', 'The big number is the base. The small raised number is the exponent.', 'Squaring a number means using the exponent 2: 5² = 25.'], try: 'Make a table of the powers of 2 up to 2¹⁰.' },
+    { t: 'Median, mode and range', g: 'medianMode', l: ['The median is the middle value when numbers are in order.', 'The mode is the value that appears most often.', 'The range is the biggest value minus the smallest.'], try: 'Find the median, mode and range of your family members\' ages.' },
+    { t: 'The four quadrants', g: 'coordQuad', l: ['The coordinate plane has four quadrants, numbered I to IV counterclockwise starting at the top right.', 'In quadrant II, x is negative and y is positive.', 'Points can have negative coordinates, like (−3, 2).'], try: 'Draw a picture on graph paper using points in all four quadrants.' }
+  ]);
+  add('6-ela', [
+    { t: 'Myths and legends', l: ['Myths are ancient stories that explain nature or tell about gods and heroes.', 'Legends are stories about heroes that may be based partly on real people.', 'Many words come from myths, like "echo" and "titanic."'], try: 'Read a Greek myth and write how it explains something in nature.',
+      q: [['Ancient stories that explain nature are…', 'Myths', 'Biographies', 'Recipes', 'News articles'], ['A legend is a story that…', 'May be based partly on a real person', 'Is always completely true', 'Has no characters', 'Is a list of facts'], ['The word "echo" comes from…', 'A Greek myth', 'A science textbook', 'A modern song', 'A math problem']] },
+    { t: 'Narrative writing', l: ['A narrative tells a story with characters, a setting and a plot.', 'Use dialogue, description and sensory details to bring it to life.', 'Build to a climax and end with a resolution.'], try: 'Write a one-page story about a surprising day.',
+      q: [['The most exciting turning point of a story is the…', 'Climax', 'Setting', 'Title', 'Resolution'], ['Sensory details describe…', 'What you see, hear, smell, taste and feel', 'Only numbers', 'The page count', 'The author\'s address'], ['How a story\'s problem is solved is the…', 'Resolution', 'Exposition', 'Rising action', 'Theme']] },
+    { t: 'Greek and Latin roots', l: ['"Bio" means life, "geo" means earth, "graph" means write, "micro" means small.', '"Scope" means see: a microscope helps you see small things.', 'Knowing roots unlocks hundreds of words.'], try: 'Make a word web for the root "graph."',
+      q: [['The root "geo" means…', 'Earth', 'Life', 'Small', 'Write'], ['A "microscope" helps you…', 'See small things', 'Hear far sounds', 'Write fast', 'Measure heat'], ['Which word means "the study of life"?', 'Biology', 'Geology', 'Geography', 'Autograph']] }
+  ]);
+  add('6-sci', [
+    { t: 'Classifying living things', l: ['Scientists sort living things into groups by shared traits.', 'The main levels go from broad to specific: kingdom, phylum, class, order, family, genus, species.', 'Every species has a two-part scientific name, like Homo sapiens for humans.'], try: 'Classify 10 animals into vertebrates and invertebrates.',
+      q: [['The most specific level of classification is…', 'Species', 'Kingdom', 'Phylum', 'Class'], ['The scientific name for humans is…', 'Homo sapiens', 'Canis lupus', 'Felis catus', 'Homo erectus'], ['Animals with backbones are…', 'Vertebrates', 'Invertebrates', 'Plants', 'Fungi']] },
+    { t: 'Microorganisms', l: ['Microorganisms are living things too small to see without a microscope.', 'Bacteria are single-celled. Some cause illness, but many help, like those in yogurt and in our gut.', 'Washing hands removes harmful germs.'], try: 'Look at pond water under a magnifier or microscope and sketch what you see.',
+      q: [['Living things too small to see without a microscope are…', 'Microorganisms', 'Mammals', 'Minerals', 'Molecules only'], ['Which food is made with helpful bacteria?', 'Yogurt', 'Rocks', 'Glass', 'Salt'], ['The best way to remove germs from your hands is…', 'Washing with soap and water', 'Blowing on them', 'Waving them', 'Wiping on clothes']] },
+    { t: 'Layers of the atmosphere', l: ['The atmosphere is the layer of air around Earth.', 'Weather happens in the lowest layer, the troposphere. The ozone layer is in the stratosphere.', 'Above are the mesosphere (where meteors burn up) and thermosphere.'], try: 'Draw the layers of the atmosphere to scale on a long strip of paper.',
+      q: [['Which layer is at the "?" (closest to the ground)?', 'troposphere', 'stratosphere', 'mesosphere', 'thermosphere', D('atmosphere', 'tropo')], ['The ozone layer is found in the…', 'Stratosphere', 'Troposphere', 'Ocean', 'Core'], ['Which layer is at the "?"', 'mesosphere', 'troposphere', 'stratosphere', 'crust', D('atmosphere', 'meso')]] }
+  ]);
+  add('6-soc', [
+    { t: 'Ancient India', l: ['One of the first civilizations grew along the Indus River around 2500 BCE.', 'Indus cities like Mohenjo-daro had planned streets and drainage systems.', 'Hinduism and Buddhism both began in ancient India.'], try: 'Compare Mohenjo-daro\'s city plan with your town\'s.',
+      q: [['Ancient Indian civilization grew along the…', 'Indus River', 'Nile River', 'Amazon River', 'Thames River'], ['Which religion began in ancient India?', 'Buddhism', 'Islam', 'Christianity', 'Judaism'], ['Mohenjo-daro was known for…', 'Planned streets and drains', 'Pyramids', 'Skyscrapers', 'Castles']] },
+    { t: 'Ancient China', l: ['Early Chinese civilization grew along the Yellow River (Huang He).', 'Dynasties were ruling families. The Qin dynasty united China and began the Great Wall.', 'Confucius taught respect for family, elders and good government.'], try: 'Write your name in Chinese characters using an online guide.',
+      q: [['A ruling family in China was called a…', 'Dynasty', 'Senate', 'Parliament', 'Tribe'], ['Who taught respect for family and elders?', 'Confucius', 'Julius Caesar', 'Hammurabi', 'Plato'], ['Which dynasty first united China?', 'Qin', 'Ming', 'Han', 'Tang']] },
+    { t: 'The Maya', l: ['The Maya built great cities in Mexico and Central America, with a peak around 250–900 CE.', 'They built stone pyramids and temples and made accurate calendars.', 'The Maya created a writing system and used the idea of zero.'], try: 'Write your birthday using Maya number symbols (dots and bars).',
+      q: [['Where did the Maya live?', 'Mexico and Central America', 'Egypt', 'China', 'Europe'], ['The Maya were known for accurate…', 'Calendars', 'Steam engines', 'Airplanes', 'Printing presses'], ['Which math idea did the Maya use?', 'Zero', 'Calculus', 'Negative numbers on computers', 'Algebra symbols']] }
+  ]);
+})();
+
+/* Lantern Homeschool — added units for grades 7–12 (appended after the original 5 so saved progress stays matched).
+   Quiz rows: [question, correct, wrong1, wrong2, wrong3, picture?] */
+(function () {
+  const C = window.LH_COURSES, KA = 'https://www.khanacademy.org/';
+  const add = (k, units) => { C[k].u.push(...units); };
+  const D = (d, mark) => ({ t: 'd', d, mark });
+
+  /* ───────── GRADE 7 ───────── */
+  add('7-math', [
+    { t: 'Percent increase and decrease', g: 'pctChange', l: ['Percent change = (new − old) ÷ old × 100.', 'If the number went up, it is a percent increase. If it went down, it is a percent decrease.', 'Always divide by the ORIGINAL amount, not the new one.'], try: 'Find the percent change in the price of something your family buys often over the last year.' },
+    { t: 'Angle relationships', g: 'angleRel', l: ['Complementary angles add to 90°. Supplementary angles add to 180°.', 'Vertical angles (across from each other where two lines cross) are equal.', 'Angles on a straight line add to 180°.'], try: 'Draw two crossing lines, measure all four angles, and check which pairs match.' },
+    { t: 'Scale drawings', g: 'scaleDraw', l: ['A scale compares a drawing to the real thing, like 1 cm : 5 m.', 'Multiply the drawing length by the scale to get the real length.', 'Maps and floor plans are scale drawings.'], try: 'Make a scale drawing of your bedroom using 1 square = 1 foot.' }
+  ]);
+  add('7-ela', [
+    { t: 'Reading drama', l: ['A drama is a story written to be performed. It is divided into acts and scenes.', 'Stage directions (often in italics or brackets) tell actors how to move and speak.', 'Dialogue is the characters\' spoken lines. A monologue is a long speech by one character.'], try: 'Rewrite a short scene from a favorite book as a script with stage directions.',
+      q: [['Instructions telling actors how to move are called…', 'Stage directions', 'Dialogue', 'Footnotes', 'Stanzas'], ['Plays are divided into…', 'Acts and scenes', 'Chapters and verses', 'Stanzas and lines', 'Units and lessons'], ['A long speech by one character is a…', 'Monologue', 'Dialogue', 'Chorus', 'Prologue']] },
+    { t: 'Text features in nonfiction', l: ['Text features help readers find and understand information.', 'Headings organize sections. Captions explain pictures. The glossary defines key words.', 'The index lists topics alphabetically with page numbers.'], try: 'Pick a nonfiction book and list five text features you find in it.',
+      q: [['Where would you look up the meaning of a key word in a book?', 'Glossary', 'Title page', 'Caption', 'Heading'], ['Words that explain a picture are a…', 'Caption', 'Heading', 'Index', 'Table of contents'], ['An alphabetical list of topics with page numbers is the…', 'Index', 'Glossary', 'Preface', 'Bibliography']] },
+    { t: 'Commonly confused words', l: ['their (belongs to them), there (a place), they\'re (they are).', 'your (belongs to you), you\'re (you are); its (belongs to it), it\'s (it is).', 'affect is usually a verb; effect is usually a noun. Then is about time; than compares.'], try: 'Write five sentences that use each confusing pair correctly.',
+      q: [['Choose the correct word: "___ going to the park."', 'They\'re', 'Their', 'There', 'Thier'], ['Choose the correct word: "The dog wagged ___ tail."', 'its', 'it\'s', 'its\'', 'it is'], ['Choose the correct word: "She is taller ___ me."', 'than', 'then', 'thin', 'that']] }
+  ]);
+  add('7-sci', [
+    { t: 'Waves and sound', l: ['A wave carries energy from place to place.', 'The top of a wave is the crest and the bottom is the trough. Wavelength is the distance from crest to crest.', 'Amplitude is the height of a wave. In sound, bigger amplitude = louder; higher frequency = higher pitch.'], try: 'Stretch a rubber band and pluck it. Make it tighter and listen to the pitch change.',
+      q: [['What part of the wave is marked "?"', 'Crest', 'Trough', 'Amplitude', 'Wavelength', D('wave', 'crest')], ['What is shown at the "?"', 'Wavelength', 'Amplitude', 'Trough', 'Frequency', D('wave', 'wavelength')], ['A louder sound has a bigger…', 'Amplitude', 'Wavelength only', 'Trough', 'Silence']] },
+    { t: 'The rock cycle', l: ['Igneous rock forms when melted rock (magma or lava) cools.', 'Sedimentary rock forms when layers of sediment are pressed and cemented together.', 'Metamorphic rock forms when heat and pressure change an existing rock.'], try: 'Make a "rock cycle" with crayon shavings: press them (sedimentary), warm them (metamorphic), melt them (igneous).',
+      q: [['Which rock type is marked "?" (forms from cooled lava)?', 'Igneous', 'Sedimentary', 'Metamorphic', 'Mineral', D('rocks', 'igneous')], ['Rock made from pressed layers of sediment is…', 'Sedimentary', 'Igneous', 'Metamorphic', 'Lava'], ['Heat and pressure change rock into…', 'Metamorphic rock', 'Sedimentary rock', 'Soil', 'Magma only']] },
+    { t: 'Cell division (mitosis)', l: ['Cells divide so living things can grow and repair themselves.', 'In mitosis, one cell copies its DNA and splits into two identical cells.', 'The stages are prophase, metaphase, anaphase and telophase (PMAT).'], try: 'Model mitosis with pipe cleaners or yarn as chromosomes.',
+      q: [['Mitosis makes…', 'Two identical cells', 'Four different cells', 'One bigger cell', 'No new cells'], ['The correct order of mitosis stages is…', 'Prophase, metaphase, anaphase, telophase', 'Anaphase, prophase, telophase, metaphase', 'Metaphase, prophase, telophase, anaphase', 'Telophase, anaphase, metaphase, prophase'], ['Which part of the cell holds the DNA?', 'Nucleus', 'Membrane', 'Cytoplasm', 'Mitochondria', D('cell', 'nucleus')]] }
+  ]);
+  add('7-soc', [
+    { t: 'The Mongol Empire', l: ['Genghis Khan united the Mongol tribes in 1206 and built the largest land empire in history.', 'Mongol riders were skilled horse archers who moved fast across the steppe.', 'The empire protected the Silk Road, helping trade and ideas move between Asia and Europe.'], try: 'Trace the Silk Road on a map and list goods traded along it.',
+      q: [['Who united the Mongol tribes?', 'Genghis Khan', 'Julius Caesar', 'Charlemagne', 'Confucius'], ['The Mongol Empire helped protect the…', 'Silk Road', 'Panama Canal', 'Great Wall only', 'Amazon River'], ['Mongol soldiers were famous as…', 'Horse archers', 'Sailors', 'Knights in castles', 'Samurai']] },
+    { t: 'Feudal Japan', l: ['Japan was led by a shogun (military leader), while the emperor was mostly a symbol.', 'Daimyo were lords, and samurai were warriors who followed a code called bushido.', 'Japan is an island nation, which shaped its culture and defense.'], try: 'Write a short paragraph comparing samurai with European knights.',
+      q: [['The military ruler of feudal Japan was the…', 'Shogun', 'Pharaoh', 'Czar', 'Sultan'], ['The samurai code of honor was…', 'Bushido', 'Chivalry', 'Feudalism', 'Shinto'], ['Japanese lords who owned land were…', 'Daimyo', 'Peasants', 'Knights', 'Monks']] },
+    { t: 'The Scientific Revolution', l: ['From the 1500s–1600s, thinkers began testing ideas with observation and experiments.', 'Copernicus said Earth orbits the Sun. Galileo used a telescope to support this.', 'Isaac Newton described gravity and the laws of motion.'], try: 'Follow the steps of the scientific method on a simple question at home.',
+      q: [['Who said Earth orbits the Sun?', 'Copernicus', 'Ptolemy', 'Aristotle', 'Columbus'], ['Galileo improved and used the…', 'Telescope', 'Steam engine', 'Printing press', 'Microscope only'], ['Who described the laws of motion and gravity?', 'Isaac Newton', 'Martin Luther', 'Leonardo da Vinci', 'William Shakespeare']] }
+  ]);
+
+  /* ───────── GRADE 8 ───────── */
+  add('8-math', [
+    { t: 'Function tables', g: 'funcTable', l: ['A function gives exactly one output for each input.', 'Find the rule by seeing how y changes when x goes up by 1 (the rate of change).', 'A linear rule looks like y = mx + b.'], try: 'Make a table for "y = 3x + 2" from x = 0 to 5 and graph it.' },
+    { t: 'Volume of cylinders, cones and spheres', g: 'volume3d', l: ['Cylinder: V = πr²h.', 'Cone: V = ⅓πr²h (one-third of a cylinder).', 'Sphere: V = ⁴⁄₃πr³.'], try: 'Measure a can and find its volume. Check by filling it with water.' },
+    { t: 'Transformations', g: 'transform', l: ['A translation slides a shape. A reflection flips it. A rotation turns it.', 'A dilation makes it bigger or smaller.', 'Translations, reflections and rotations keep the same size and shape.'], try: 'Trace a shape and slide, flip and turn it on graph paper. Write the new coordinates.' }
+  ]);
+  add('8-ela', [
+    { t: 'Memoir and literary nonfiction', l: ['A memoir is a true story about a part of the author\'s own life.', 'Literary nonfiction uses storytelling tools like dialogue, imagery and suspense, but it is true.', 'Memoirs are written in first person ("I").'], try: 'Write a one-page memoir about a day you will never forget.',
+      q: [['A true story about part of the author\'s life is a…', 'Memoir', 'Myth', 'Fable', 'Science fiction'], ['Memoirs are usually told in…', 'First person', 'Third person only', 'Second person', 'No person'], ['Literary nonfiction is…', 'True, but told like a story', 'Made up', 'Only poems', 'Only charts']] },
+    { t: 'Writing an argument', l: ['An argument has a claim (your position) supported by reasons and evidence.', 'A counterclaim is the other side. A strong essay answers it with a rebuttal.', 'Use credible sources and explain how your evidence supports the claim.'], try: 'Write an argument paragraph: Should students have homework?',
+      q: [['The main position in an argument is the…', 'Claim', 'Counterclaim', 'Hook', 'Citation'], ['Responding to the other side is a…', 'Rebuttal', 'Summary', 'Thesis', 'Title'], ['Which is the strongest evidence?', 'Data from a trusted study', 'A rumor', 'A guess', 'An insult']] },
+    { t: 'Verbals: gerunds, participles, infinitives', l: ['Verbals are verb forms used as other parts of speech.', 'A gerund is an -ing verb used as a noun: "Swimming is fun."', 'A participle acts as an adjective ("the broken vase"). An infinitive is "to" + verb ("I want to win").'], try: 'Find one gerund, one participle and one infinitive in a book you\'re reading.',
+      q: [['In "Swimming is fun," "swimming" is a…', 'Gerund', 'Infinitive', 'Participle', 'Adverb'], ['In "I want to win," "to win" is an…', 'Infinitive', 'Gerund', 'Interjection', 'Article'], ['In "the broken vase," "broken" is a…', 'Participle', 'Gerund', 'Infinitive', 'Pronoun']] }
+  ]);
+  add('8-sci', [
+    { t: 'Electricity and magnetism', l: ['An electric current flowing through a wire creates a magnetic field.', 'An electromagnet is a coil of wire around iron; it is magnetic only while current flows.', 'Like poles repel and opposite poles attract.'], try: 'Wrap wire around a nail, connect it to a battery and pick up paper clips (with an adult).',
+      q: [['These magnets are…', 'Repelling', 'Attracting', 'Melting', 'Not magnetic', { t: 'd', d: 'magnet', mark: 'repel' }], ['These magnets are…', 'Attracting', 'Repelling', 'Spinning', 'Broken', { t: 'd', d: 'magnet', mark: 'attract' }], ['An electromagnet works only when…', 'Electric current flows', 'It is cold', 'It is wet', 'It is painted']] },
+    { t: 'The periodic table', l: ['Elements are arranged by atomic number (number of protons).', 'Rows are periods; columns are groups. Elements in a group behave alike.', 'Metals are on the left, nonmetals on the right, and noble gases in the far-right column.'], try: 'Pick 5 elements and find one everyday use for each.',
+      q: [['Elements are arranged by…', 'Atomic number', 'Color', 'Name', 'Discovery date'], ['A vertical column on the periodic table is a…', 'Group', 'Period', 'Row', 'Shell'], ['What part of the atom is marked "?"', 'Nucleus', 'Electron', 'Shell', 'Bond', D('atom', 'nucleus')]] },
+    { t: 'Human impact on the environment', l: ['People change ecosystems by clearing land, using resources and creating pollution.', 'Burning fossil fuels adds carbon dioxide to the air.', 'Conservation, recycling and renewable energy reduce our impact.'], try: 'Track your household trash for a week and plan two ways to reduce it.',
+      q: [['Which is a renewable energy source?', 'Wind', 'Coal', 'Oil', 'Natural gas'], ['Burning fossil fuels releases…', 'Carbon dioxide', 'Pure oxygen', 'Fresh water', 'Gold'], ['Which choice best helps reduce waste?', 'Reusing and recycling', 'Throwing more away', 'Burning plastic', 'Buying extra packaging']] }
+  ]);
+  add('8-soc', [
+    { t: 'War of 1812 and the Era of Good Feelings', l: ['The U.S. fought Britain in the War of 1812 over trade and the forcing of sailors into the British navy (impressment).', 'Francis Scott Key wrote "The Star-Spangled Banner" during the attack on Fort McHenry.', 'After the war, national pride grew in a period called the Era of Good Feelings.'], try: 'Read all the verses of "The Star-Spangled Banner" and explain what they describe.',
+      q: [['The U.S. fought which nation in the War of 1812?', 'Britain', 'France', 'Spain', 'Mexico'], ['"The Star-Spangled Banner" was written during the attack on…', 'Fort McHenry', 'Fort Sumter', 'Pearl Harbor', 'Bunker Hill'], ['Forcing American sailors into the British navy was called…', 'Impressment', 'Taxation', 'Nullification', 'Annexation']] },
+    { t: 'Jacksonian democracy', l: ['Andrew Jackson (president 1829–1837) was seen as a champion of the "common man."', 'Voting rights grew for white men who did not own property.', 'The Indian Removal Act forced Native nations west; the Cherokee\'s forced march is called the Trail of Tears.'], try: 'Write a short report on the Cherokee Nation and the Trail of Tears.',
+      q: [['Andrew Jackson was called a champion of the…', 'Common man', 'King', 'Wealthy only', 'British'], ['The forced removal of the Cherokee is known as the…', 'Trail of Tears', 'Oregon Trail', 'Underground Railroad', 'Long Drive'], ['Which law forced Native nations west?', 'Indian Removal Act', 'Homestead Act', 'Stamp Act', 'Civil Rights Act']] },
+    { t: 'Abolition and women\'s rights', l: ['Abolitionists worked to end slavery. Frederick Douglass and Harriet Tubman were leaders.', 'Harriet Tubman led many people to freedom on the Underground Railroad.', 'The 1848 Seneca Falls Convention launched the women\'s rights movement.'], try: 'Read part of Frederick Douglass\'s narrative and summarize it.',
+      q: [['People who worked to end slavery were…', 'Abolitionists', 'Loyalists', 'Federalists', 'Isolationists'], ['Who led people to freedom on the Underground Railroad?', 'Harriet Tubman', 'Andrew Jackson', 'John Adams', 'Robert E. Lee'], ['The women\'s rights movement began at…', 'Seneca Falls', 'Gettysburg', 'Yorktown', 'Jamestown']] }
+  ]);
+
+  /* ───────── GRADE 9 ───────── */
+  add('9-math', [
+    { t: 'Solving inequalities', g: 'inequality', l: ['Solve an inequality like an equation: do the same thing to both sides.', 'If you multiply or divide by a negative number, flip the inequality sign.', 'Graph the answer on a number line: open circle for < or >, closed circle for ≤ or ≥.'], try: 'Write an inequality for "I need at least $40 and earn $8 an hour."' },
+    { t: 'Parabolas and the vertex', g: 'vertex', l: ['The graph of a quadratic is a U-shaped curve called a parabola.', 'The vertex is its turning point. For y = ax² + bx + c, the vertex x is −b ÷ 2a.', 'If a > 0 the parabola opens up; if a < 0 it opens down.'], try: 'Graph y = x² − 4x + 3 and label its vertex and zeros.' },
+    { t: 'Arithmetic and geometric sequences', g: 'arithGeo', l: ['An arithmetic sequence adds the same number each time: 3, 7, 11, 15 (+4).', 'A geometric sequence multiplies by the same number: 2, 6, 18, 54 (×3).', 'Find the pattern, then use it to find the next term.'], try: 'Fold a paper in half again and again. Write the sequence of layers.' }
+  ]);
+  add('9-ela', [
+    { t: 'Romeo and Juliet', r: [['Folger · Romeo and Juliet', 'https://www.folger.edu/explore/shakespeares-works/romeo-and-juliet/']], l: ['Shakespeare\'s tragedy follows two young lovers from feuding families in Verona.', 'The prologue is a sonnet that tells the audience the ending: the "star-crossed lovers" will die.', 'Dramatic irony happens when the audience knows something the characters don\'t.'], try: 'Read Act 2, Scene 2 (the balcony scene) aloud and paraphrase it in modern English.',
+      q: [['Romeo and Juliet\'s families are…', 'Feuding', 'Best friends', 'Royal', 'Unknown to each other'], ['When the audience knows something the characters don\'t, it is…', 'Dramatic irony', 'Alliteration', 'A soliloquy', 'Foreshadowing only'], ['The play is set in…', 'Verona', 'London', 'Athens', 'Paris']] },
+    { t: 'Sonnets', l: ['A sonnet is a 14-line poem, usually in iambic pentameter.', 'A Shakespearean sonnet has three quatrains and a final rhyming couplet (ABAB CDCD EFEF GG).', 'The volta is the "turn" where the poem shifts its idea.'], try: 'Write your own 14-line sonnet about something you love.',
+      q: [['How many lines are in a sonnet?', '14', '12', '10', '16'], ['A Shakespearean sonnet ends with a…', 'Rhyming couplet', 'Haiku', 'Chorus', 'Refrain'], ['The "turn" in a sonnet is called the…', 'Volta', 'Stanza', 'Meter', 'Couplet']] },
+    { t: 'Research and MLA citation', l: ['Good research uses credible sources: experts, published, current and unbiased.', 'MLA style uses in-text citations like (Smith 42) and a Works Cited page.', 'Quoting or paraphrasing without citing is plagiarism.'], try: 'Find three sources on a topic and write their Works Cited entries.',
+      q: [['In MLA, the list of sources is called…', 'Works Cited', 'Index', 'Glossary', 'Appendix'], ['Using someone\'s ideas without credit is…', 'Plagiarism', 'Paraphrasing', 'Summarizing', 'Citing'], ['Which source is most credible?', 'A university study', 'An anonymous comment', 'An ad', 'A rumor']] }
+  ]);
+  add('9-sci', [
+    { t: 'Homeostasis', l: ['Homeostasis is how the body keeps its inside conditions stable.', 'Sweating cools you down; shivering warms you up.', 'Negative feedback loops reverse a change to bring the body back to balance.'], try: 'Take your pulse at rest and after exercise, then track how long it takes to return to normal.',
+      q: [['Keeping internal conditions stable is called…', 'Homeostasis', 'Photosynthesis', 'Evolution', 'Mitosis'], ['When you\'re too hot, your body…', 'Sweats', 'Shivers', 'Stops breathing', 'Grows'], ['A loop that reverses a change is…', 'Negative feedback', 'Positive feedback', 'Mutation', 'Diffusion']] },
+    { t: 'Viruses and the immune system', l: ['Viruses are not cells. They must enter a host cell to make copies of themselves.', 'White blood cells fight germs. Antibodies attach to invaders and mark them for destruction.', 'Vaccines train the immune system to recognize a germ before you get sick.'], try: 'Draw how a virus enters a cell and makes copies.',
+      q: [['Viruses need a ___ to reproduce.', 'Host cell', 'Sunlight', 'Rock', 'Magnet'], ['Proteins that mark invaders are…', 'Antibodies', 'Hormones', 'Enzymes only', 'Vitamins'], ['Which cell part is marked "?" (the outer barrier)?', 'Membrane', 'Nucleus', 'Mitochondria', 'Cytoplasm', D('cell', 'membrane')]] },
+    { t: 'Taxonomy and the tree of life', l: ['Taxonomy is the science of naming and classifying living things.', 'All life is grouped into three domains: Bacteria, Archaea and Eukarya.', 'A cladogram shows how groups are related through shared ancestors.'], try: 'Make a dichotomous key for 6 objects in your kitchen.',
+      q: [['The three domains are Bacteria, Archaea and…', 'Eukarya', 'Plantae', 'Animalia', 'Fungi'], ['A diagram showing evolutionary relationships is a…', 'Cladogram', 'Pie chart', 'Map', 'Timeline'], ['Who created the two-part naming system?', 'Linnaeus', 'Darwin', 'Mendel', 'Pasteur']] }
+  ]);
+  add('9-soc', [
+    { t: 'Imperialism', l: ['Imperialism is when a strong nation takes control of other lands.', 'In the late 1800s, European powers divided Africa at the Berlin Conference (1884–85).', 'Industrial nations wanted raw materials, markets and power.'], try: 'Compare a map of Africa in 1914 with today.',
+      q: [['A strong nation taking control of other lands is…', 'Imperialism', 'Democracy', 'Isolationism', 'Socialism'], ['European powers divided Africa at the…', 'Berlin Conference', 'Congress of Vienna', 'Treaty of Paris', 'Yalta Conference'], ['A major reason for imperialism was the need for…', 'Raw materials', 'Less trade', 'Fewer factories', 'Smaller armies']] },
+    { t: 'Decolonization', l: ['After World War II, many colonies in Asia and Africa won independence.', 'India gained independence in 1947 after a nonviolent movement led by Gandhi.', 'Ghana became the first sub-Saharan African colony to win independence, in 1957.'], try: 'Choose one country that gained independence after 1945 and make a timeline of its path.',
+      q: [['Who led India\'s nonviolent independence movement?', 'Mahatma Gandhi', 'Winston Churchill', 'Napoleon', 'Mao Zedong'], ['India became independent in…', '1947', '1776', '1914', '1990'], ['The first sub-Saharan African colony to gain independence was…', 'Ghana', 'Egypt', 'Brazil', 'Canada']] },
+    { t: 'Globalization', l: ['Globalization means countries are increasingly connected through trade, travel and technology.', 'Products are often made with parts from many countries.', 'Benefits include cheaper goods and shared ideas; challenges include job shifts and cultural change.'], try: 'Check the labels on 10 items at home and map where they were made.',
+      q: [['Countries becoming more connected through trade and technology is…', 'Globalization', 'Feudalism', 'Isolation', 'Colonization'], ['Which helped globalization the most?', 'The internet', 'The horse cart', 'Stone tools', 'Castles'], ['One challenge of globalization is…', 'Jobs moving between countries', 'Less trade', 'No new ideas', 'Slower travel']] }
+  ]);
+
+  /* ───────── GRADE 10 ───────── */
+  add('10-math', [
+    { t: 'Area of composite figures', g: 'compositeArea', l: ['A composite figure is made of simpler shapes.', 'Split it into rectangles, triangles or circles, find each area, then add.', 'If a piece is cut out, subtract its area.'], try: 'Sketch the floor plan of your home and find its total area.' },
+    { t: 'Volume of solids', g: 'volumeSolids', l: ['Prism or cylinder: V = (area of base) × height.', 'Pyramid or cone: V = ⅓ × (area of base) × height.', 'Sphere: V = ⁴⁄₃πr³.'], try: 'Find the volume of three boxes or cans in your kitchen.' },
+    { t: 'Transformations on the plane', g: 'transformGeo', l: ['Translate (x, y) → (x + a, y + b).', 'Reflect over the x-axis: (x, y) → (x, −y). Over the y-axis: (x, y) → (−x, y).', 'Rotate 90° counterclockwise: (x, y) → (−y, x). Rotate 180°: (x, y) → (−x, −y).'], try: 'Plot a triangle and draw it after each rule.' }
+  ]);
+  add('10-ela', [
+    { t: 'Satire', l: ['Satire uses humor, irony and exaggeration to criticize people or society.', 'Jonathan Swift\'s "A Modest Proposal" (1729) is a famous example.', 'Satire aims to make readers think, not just laugh.'], try: 'Find a satirical article or cartoon and explain what it criticizes.',
+      q: [['Satire uses humor to…', 'Criticize society', 'Teach math', 'Tell a recipe', 'Report the weather'], ['Who wrote "A Modest Proposal"?', 'Jonathan Swift', 'Mark Twain', 'Jane Austen', 'Homer'], ['Big exaggeration for effect is called…', 'Hyperbole', 'Simile', 'Rhyme', 'Alliteration']] },
+    { t: 'Greek tragedy', l: ['Greek tragedies were performed in ancient Athens. Sophocles wrote "Oedipus Rex" and "Antigone."', 'The tragic hero has a tragic flaw, such as hubris (too much pride).', 'The chorus comments on the action. Catharsis is the release of emotion the audience feels.'], try: 'Read a summary of "Antigone" and decide who the tragic hero is.',
+      q: [['Excessive pride in Greek tragedy is called…', 'Hubris', 'Catharsis', 'Irony', 'Chorus'], ['Who wrote "Oedipus Rex"?', 'Sophocles', 'Shakespeare', 'Homer', 'Virgil'], ['The emotional release an audience feels is…', 'Catharsis', 'Hubris', 'Exposition', 'Climax']] },
+    { t: 'Media literacy', l: ['Ask: Who made this? Why? What is left out?', 'Check claims with several reliable sources before sharing them.', 'Watch for bias, loaded language and images that are edited or out of context.'], try: 'Compare how two news outlets cover the same story.',
+      q: [['Before sharing a surprising claim, you should…', 'Check reliable sources', 'Share it right away', 'Trust the headline', 'Ignore the source'], ['Words chosen to stir strong feelings are…', 'Loaded language', 'Neutral language', 'Citations', 'Statistics'], ['A one-sided view is called…', 'Bias', 'Balance', 'Evidence', 'Fact']] }
+  ]);
+  add('10-sci', [
+    { t: 'Gas laws', l: ['Boyle\'s law: at constant temperature, pressure and volume are inversely related (P₁V₁ = P₂V₂).', 'Charles\'s law: at constant pressure, volume increases with temperature (in kelvin).', 'Ideal gas law: PV = nRT.'], try: 'Put a balloon in the freezer, then in warm water, and observe its size.',
+      q: [['If the volume of a gas is halved at constant temperature, the pressure…', 'Doubles', 'Halves', 'Stays the same', 'Becomes zero'], ['The ideal gas law is…', 'PV = nRT', 'F = ma', 'E = mc²', 'V = IR'], ['Gas laws use temperature in…', 'Kelvin', 'Fahrenheit', 'Feet', 'Grams']] },
+    { t: 'Acids and bases', l: ['The pH scale runs from 0 to 14. Below 7 is acidic, 7 is neutral, above 7 is basic.', 'Lemon juice and vinegar are acids. Soap and baking soda are bases.', 'An acid and a base neutralize each other to form water and a salt.'], try: 'Make red-cabbage indicator and test household liquids.',
+      q: [['The "?" on this pH scale shows a…', 'Acid', 'Base', 'Neutral', 'Salt', D('ph', 'acid')], ['Pure water has a pH of…', '7', '1', '14', '0', D('ph', 'neutral')], ['An acid plus a base makes water and a…', 'Salt', 'Metal', 'Gas only', 'Protein']] },
+    { t: 'Types of chemical reactions', l: ['Synthesis: A + B → AB. Decomposition: AB → A + B.', 'Single replacement: A + BC → AC + B. Double replacement: AB + CD → AD + CB.', 'Combustion: a fuel reacts with oxygen to make carbon dioxide and water.'], try: 'Classify 5 reactions you see in daily life (cooking, rusting, burning).',
+      q: [['2H₂ + O₂ → 2H₂O is a…', 'Synthesis reaction', 'Decomposition reaction', 'Single replacement', 'Double replacement'], ['A fuel burning in oxygen is…', 'Combustion', 'Synthesis', 'Neutralization', 'Fusion'], ['AB → A + B is a…', 'Decomposition reaction', 'Synthesis reaction', 'Combustion', 'Double replacement']] }
+  ]);
+  add('10-soc', [
+    { t: 'The Cold War', l: ['After WWII, the U.S. and the Soviet Union competed for power without fighting each other directly.', 'The arms race and space race were key parts. The Berlin Wall divided Berlin from 1961 to 1989.', 'The Cuban Missile Crisis (1962) brought the world close to nuclear war.'], try: 'Interview someone who remembers the Cold War or the fall of the Berlin Wall.',
+      q: [['The Cold War was mainly between the U.S. and the…', 'Soviet Union', 'United Kingdom', 'Japan', 'Mexico'], ['The Berlin Wall fell in…', '1989', '1945', '1961', '2001'], ['The 1962 standoff over missiles in Cuba was the…', 'Cuban Missile Crisis', 'Bay of Pigs', 'Korean War', 'Watergate scandal']] },
+    { t: 'The 1960s and 1970s', l: ['The Civil Rights Act (1964) and Voting Rights Act (1965) outlawed discrimination.', 'The Vietnam War divided Americans and led to large protests.', 'Apollo 11 landed on the Moon in 1969. The Watergate scandal led President Nixon to resign in 1974.'], try: 'Make a timeline of 10 key events from 1960–1979.',
+      q: [['Apollo 11 landed on the Moon in…', '1969', '1959', '1979', '1989'], ['Which president resigned because of Watergate?', 'Richard Nixon', 'John F. Kennedy', 'Jimmy Carter', 'Ronald Reagan'], ['The Voting Rights Act was passed in…', '1965', '1865', '1920', '2000']] },
+    { t: 'Modern America', l: ['The personal computer and internet transformed work and daily life from the 1980s on.', 'The September 11, 2001 attacks led to new security policies and wars in Afghanistan and Iraq.', 'In 2008 Barack Obama was elected the first African American president.'], try: 'Ask a family member how technology has changed since they were your age.',
+      q: [['The September 11 attacks happened in…', '2001', '1991', '2011', '1989'], ['Who was the first African American president?', 'Barack Obama', 'Bill Clinton', 'George W. Bush', 'Joe Biden'], ['Which invention changed communication the most since the 1990s?', 'The internet', 'The telegraph', 'The steam engine', 'The cotton gin']] }
+  ]);
+
+  /* ───────── GRADE 11 ───────── */
+  add('11-math', [
+    { t: 'Simplifying radicals', g: 'radicals', l: ['Look for perfect-square factors: √50 = √(25 × 2) = 5√2.', '√a × √b = √(ab).', 'Only combine like radicals: 2√3 + 5√3 = 7√3.'], try: 'Simplify √8, √18, √32 and √72. What pattern do you notice?' },
+    { t: 'Counting: permutations and combinations', g: 'counting', l: ['The counting principle: multiply the number of choices for each step.', 'Permutations count arrangements where order matters: nPr = n! ÷ (n − r)!.', 'Combinations count groups where order does not matter: nCr = n! ÷ (r!(n − r)!).'], try: 'How many different 3-scoop ice cream cones can you make from 5 flavors?' },
+    { t: 'The normal distribution', g: 'normal', l: ['Many data sets form a bell-shaped curve called the normal distribution.', 'About 68% of data falls within 1 standard deviation of the mean, 95% within 2, and 99.7% within 3.', 'A z-score tells how many standard deviations a value is from the mean.'], try: 'Measure the heights of 20 people (or plants) and make a histogram.' }
+  ]);
+  add('11-ela', [
+    { t: 'The Harlem Renaissance', l: ['In the 1920s, Harlem in New York City became a center of Black art, music and writing.', 'Langston Hughes wrote poems like "I, Too" and "Harlem." Zora Neale Hurston wrote "Their Eyes Were Watching God."', 'Jazz and blues rhythms influenced the poetry.'], try: 'Read "I, Too" by Langston Hughes and write about its message.',
+      q: [['The Harlem Renaissance took place mainly in the…', '1920s', '1860s', '1960s', '1990s'], ['Who wrote "I, Too"?', 'Langston Hughes', 'Robert Frost', 'Walt Whitman', 'Emily Dickinson'], ['Which music influenced Harlem Renaissance poetry?', 'Jazz and blues', 'Opera only', 'Hip-hop', 'Classical only']] },
+    { t: 'Literature of the Great Depression', l: ['John Steinbeck wrote about workers and migrants in the 1930s.', '"Of Mice and Men" follows George and Lennie, who dream of owning a farm.', '"The Grapes of Wrath" tells of the Joad family fleeing the Dust Bowl for California.'], try: 'Look at Dorothea Lange\'s Depression photographs and write about one.',
+      q: [['Who wrote "The Grapes of Wrath"?', 'John Steinbeck', 'F. Scott Fitzgerald', 'Ernest Hemingway', 'Mark Twain'], ['George and Lennie dream of owning a…', 'Farm', 'Ship', 'Factory', 'Castle'], ['The Joad family flees the…', 'Dust Bowl', 'Gold Rush', 'Civil War', 'Great Lakes']] },
+    { t: 'Synthesis essays', l: ['A synthesis essay combines ideas from several sources to support your own position.', 'Don\'t just summarize each source. Put the sources in conversation with each other.', 'Cite every source you use.'], try: 'Read three short articles on one topic and write a paragraph combining their ideas.',
+      q: [['A synthesis essay combines…', 'Several sources to support a position', 'One source only', 'No sources', 'Only personal stories'], ['The weakest synthesis essay…', 'Summarizes each source separately', 'Connects sources', 'Has a clear claim', 'Cites sources'], ['In a synthesis essay, every source should be…', 'Cited', 'Hidden', 'Copied word for word', 'Ignored']] }
+  ]);
+  add('11-sci', [
+    { t: 'Circular motion and gravity', l: ['An object moving in a circle is always accelerating toward the center (centripetal acceleration).', 'Newton\'s law of gravitation: every mass attracts every other mass; the force weakens with the square of the distance.', 'Satellites stay in orbit because they fall around Earth.'], try: 'Swing a bucket of water in a vertical circle (outside!) and explain why it stays in.',
+      q: [['Centripetal force points…', 'Toward the center', 'Away from the center', 'Straight up', 'Nowhere'], ['If the distance between two masses doubles, gravity becomes…', 'One-fourth as strong', 'Twice as strong', 'Half as strong', 'Unchanged'], ['Satellites stay in orbit because they…', 'Keep falling around Earth', 'Have no mass', 'Are pushed by wind', 'Float on air']] },
+    { t: 'Magnetism and circuits', l: ['Current needs a closed loop (a complete circuit) to flow.', 'Ohm\'s law: V = IR (voltage = current × resistance).', 'A moving magnet near a coil of wire creates current; this is how generators work.'], try: 'Build a simple circuit with a battery, switch and bulb and test it open and closed.',
+      q: [['In this circuit, the switch is open. The bulb is…', 'Off', 'On', 'Brighter', 'Melting', D('circuit', 'open')], ['Ohm\'s law is…', 'V = IR', 'F = ma', 'PV = nRT', 'E = mc²'], ['Generators make electricity using…', 'Magnets and coils of wire', 'Only batteries', 'Sound', 'Ice']] },
+    { t: 'Thermodynamics', l: ['Heat flows from hot objects to cold objects.', 'First law: energy cannot be created or destroyed, only changed in form.', 'Second law: entropy (disorder) of an isolated system tends to increase.'], try: 'Put an ice cube in warm water and record the temperature every minute.',
+      q: [['Heat naturally flows from…', 'Hot to cold', 'Cold to hot', 'Up to down', 'It never flows'], ['The first law of thermodynamics says energy is…', 'Conserved', 'Destroyed', 'Created from nothing', 'Always heat'], ['Disorder in a system is called…', 'Entropy', 'Enthalpy', 'Inertia', 'Momentum']] }
+  ]);
+  add('11-soc', [
+    { t: 'Federalism and checks and balances', l: ['Federalism divides power between national and state governments.', 'The three branches: legislative (makes laws), executive (enforces laws), judicial (interprets laws).', 'Checks and balances let each branch limit the others, like a presidential veto.'], try: 'Find one power your state has that the national government does not.',
+      q: [['Which branch is marked "?" (makes laws)?', 'Legislative', 'Executive', 'Judicial', 'Federal', D('branches', 'legislative')], ['Which branch is marked "?" (led by the president)?', 'Executive', 'Legislative', 'Judicial', 'State', D('branches', 'executive')], ['Sharing power between national and state governments is…', 'Federalism', 'Monarchy', 'Anarchy', 'Feudalism']] },
+    { t: 'Political parties and interest groups', l: ['Political parties nominate candidates and organize government. The U.S. mostly has two major parties.', 'Interest groups try to influence policy for a cause.', 'Lobbying means trying to persuade lawmakers.'], try: 'Look up an interest group and describe one issue it works on.',
+      q: [['Trying to persuade lawmakers is called…', 'Lobbying', 'Voting', 'Vetoing', 'Campaigning only'], ['Groups that organize to influence policy for a cause are…', 'Interest groups', 'Courts', 'Juries', 'Cabinets'], ['A main job of political parties is to…', 'Nominate candidates', 'Interpret laws', 'Print money', 'Run courts']] },
+    { t: 'Media and public opinion', l: ['Public opinion is what citizens think about issues and leaders.', 'Polls measure opinion using a random sample of people.', 'The First Amendment protects a free press, which informs citizens and checks government.'], try: 'Design a 5-question poll and survey your family and friends.',
+      q: [['Polls measure public opinion by surveying a…', 'Random sample', 'Single person', 'Only politicians', 'Only experts'], ['A free press is protected by the…', 'First Amendment', 'Second Amendment', 'Tenth Amendment', 'Fifth Amendment'], ['Which branch interprets laws?', 'Judicial', 'Executive', 'Legislative', 'Military', D('branches', 'judicial')]] }
+  ]);
+
+  /* ───────── GRADE 12 ───────── */
+  add('12-math', [
+    { t: 'Limits', g: 'limits', l: ['A limit is the value a function approaches as x gets close to a number.', 'Often you can find it by substituting. If you get 0/0, factor and cancel first.', 'Limits are the foundation of calculus.'], try: 'Use a calculator to evaluate (x² − 1)/(x − 1) for x = 0.9, 0.99, 0.999. What do you notice?' },
+    { t: 'Vectors', g: 'vectors', l: ['A vector has both size (magnitude) and direction.', 'Add vectors by adding their components: ⟨a, b⟩ + ⟨c, d⟩ = ⟨a + c, b + d⟩.', 'Magnitude of ⟨a, b⟩ = √(a² + b²).'], try: 'Walk 3 steps east and 4 steps north. How far are you from where you started?' },
+    { t: 'Trig identities', g: 'trigId', l: ['The Pythagorean identity: sin²θ + cos²θ = 1.', 'tan θ = sin θ ÷ cos θ.', 'Use identities to simplify expressions and solve equations.'], try: 'Check sin²θ + cos²θ = 1 on a calculator for three different angles.' }
+  ]);
+  add('12-ela', [
+    { t: 'Orwell\'s "1984"', l: ['George Orwell\'s 1949 novel imagines a totalitarian state that watches and controls everyone.', '"Big Brother is watching you." Newspeak is a language designed to limit thought.', 'Doublethink means believing two contradictory ideas at once.'], try: 'Write about one way the novel\'s warnings relate to today\'s technology.',
+      q: [['Who wrote "1984"?', 'George Orwell', 'Aldous Huxley', 'Ray Bradbury', 'Charles Dickens'], ['The language designed to limit thought is…', 'Newspeak', 'Doublethink', 'Oldspeak', 'Slang'], ['Holding two contradictory beliefs at once is…', 'Doublethink', 'Irony', 'Satire', 'Groupthink']] },
+    { t: 'Things Fall Apart', l: ['Chinua Achebe\'s 1958 novel is set among the Igbo people of Nigeria.', 'Okonkwo is a proud warrior whose world changes when colonizers and missionaries arrive.', 'The title comes from W. B. Yeats\'s poem "The Second Coming."'], try: 'Write about how Okonkwo\'s fear of weakness shapes his choices.',
+      q: [['Who wrote "Things Fall Apart"?', 'Chinua Achebe', 'Wole Soyinka', 'Toni Morrison', 'Joseph Conrad'], ['The novel is set among the…', 'Igbo people of Nigeria', 'Maya of Mexico', 'Inuit of Canada', 'Zulu of South Africa'], ['The main character is…', 'Okonkwo', 'Winston', 'Gatsby', 'Hamlet']] },
+    { t: 'Literary criticism', l: ['Critical lenses are different ways of reading a text.', 'A historical lens looks at when the work was written. A feminist lens looks at gender roles.', 'A Marxist lens looks at money, class and power. A reader-response lens looks at the reader\'s experience.'], try: 'Analyze a favorite story through two different lenses.',
+      q: [['A lens focused on gender roles is…', 'Feminist', 'Marxist', 'Historical', 'Formalist'], ['A lens focused on class and money is…', 'Marxist', 'Feminist', 'Reader-response', 'Biographical'], ['Reader-response criticism focuses on the…', 'Reader\'s experience', 'Author\'s birthday', 'Book\'s price', 'Font']] }
+  ]);
+  add('12-sci', [
+    { t: 'Natural hazards', l: ['Earthquakes and volcanoes mostly happen near tectonic plate boundaries.', 'Hurricanes form over warm ocean water.', 'Scientists monitor hazards and create warning systems to keep people safe.'], try: 'Make a family emergency plan and kit list.',
+      q: [['Most earthquakes happen near…', 'Plate boundaries', 'The center of plates', 'The Moon', 'Deserts only'], ['Hurricanes form over…', 'Warm ocean water', 'Cold land', 'Mountains', 'Ice sheets'], ['Which Earth layer is marked "?" (the outer layer the plates are part of)?', 'Crust', 'Mantle', 'Outer core', 'Inner core', D('earth', 'crust')]] },
+    { t: 'Climate change', l: ['Greenhouse gases like carbon dioxide trap heat in the atmosphere.', 'Since the 1800s, burning fossil fuels has raised CO₂ levels and global temperatures.', 'Effects include melting ice, rising sea levels and more extreme weather.'], try: 'Graph your town\'s average temperatures over the past decades using NOAA data.',
+      q: [['Gases that trap heat in the atmosphere are…', 'Greenhouse gases', 'Noble gases', 'Inert gases', 'Ozone only'], ['A major source of extra CO₂ is…', 'Burning fossil fuels', 'Photosynthesis', 'Ocean waves', 'Moonlight'], ['One effect of warming is…', 'Rising sea levels', 'More glaciers', 'Colder summers everywhere', 'Shorter days']] },
+    { t: 'Space exploration', l: ['Sputnik (1957) was the first artificial satellite.', 'Apollo 11 put the first humans on the Moon in 1969.', 'Rovers explore Mars, and telescopes like James Webb study distant galaxies.'], try: 'Use a free night-sky app to find a planet visible tonight.',
+      q: [['Which planet is marked "?"', 'Mars', 'Venus', 'Jupiter', 'Mercury', D('solar', 'mars')], ['The first artificial satellite was…', 'Sputnik', 'Apollo', 'Hubble', 'Voyager'], ['Which planet is marked "?" (the largest)?', 'Jupiter', 'Saturn', 'Earth', 'Neptune', D('solar', 'jupiter')]] }
+  ]);
+  add('12-soc', [
+    { t: 'Taxes and government budgets', l: ['Governments collect taxes to pay for services like roads, schools and defense.', 'Income tax is a tax on earnings. Sales tax is added when you buy things.', 'A deficit happens when spending is more than income in a year; the total owed is the debt.'], try: 'Look at a pay stub (or sample) and identify each tax withheld.',
+      q: [['When a government spends more than it collects in a year, it has a…', 'Deficit', 'Surplus', 'Profit', 'Tariff'], ['A tax added when you buy things is…', 'Sales tax', 'Income tax', 'Property tax', 'Payroll tax'], ['Taxes help pay for…', 'Roads and schools', 'Only private clubs', 'Nothing', 'Personal vacations']] },
+    { t: 'Credit and loans', l: ['Credit lets you borrow money now and pay it back later, usually with interest.', 'A credit score shows how reliably you repay. Paying on time raises it.', 'Compound interest grows on both the original amount and past interest.'], try: 'Compare the total cost of a $1,000 loan at 5% and 20% interest over 2 years.',
+      q: [['The cost of borrowing money is…', 'Interest', 'A dividend', 'A tariff', 'A refund'], ['Which helps your credit score most?', 'Paying bills on time', 'Missing payments', 'Maxing out cards', 'Ignoring statements'], ['Interest earned on past interest is…', 'Compound interest', 'Simple interest', 'A fee', 'A tax']] },
+    { t: 'International trade', l: ['Countries trade to get goods they can\'t make as cheaply themselves (comparative advantage).', 'Exports are sold to other countries; imports are bought from them.', 'Tariffs are taxes on imports. Supply and demand set prices in markets.'], try: 'List 5 imported items in your home and their countries.',
+      q: [['Which curve is marked "?" (slopes down)?', 'Demand', 'Supply', 'Price', 'Cost', D('supply', 'demand')], ['Where supply and demand cross is called…', 'Equilibrium', 'Surplus', 'Shortage', 'Tariff', D('supply', 'equilibrium')], ['A tax on imported goods is a…', 'Tariff', 'Subsidy', 'Dividend', 'Quota']] }
+  ]);
+})();
+
 /* Lantern Homeschool — quiz problem generators.
    Each generator returns { q: question, a: correct answer (string), w: [three wrong answers] }. */
 (function () {
@@ -1568,7 +2012,7 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
       if (v === ans) continue;
       out.add(opts.f ? opts.f(v) : fmt(v));
     }
-    let k = 4; while (out.size < 3) out.add(opts.f ? opts.f(ans + k) : fmt(ans + k++));
+    let k = 4; while (out.size < 3) { out.add(opts.f ? opts.f(ans + k) : fmt(ans + k)); k++; }
     return [...out];
   }
   const N = (q, ans, spread, o) => ({ q, a: (o && o.f) ? o.f(ans) : fmt(ans), w: near(ans, spread || 2, o) });
@@ -1666,13 +2110,590 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     ohm() { const I = pick([0.5, 1, 1.5, 2, 3, 4]), Rr = pick([2, 4, 5, 6, 10, 12, 20]); return pick([() => N(`A ${Rr} Ω resistor carries ${I} A. What is the voltage across it?`, I * Rr, 2, { f: (v) => fmt(v) + ' V', offs: [Rr / I - I * Rr, 2, -2, 1] }), () => N(`A ${fmt(I * Rr)} V battery is connected to a ${Rr} Ω resistor. What is the current?`, I, 0.5, { f: (v) => fmt(v) + ' A', offs: [0.5, -0.5, 1, Rr], min: 0.25 }), () => N(`A device draws ${I} A at ${fmt(I * Rr)} V. What is its power?`, I * I * Rr, 2, { f: (v) => fmt(v) + ' W', offs: [I * Rr - I * I * Rr + 1, 2, -2, I] })])(); },
     /* Precalculus */
     compose() { const a = R(2, 5), b = R(-5, 5), x = R(-3, 4); const g = x * x, f = a * g + b; return N(`If f(x) = ${a}x ${b < 0 ? '−' : '+'} ${Math.abs(b)} and g(x) = x², what is f(g(${neg(x)}))?`, f, 2, { f: neg, offs: [(a * x + b) * (a * x + b) - f, 2, -2, a] }); },
-    radDeg() { const pairs = [[30, 'π/6'], [45, 'π/4'], [60, 'π/3'], [90, 'π/2'], [120, '2π/3'], [135, '3π/4'], [150, '5π/6'], [180, 'π'], [270, '3π/2'], [360, '2π']]; const p = pick(pairs); const others = pairs.filter((x) => x !== p); if (Math.random() < 0.5) { return S(`Convert ${p[0]}° to radians.`, p[1], [pick(others)[1], pick(others)[1], pick(others)[1], pick(others)[1], pick(others)[1]]); } return S(`Convert ${p[1]} radians to degrees.`, p[0] + '°', [pick(others)[0] + '°', pick(others)[0] + '°', pick(others)[0] + '°', pick(others)[0] + '°', pick(others)[0] + '°']); },
+    radDeg() { const pairs = [[30, 'π/6'], [45, 'π/4'], [60, 'π/3'], [90, 'π/2'], [120, '2π/3'], [135, '3π/4'], [150, '5π/6'], [180, 'π'], [270, '3π/2'], [360, '2π']]; const p = pick(pairs); const others = pairs.filter((x) => x !== p).sort(() => Math.random() - 0.5).slice(0, 3); if (Math.random() < 0.5) return S(`Convert ${p[0]}° to radians.`, p[1], others.map((x) => x[1])); return S(`Convert ${p[1]} radians to degrees.`, p[0] + '°', others.map((x) => x[0] + '°')); },
     unitCircle() { const t = pick([['sin 30°', '1/2'], ['cos 30°', '√3/2'], ['sin 45°', '√2/2'], ['cos 60°', '1/2'], ['sin 60°', '√3/2'], ['sin 90°', '1'], ['cos 90°', '0'], ['cos 180°', '−1'], ['sin 150°', '1/2'], ['cos 120°', '−1/2'], ['tan 45°', '1'], ['sin 270°', '−1']]); return S(`What is ${t[0]}?`, t[1], ['1/2', '√3/2', '√2/2', '1', '0', '−1', '−1/2', '√3']); },
     sequence() { if (Math.random() < 0.5) { const a = R(-5, 10), d = R(2, 7), n = R(8, 25); return N(`An arithmetic sequence starts ${a}, ${a + d}, ${a + 2 * d}, … What is term ${n}?`, a + (n - 1) * d, d, { f: neg, offs: [d, -d, 2 * d] }); } const a = R(1, 4), r = pick([2, 3]), n = R(4, 7); return N(`A geometric sequence starts ${a}, ${a * r}, ${a * r * r}, … What is term ${n}?`, a * Math.pow(r, n - 1), a, { offs: [a * Math.pow(r, n) - a * Math.pow(r, n - 1), a * Math.pow(r, n - 2) - a * Math.pow(r, n - 1), a] }); },
     compound() { const P = pick([500, 1000, 2000, 5000]), r = pick([0.04, 0.05, 0.06, 0.08]), t = pick([2, 3, 5, 10]); const A = P * Math.pow(1 + r, t); const simple = P * (1 + r * t); const f = (v) => '$' + Math.round(v).toLocaleString('en-US'); return S(`You invest ${f(P)} at ${Math.round(r * 100)}% interest, compounded yearly. About how much will you have after ${t} years?`, f(A), [f(simple), f(P * r * t), f(A + P * r)]); }
   };
 
+  /* ───────── Pictures for existing practice + new unit generators (inserted into generators.js) ───────── */
+  const VV = (o, v) => { o.v = v; return o; };
+  const ICONS = ['apple', 'star', 'ball', 'fish', 'heart'];
+  const tstr = (h, m) => h + ':' + String(m).padStart(2, '0');
+  const wrapH = (h) => ((h - 1 + 120) % 12) + 1;
+  const NAMES = ['Ana', 'Ben', 'Cruz', 'Dev', 'Eli', 'Fay', 'Gus'];
+  Object.assign(G, {
+    /* — existing units, now with pictures — */
+    add20() { const a = R(1, 10), b = R(1, 10); return VV(N(`${a} + ${b} = ?`, a + b, 1, { min: 0 }), { t: 'count', groups: [a, b], icon: pick(ICONS) }); },
+    sub20() { const a = R(5, 15), b = R(1, a - 1); return VV(N(`${a} − ${b} = ?`, a - b, 1, { min: 0 }), { t: 'count', groups: [a, b], op: '−', icon: pick(ICONS) }); },
+    placeValue1() { const t = R(1, 9), o = R(0, 9), n = t * 10 + o; return Math.random() < 0.5 ? VV(N(`How many tens are in ${n}?`, t, 1, { min: 0 }), { t: 'base10', tens: t, ones: o }) : VV(N('What number do these blocks show?', n, 10, { min: 0, offs: [1, -1, 10, -10, 9] }), { t: 'base10', tens: t, ones: o }); },
+    placeValue2() { const h = R(1, 4), t = R(0, 9), o = R(0, 9), n = h * 100 + t * 10 + o; return VV(S('What number do these blocks show?', String(n), [String(h * 100 + o * 10 + t), String(h * 10 + t * 100 + o), String(n + 100), String(n + 10)]), { t: 'base10', h, tens: t, ones: o }); },
+    time1() { const h = R(1, 12), half = Math.random() < 0.5; return VV(S('What time does the clock show?', tstr(h, half ? 30 : 0), [tstr(h, half ? 0 : 30), tstr(wrapH(h + 1), half ? 30 : 0), tstr(wrapH(h - 1), half ? 30 : 0), tstr(6, h === 6 ? 15 : 0)]), { t: 'clock', h, m: half ? 30 : 0 }); },
+    skipCount() { const step = pick([2, 5, 10]), s = step * R(0, 4), seq = [s, s + step, s + 2 * step]; return VV(N(`Skip count by ${step}s: ${seq.join(', ')}, ?`, s + 3 * step, step, { offs: [1, -1, step, -step, 2 * step], min: 0 }), { t: 'nline', min: s, max: s + 4 * step, step, hops: [[s, s + step], [s + step, s + 2 * step], [s + 2 * step, s + 3 * step]], q: s + 3 * step }); },
+    money() { const q = R(0, 3), d = R(0, 4), n = R(0, 2), p = R(0, 4); const total = q * 25 + d * 10 + n * 5 + p; if (total < 2) return G.money(); const coins = [].concat(Array(q).fill(25), Array(d).fill(10), Array(n).fill(5), Array(p).fill(1)); return VV(N('How much money is this?', total, 5, { min: 1, f: (v) => v + '¢' }), { t: 'coins', coins }); },
+    oddEven() { const n = R(3, 20); return VV(S(`There are ${n} socks. Is ${n} odd or even?`, n % 2 ? 'Odd' : 'Even', [n % 2 ? 'Even' : 'Odd', 'Both', 'Neither']), { t: 'pairs', n }); },
+    mult10() { if (Math.random() < 0.4) { const a = R(6, 10), b = R(2, 10); return N(`${a} × ${b} = ?`, a * b, a, { min: 0, offs: [a, -a, b, -b, 1, -1] }); } const a = R(2, 5), b = R(2, 9); return VV(N(`${a} rows of ${b}. How many in all? (${a} × ${b})`, a * b, a, { min: 0, offs: [a, -a, b, -b, 1, -1] }), { t: 'array', r: a, c: b }); },
+    div10() { if (Math.random() < 0.4) { const a = R(6, 10), b = R(2, 10); return N(`${a * b} ÷ ${a} = ?`, b, 1, { min: 1 }); } const a = R(2, 5), b = R(2, 8); return VV(N(`${a * b} stars are put in ${a} equal rows. How many are in each row?`, b, 1, { min: 1 }), { t: 'array', r: a, c: b, icon: 'star' }); },
+    round() { if (Math.random() < 0.5) { const n = R(11, 989), lo = Math.floor(n / 10) * 10; if (n % 10 === 0) return G.round(); return VV(N(`Round ${n} to the nearest ten.`, Math.round(n / 10) * 10, 10, { offs: [10, -10, 100], min: 0 }), { t: 'nline', min: lo, max: lo + 10, step: 1, marks: [n] }); } const n = R(101, 989), lo = Math.floor(n / 100) * 100; if (n % 100 === 0) return G.round(); return VV(N(`Round ${n} to the nearest hundred.`, Math.round(n / 100) * 100, 100, { offs: [100, -100, 10], min: 0 }), { t: 'nline', min: lo, max: lo + 100, step: 10, marks: [n] }); },
+    fracCompare() { let a = R(2, 8), b = R(2, 8); while (b === a) b = R(2, 8); return VV(S(`Which fraction is greater: 1/${a} or 1/${b}?`, `1/${Math.min(a, b)}`, [`1/${Math.max(a, b)}`, 'They are equal', `1/${a + b}`]), { t: 'frac', parts: [[1, a], [1, b]], shape: 'pie' }); },
+    areaPerim() { const l = R(2, 9), w = R(2, 6), unit = pick(['ft', 'cm', 'm']); return Math.random() < 0.5 ? VV(N(`What is the area of this rectangle in square ${unit === 'ft' ? 'feet' : unit === 'cm' ? 'centimeters' : 'meters'}?`, l * w, l, { offs: [l + w - l * w, 2 * (l + w) - l * w, 1, -1, w] }), { t: 'rect', w: l, h: w, unit, grid: true }) : VV(N(`What is the perimeter of this rectangle?`, 2 * (l + w), 2, { offs: [l * w - 2 * (l + w), -(l + w), 2, -2], f: (v) => v + ' ' + unit }), { t: 'rect', w: l, h: w, unit }); },
+    equivFrac() { const n = R(1, 3), d = R(n + 1, 5), k = R(2, 3); return VV(N(`The bars show equal amounts. ${n}/${d} = ?/${d * k}`, n * k, 1, { min: 1, offs: [1, -1, k, -k, d] }), { t: 'frac', parts: [[n, d], [n * k, d * k]], shape: 'bar', labels: false }); },
+    angles() { const a = R(25, 155); return VV(N(`These two angles make a straight line. One is ${a}°. What is the other?`, 180 - a, 10, { f: (v) => v + '°', offs: [10, -10, 90 - (180 - a), 5, -5] }), { t: 'angle', deg: a, straight: true }); },
+    volume() { const l = R(2, 8), w = R(2, 5), h = R(2, 6); return VV(N('What is the volume of this box in cubic inches?', l * w * h, l, { offs: [l, -l, w * h, l * w + w * h + l * h - l * w * h] }), { t: 'box', l, w, h, unit: 'in' }); },
+    triAreaMean() { if (Math.random() < 0.5) { const b = 2 * R(2, 8), h = R(3, 10); return VV(N('What is the area of this triangle in square meters? (½ × base × height)', (b * h) / 2, 2, { offs: [(b * h) / 2, 1, -1, h] }), { t: 'tri', angles: ['', '', ''], base: `base ${b} m`, height: `height ${h} m` }); } const n = [R(2, 10), R(2, 10), R(2, 10)]; const s = n[0] + n[1] + n[2]; n[2] += (3 - (s % 3)) % 3; const m = (n[0] + n[1] + n[2]) / 3; return VV(N('What is the mean (average) number of books read?', m, 1, { offs: [1, -1, 2, -2, 3] }), { t: 'bars', labels: NAMES.slice(0, 3), values: n, title: 'Books read' }); },
+    circle() { const r = R(2, 12); return Math.random() < 0.5 ? VV(N('What is the area of this circle? (Use π ≈ 3.14)', 3.14 * r * r, 1, { f: (v) => fmt(v) + ' cm²', offs: [2 * 3.14 * r - 3.14 * r * r, 3.14 * r - 3.14 * r * r, 3.14 * 4 * r * r - 3.14 * r * r] }), { t: 'circ', r, unit: 'cm' }) : VV(N('What is the circumference of this circle? (Use π ≈ 3.14)', 2 * 3.14 * r, 1, { f: (v) => fmt(v) + ' in', offs: [3.14 * r * r - 2 * 3.14 * r, -3.14 * r, 3.14] }), { t: 'circ', r, unit: 'in' }); },
+    probability() { const red = R(1, 6), blue = R(1, 6), green = R(1, 4), t = red + blue + green; return VV(S('You pick one marble without looking. What is the probability it is red?', fr(red, t), [fr(red, t - red), fr(blue, t), fr(green, t), fr(1, 2)]), { t: 'marbles', colors: { red, blue, green } }); },
+    pythag() { const t = pick([[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [9, 12, 15], [7, 24, 25]]); return Math.random() < 0.6 ? VV(N(`The legs of this right triangle are ${t[0]} and ${t[1]}. How long is the hypotenuse?`, t[2], 1, { offs: [t[0] + t[1] - t[2], 1, -1, 2] }), { t: 'rtri', a: t[0], b: t[1], c: '?' }) : VV(N(`A leg is ${t[0]} and the hypotenuse is ${t[2]}. How long is the other leg?`, t[1], 1, { offs: [t[2] + t[0] - t[1], 1, -1, 2] }), { t: 'rtri', a: t[0], b: '?', c: t[2] }); },
+    slope() { const x1 = R(-4, 2), y1 = R(-4, 2), m = pick([-2, -1, 1, 2, 0.5, -0.5]), dx = Number.isInteger(m) ? R(1, 3) : 2 * R(1, 2), x2 = x1 + dx, y2 = y1 + m * dx; const ans = Number.isInteger(m) ? neg(m) : (m < 0 ? '−1/2' : '1/2'); const rg = Math.max(6, Math.abs(x2), Math.abs(y2), Math.abs(x1), Math.abs(y1)); return VV(S(`What is the slope of the line through (${neg(x1)}, ${neg(y1)}) and (${neg(x2)}, ${neg(y2)})?`, ans, [Number.isInteger(m) ? neg(-m) : (m < 0 ? '1/2' : '−1/2'), Number.isInteger(m) ? (Math.abs(m) === 1 ? neg(2 * m) : (m < 0 ? '−1/2' : '1/2')) : (m < 0 ? '−2' : '2'), '0']), { t: 'coord', pts: [[x1, y1], [x2, y2]], line: true, range: rg }); },
+    distance() { const t = pick([[3, 4, 5], [6, 8, 10]]); const x1 = R(-4, 0), y1 = R(-4, 0); return VV(N(`What is the distance between (${neg(x1)}, ${neg(y1)}) and (${neg(x1 + t[0])}, ${neg(y1 + t[1])})?`, t[2], 1, { offs: [t[0] + t[1] - t[2], 1, -1, 2] }), { t: 'coord', pts: [[x1, y1], [x1 + t[0], y1 + t[1]]], line: true, range: Math.max(6, x1 + t[0], y1 + t[1]) }); },
+    triAngle() { const a = R(25, 90), b = R(20, 160 - a); return VV(N('What is the missing angle of this triangle?', 180 - a - b, 5, { f: (v) => v + '°', offs: [5, -5, 10, 360 - a - b - (180 - a - b)] }), { t: 'tri', angles: [a, b, '?'] }); },
+    trig() { const t = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25]]), f = pick(['sin', 'cos', 'tan']); const ans = f === 'sin' ? `${t[0]}/${t[2]}` : f === 'cos' ? `${t[1]}/${t[2]}` : `${t[0]}/${t[1]}`; return VV(S(`In this right triangle, what is ${f} A?`, ans, [`${t[0]}/${t[2]}`, `${t[1]}/${t[2]}`, `${t[0]}/${t[1]}`, `${t[1]}/${t[0]}`, `${t[2]}/${t[0]}`]), { t: 'rtri', a: t[0], b: t[1], c: t[2], angle: 'A' }); },
+    intAdd() { const a = R(-9, 9), b = R(-9, 9) || 3; const lo = Math.min(a, a + b, 0) - 1, hi = Math.max(a, a + b, 0) + 1; return VV(N(`${neg(a)} + (${neg(b)}) = ?`, a + b, 2, { f: neg, offs: [2, -2, -2 * b, 1, -1] }), { t: 'nline', min: lo, max: hi, step: 1, hops: [[a, a + b]], marks: [a], q: a + b }); },
+
+    /* — new units: grade 1 — */
+    shapes1() {
+      const flat = [['triangle', 3], ['square', 4], ['rectangle', 4], ['pentagon', 5], ['hexagon', 6], ['octagon', 8], ['circle', 0]], solid = ['cube', 'sphere', 'cylinder', 'cone'];
+      const r = Math.random();
+      if (r < 0.4) { const [n] = pick(flat); return VV(S('What is this shape called?', n, flat.map((x) => x[0]).filter((x) => x !== n).sort(() => Math.random() - 0.5)), { t: 'shape', name: n }); }
+      if (r < 0.75) { const [n, s] = pick(flat.filter((x) => x[1])); return VV(N('How many sides does this shape have?', s, 1, { min: 3, offs: [1, -1, 2, -2] }), { t: 'shape', name: n }); }
+      const n = pick(solid); return VV(S('What is this solid shape called?', n, solid.filter((x) => x !== n)), { t: 'shape', name: n });
+    },
+    length1() { const len = R(2, 6), obj = pick(['pencil', 'crayon', 'leaf']); return VV(N(`About how many inches long is the ${obj}?`, len, 1, { min: 1, f: (v) => v + (v === 1 ? ' inch' : ' inches') }), { t: 'ruler', len, unit: 'in', obj }); },
+    graph1() {
+      const labels = ['Cats', 'Dogs', 'Fish', 'Birds'].slice(0, R(3, 4)); let vals; do { vals = labels.map(() => R(1, 8)); } while (new Set(vals).size !== vals.length);
+      const r = Math.random(), i = R(0, labels.length - 1), v = { t: 'bars', labels, values: vals, title: 'Favorite pets' };
+      if (r < 0.4) return VV(N(`How many kids chose ${labels[i]}?`, vals[i], 1, { min: 0 }), v);
+      if (r < 0.7) { const mx = labels[vals.indexOf(Math.max(...vals))]; return VV(S('Which pet got the most votes?', mx, labels.filter((x) => x !== mx).concat(['Hamsters', 'Rabbits'])), v); }
+      let j = (i + 1) % labels.length; const big = vals[i] > vals[j] ? i : j, sm = big === i ? j : i;
+      return VV(N(`How many more kids chose ${labels[big]} than ${labels[sm]}?`, vals[big] - vals[sm], 1, { min: 0 }), v);
+    },
+    /* — grade 2 — */
+    time5() { const h = R(1, 12), m = 5 * R(1, 11); return VV(S('What time does the clock show?', tstr(h, m), [tstr(h, (m + 5) % 60), tstr(wrapH(h + 1), m), tstr(m / 5 === h ? wrapH(h + 2) : m / 5, h * 5 % 60), tstr(h, (m + 55) % 60)]), { t: 'clock', h, m }); },
+    measure2() { const cm = Math.random() < 0.5, len = cm ? R(3, 11) : R(2, 6), obj = pick(['pencil', 'crayon', 'leaf']); return VV(N(`How long is the ${obj}?`, len, 1, { min: 1, f: (v) => v + (cm ? ' cm' : v === 1 ? ' inch' : ' inches') }), { t: 'ruler', len, unit: cm ? 'cm' : 'in', obj }); },
+    graph2() {
+      const labels = ['Apples', 'Pears', 'Plums', 'Grapes']; let vals; do { vals = labels.map(() => R(2, 12)); } while (new Set(vals).size !== 4);
+      const v = { t: 'bars', labels, values: vals, title: 'Fruit picked' }, r = Math.random(), i = R(0, 3), j = (i + R(1, 3)) % 4;
+      if (r < 0.35) return VV(N(`How many ${labels[i].toLowerCase()} and ${labels[j].toLowerCase()} were picked in all?`, vals[i] + vals[j], 2, { min: 0 }), v);
+      if (r < 0.7) { const mn = labels[vals.indexOf(Math.min(...vals))]; return VV(S('Which fruit was picked the least?', mn, labels.filter((x) => x !== mn)), v); }
+      return VV(N(`How many more ${labels[vals[i] > vals[j] ? i : j].toLowerCase()} than ${labels[vals[i] > vals[j] ? j : i].toLowerCase()}?`, Math.abs(vals[i] - vals[j]), 1, { min: 0 }), v);
+    },
+    /* — grade 3 — */
+    graphScaled() {
+      const labels = ['Red', 'Blue', 'Green', 'Yellow']; let vals; do { vals = labels.map(() => 5 * R(1, 8)); } while (new Set(vals).size !== 4);
+      const v = { t: 'bars', labels, values: vals, title: 'Favorite colors' }, i = R(0, 3), j = (i + R(1, 3)) % 4;
+      return Math.random() < 0.5 ? VV(N(`How many more votes did ${labels[vals[i] > vals[j] ? i : j]} get than ${labels[vals[i] > vals[j] ? j : i]}?`, Math.abs(vals[i] - vals[j]), 5, { min: 0, offs: [5, -5, 10] }), v)
+        : VV(N('How many votes were there in all?', vals.reduce((a, b) => a + b, 0), 5, { offs: [5, -5, 10, -10] }), v);
+    },
+    elapsed() {
+      const h = R(1, 10), m = 5 * R(0, 9), add = pick([15, 20, 30, 45, 50, 60, 75, 90]), tot = h * 60 + m + add, eh = wrapH(Math.floor(tot / 60)), em = tot % 60;
+      const ev = pick([['The movie starts', 'lasts'], ['Soccer practice starts', 'lasts'], ['Baking starts', 'takes']]);
+      return VV(S(`${ev[0]} at the time on the clock and ${ev[1]} ${add} minutes. What time does it end?`, tstr(eh, em), [tstr(eh, (em + 15) % 60), tstr(wrapH(eh + 1), em), tstr(eh, (em + 50) % 60), tstr(h, em)]), { t: 'clock', h, m });
+    },
+    multWord() { const a = R(2, 5), b = R(2, 9), it = pick([['bags', 'apples', 'apple'], ['boxes', 'balls', 'ball'], ['tanks', 'fish', 'fish'], ['cards', 'stars', 'star']]); return VV(N(`There are ${a} ${it[0]} with ${b} ${it[1]} in each. How many ${it[1]} in all?`, a * b, a, { min: 0, offs: [a, -a, b, -b, a + b - a * b] }), { t: 'array', r: a, c: b, icon: it[2] }); },
+    /* — grade 4 — */
+    factors() {
+      const n = pick([12, 16, 18, 20, 24, 30, 36]), fs = []; for (let i = 2; i < n; i++) if (n % i === 0) fs.push(i);
+      const f = pick(fs.filter((x) => n / x <= 12 && x <= 6) .concat(fs.slice(0, 1))), non = []; for (let i = 2; i <= 11; i++) if (n % i) non.push(i);
+      if (Math.random() < 0.6) return VV(S(`Which number is a factor of ${n}?`, String(f), non.sort(() => Math.random() - 0.5).slice(0, 3).map(String)), { t: 'array', r: f, c: n / f });
+      const k = R(3, 9), m = k * R(3, 9); return S(`Which number is a multiple of ${k}?`, String(m), [m + 1, m - 1, m + 2].filter((x) => x % k).map(String));
+    },
+    fracLike() { const d = R(4, 10), a = R(1, d - 2), b = R(1, d - a - 1); return VV(S(`${a}/${d} + ${b}/${d} = ?`, `${a + b}/${d}`, [`${a + b}/${2 * d}`, `${a * b}/${d}`, `${a + b + 1}/${d}`, `${Math.abs(a - b) || 1}/${d}`]), { t: 'frac', parts: [[a, d], [b, d]], shape: 'bar' }); },
+    convert() { const c = pick([['feet', 'inches', 12], ['yards', 'feet', 3], ['meters', 'centimeters', 100], ['kilograms', 'grams', 1000], ['hours', 'minutes', 60], ['pounds', 'ounces', 16]]), n = R(2, 9); return N(`How many ${c[1]} are in ${n} ${c[0]}?`, n * c[2], c[2], { offs: [c[2], -c[2], n, 10] }); },
+    /* — grade 5 — */
+    coordPlot() { const x = R(0, 8), y = R(0, 8); return VV(S('What are the coordinates of point A?', `(${x}, ${y})`, [`(${y}, ${x})`, `(${x + 1}, ${y})`, `(${x}, ${Math.max(0, y - 1)})`, `(${x}, ${y + 1})`]), { t: 'coord', pts: [[x, y, 'A']], neg: false, range: 8 }); },
+    pow10() { const x = R(11, 999) / 10, p = pick([10, 100, 1000]); return Math.random() < 0.5 ? N(`${fmt(x)} × ${p} = ?`, x * p, x * p / 10, { offs: [x * p * 9, -x * p * 0.9, x * p * 99] }) : N(`${fmt(x * 10)} ÷ ${p} = ?`, (x * 10) / p, (x * 10) / p, { f: (v) => String(+v.toFixed(4)), offs: [((x * 10) / p) * 9, ((x * 10) / p) * 99, -((x * 10) / p) * 0.9] }); },
+    data5() { const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], vals = labels.map(() => R(1, 9)), v = { t: 'bars', labels, values: vals, title: 'Inches of rain' }; const i = R(0, 4), j = (i + R(1, 4)) % 5; return Math.random() < 0.5 ? VV(N('How many inches of rain fell in all five days?', vals.reduce((a, b) => a + b, 0), 2), v) : VV(N(`How many more inches fell on ${labels[vals[i] >= vals[j] ? i : j]} than ${labels[vals[i] >= vals[j] ? j : i]}?`, Math.abs(vals[i] - vals[j]), 1, { min: 0 }), v); },
+    /* — grade 6 — */
+    exponents() { const b = R(2, 10), e = b > 5 ? 2 : R(2, 4); return N(`What is ${b}${sup(e)}?`, Math.pow(b, e), b, { offs: [b * e - Math.pow(b, e), b + e - Math.pow(b, e), b, -b] }); },
+    medianMode() {
+      const n = 5, vals = Array.from({ length: n }, () => R(2, 10)); const mode = Math.random() < 0.4;
+      if (mode) { vals[R(0, 4)] = vals[0] === vals[1] ? vals[0] : vals[1]; vals[2] = vals[1]; }
+      const v = { t: 'bars', labels: NAMES.slice(0, n), values: vals, title: 'Quiz scores' }, sorted = vals.slice().sort((a, b) => a - b);
+      if (mode) { const cnt = {}; vals.forEach((x) => (cnt[x] = (cnt[x] || 0) + 1)); const best = +Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0]; if (Object.values(cnt).filter((c) => c === cnt[best]).length > 1) return G.medianMode(); return VV(N('What is the mode of these scores?', best, 1, { min: 0 }), v); }
+      return Math.random() < 0.5 ? VV(N('What is the median of these scores?', sorted[2], 1, { min: 0, offs: [1, -1, 2] }), v) : VV(N('What is the range of these scores?', sorted[4] - sorted[0], 1, { min: 0 }), v);
+    },
+    coordQuad() { let x = R(-5, 5) || 2, y = R(-5, 5) || -3; const q = x > 0 ? (y > 0 ? 'I' : 'IV') : (y > 0 ? 'II' : 'III'); return Math.random() < 0.5 ? VV(S('Which quadrant is point P in?', q, ['I', 'II', 'III', 'IV'].filter((z) => z !== q)), { t: 'coord', pts: [[x, y, 'P']], range: 6 }) : VV(S('What are the coordinates of point P?', `(${neg(x)}, ${neg(y)})`, [`(${neg(y)}, ${neg(x)})`, `(${neg(-x)}, ${neg(y)})`, `(${neg(x)}, ${neg(-y)})`]), { t: 'coord', pts: [[x, y, 'P']], range: 6 }); },
+    /* — grade 7 — */
+    pctChange() { const r = Math.random(); if (r < 0.4) { const p = pick([10, 20, 25, 50]), price = pick([20, 40, 60, 80, 120]); return N(`A $${price} jacket is ${p}% off. What is the sale price?`, price * (1 - p / 100), 5, { f: (v) => '$' + fmt(v), offs: [price * p / 100 - price * (1 - p / 100), 5, -5, 10] }); } const a = pick([20, 40, 50, 80]), pc = pick([10, 25, 50]), up = Math.random() < 0.5, b = up ? a * (1 + pc / 100) : a * (1 - pc / 100); return S(`A price changed from $${a} to $${fmt(b)}. What is the percent ${up ? 'increase' : 'decrease'}?`, pc + '%', [pc * 2 + '%', Math.abs(b - a) + '%', (100 - pc) + '%', pc / 2 + '%']); },
+    angleRel() { const r = Math.random(), a = R(20, 70); if (r < 0.4) return VV(N(`These angles are supplementary (they make a straight line). One is ${a + 40}°. What is the other?`, 140 - a, 10, { f: (v) => v + '°', offs: [10, -10, 90 - a - 40 - (140 - a)] }), { t: 'angle', deg: a + 40, straight: true }); if (r < 0.7) return N(`Two angles are complementary (they add to 90°). One is ${a}°. What is the other?`, 90 - a, 10, { f: (v) => v + '°', offs: [90, 10, -10] }); return S(`Two lines cross. One angle is ${a + 30}°. What is the vertical angle across from it?`, a + 30 + '°', [180 - a - 30 + '°', 90 - (a % 90) + '°', a + '°']); },
+    scaleDraw() { const s = pick([2, 5, 10, 25]), d = R(2, 9); return N(`On a map, 1 cm stands for ${s} km. Two towns are ${d} cm apart on the map. How far apart are they really?`, s * d, s, { f: (v) => v + ' km', offs: [s, -s, d, s + d - s * d] }); },
+    /* — grade 8 — */
+    funcTable() { const m = R(1, 3), b = R(0, 3), xs = [0, 1, 2, 3]; const pts = xs.map((x) => [x, m * x + b]); const r = Math.random(); if (r < 0.5) return VV(N(`The points follow the rule y = ${m}x + ${b}. What is y when x = 6?`, 6 * m + b, m, { offs: [m, -m, b, -b] }), { t: 'coord', pts, neg: false, range: 12, line: false }); return VV(S('Which rule matches these points: (0, ' + b + '), (1, ' + (m + b) + '), (2, ' + (2 * m + b) + ')?', `y = ${m}x + ${b}`, [`y = ${b}x + ${m}`, `y = ${m + 1}x + ${b}`, `y = ${m}x + ${b + 1}`]), { t: 'coord', pts, neg: false, range: 12 }); },
+    volume3d() { const r = R(1, 5), h = R(2, 9), k = pick(['cylinder', 'cone', 'sphere']); if (k === 'cylinder') return VV(N(`A cylinder has radius ${r} and height ${h}. What is its volume? (V = πr²h, π ≈ 3.14)`, 3.14 * r * r * h, 1, { f: (v) => fmt(v), offs: [-(3.14 * r * r * h) * 2 / 3, 3.14 * r * h * 2 - 3.14 * r * r * h, 3.14] }), { t: 'shape', name: 'cylinder' }); if (k === 'cone') return VV(N(`A cone has radius ${r} and height ${h}. What is its volume? (V = ⅓πr²h, π ≈ 3.14)`, (3.14 * r * r * h) / 3, 1, { f: (v) => fmt(v), offs: [(3.14 * r * r * h) * 2 / 3, 3.14, -3.14] }), { t: 'shape', name: 'cone' }); return VV(N(`A sphere has radius ${r}. What is its volume? (V = 4/3 πr³, π ≈ 3.14)`, (4 / 3) * 3.14 * r * r * r, 1, { f: (v) => fmt(v), offs: [-(1 / 3) * 3.14 * r * r * r, 3.14 * r * r - (4 / 3) * 3.14 * r * r * r, 3.14] }), { t: 'shape', name: 'sphere' }); },
+    transform() { const x = R(1, 5), y = R(1, 5), k = pick(['x', 'y', 't']); if (k === 'x') return VV(S(`Point A (${x}, ${y}) is reflected over the x-axis. Where does it land?`, `(${x}, ${neg(-y)})`, [`(${neg(-x)}, ${y})`, `(${neg(-x)}, ${neg(-y)})`, `(${y}, ${x})`]), { t: 'coord', pts: [[x, y, 'A']], range: 6 }); if (k === 'y') return VV(S(`Point A (${x}, ${y}) is reflected over the y-axis. Where does it land?`, `(${neg(-x)}, ${y})`, [`(${x}, ${neg(-y)})`, `(${neg(-x)}, ${neg(-y)})`, `(${y}, ${x})`]), { t: 'coord', pts: [[x, y, 'A']], range: 6 }); const dx = R(-3, 3) || 2, dy = R(-3, 3) || -1; return VV(S(`Point A (${x}, ${y}) moves ${Math.abs(dx)} ${dx > 0 ? 'right' : 'left'} and ${Math.abs(dy)} ${dy > 0 ? 'up' : 'down'}. Where does it land?`, `(${neg(x + dx)}, ${neg(y + dy)})`, [`(${neg(x - dx)}, ${neg(y - dy)})`, `(${neg(x + dy)}, ${neg(y + dx)})`, `(${neg(x + dx)}, ${neg(y - dy)})`]), { t: 'coord', pts: [[x, y, 'A']], range: 8 }); },
+    /* — grade 9 — */
+    inequality() { const a = R(2, 6), x = R(-4, 8), b = R(-9, 9), sgn = pick(['>', '<', '≥', '≤']), negA = Math.random() < 0.35; const A = negA ? -a : a, c = A * x + b; const flip = { '>': '<', '<': '>', '≥': '≤', '≤': '≥' }; const s2 = negA ? flip[sgn] : sgn; return S(`Solve: ${neg(A)}x ${b < 0 ? '−' : '+'} ${Math.abs(b)} ${sgn} ${neg(c)}`, `x ${s2} ${neg(x)}`, [`x ${flip[s2]} ${neg(x)}`, `x ${s2} ${neg(-x)}`, `x ${s2} ${neg(x + 1)}`]); },
+    vertex() { const h = R(-5, 5), k = R(-6, 6), a = pick([1, 2, -1, 3]); return Math.random() < 0.6 ? S(`What is the vertex of y = ${a === 1 ? '' : a === -1 ? '−' : a}(x ${h < 0 ? '+' : '−'} ${Math.abs(h)})² ${k < 0 ? '−' : '+'} ${Math.abs(k)}?`, `(${neg(h)}, ${neg(k)})`, [`(${neg(-h)}, ${neg(k)})`, `(${neg(h)}, ${neg(-k)})`, `(${neg(k)}, ${neg(h)})`]) : S(`Does the parabola y = ${a === 1 ? '' : a === -1 ? '−' : a}x² ${k < 0 ? '−' : '+'} ${Math.abs(k)} open up or down?`, a > 0 ? 'Up' : 'Down', [a > 0 ? 'Down' : 'Up', 'Left', 'Right']); },
+    arithGeo() { if (Math.random() < 0.5) { const a = R(1, 9), d = R(2, 9), s = [a, a + d, a + 2 * d, a + 3 * d]; return S(`Is ${s.join(', ')}, … arithmetic or geometric?`, 'Arithmetic', ['Geometric', 'Neither', 'Both']); } const a = R(1, 4), r = pick([2, 3]), s = [a, a * r, a * r * r, a * r * r * r]; return Math.random() < 0.5 ? S(`Is ${s.join(', ')}, … arithmetic or geometric?`, 'Geometric', ['Arithmetic', 'Neither', 'Both']) : N(`What is the next term: ${s.join(', ')}, … ?`, a * r ** 4, a * r, { offs: [a * r ** 3 * (r - 1) - a * r ** 4 + a * r ** 3, a * r, -a * r] }); },
+    /* — grade 10 — */
+    compositeArea() { const W = R(5, 8), H = R(5, 8), w = R(2, W - 2), h = R(2, H - 2); const poly = [[0, 0], [W, 0], [W, H - h], [W - w, H - h], [W - w, H], [0, H]]; return VV(N(`This L-shape is a ${W} × ${H} rectangle with a ${w} × ${h} corner cut out. What is its area in square units?`, W * H - w * h, 2, { offs: [w * h, -2, 2, W + H] }), { t: 'coord', poly, neg: false, range: Math.max(W, H) + 1, pts: [] }); },
+    volumeSolids() { const k = pick(['prism', 'pyramid', 'cylinder']); const l = R(2, 8), w = R(2, 6), h = R(3, 9); if (k === 'prism') return VV(N(`A rectangular prism is ${l} × ${w} × ${h}. What is its volume?`, l * w * h, l, { offs: [l, -l, (l * w * h) / 3 - l * w * h] }), { t: 'box', l, w, h }); if (k === 'pyramid') { const L = 3 * R(1, 3); return VV(N(`A pyramid has a square base ${L} by ${L} and height ${h}. What is its volume? (V = ⅓ × base area × height)`, (L * L * h) / 3, 3, { offs: [(L * L * h) * 2 / 3, L, -L] }), { t: 'shape', name: 'cone' }); } const r = R(1, 4); return VV(N(`A cylinder has radius ${r} and height ${h}. Its volume is about? (π ≈ 3.14)`, 3.14 * r * r * h, 1, { f: (v) => fmt(v), offs: [3.14 * r * h * 2 - 3.14 * r * r * h, 3.14, -(3.14 * r * r * h) / 2] }), { t: 'shape', name: 'cylinder' }); },
+    transformGeo() { const x = R(1, 5), y = R(1, 5), k = pick(['r90', 'r180', 'yx']); const ans = k === 'r90' ? [-y, x] : k === 'r180' ? [-x, -y] : [y, x]; const txt = k === 'r90' ? 'rotated 90° counterclockwise about the origin' : k === 'r180' ? 'rotated 180° about the origin' : 'reflected over the line y = x'; const others = [[y, -x], [-x, y], [x, -y], [-y, -x]].filter((p) => p[0] !== ans[0] || p[1] !== ans[1]).slice(0, 3); return VV(S(`Point A (${x}, ${y}) is ${txt}. Where does it land?`, `(${neg(ans[0])}, ${neg(ans[1])})`, others.map((p) => `(${neg(p[0])}, ${neg(p[1])})`)), { t: 'coord', pts: [[x, y, 'A']], range: 6 }); },
+    /* — grade 11 — */
+    radicals() { if (Math.random() < 0.5) { const a = R(2, 6), b = pick([2, 3, 5, 6, 7]); return S(`Simplify √${a * a * b}`, `${a}√${b}`, [`${b}√${a}`, `${a * a}√${b}`, `${a}√${a * b}`]); } const c = pick([[8, 3, 2, 4], [27, 3, 2, 9], [16, 4, 3, 8], [4, 2, 3, 8], [9, 2, 3, 27], [32, 5, 2, 4]]); return N(`Evaluate ${c[0]}^(${c[2]}/${c[1]})`, c[3], 2, { offs: [c[3] / 2, c[3] * 2 - c[3], 1, -1].map((x) => Math.round(x)) }); },
+    counting() { const r = Math.random(); if (r < 0.4) { const a = R(2, 5), b = R(2, 6); return VV(N(`You have ${a} shirts and ${b} pairs of pants. How many different outfits can you make?`, a * b, a, { offs: [a + b - a * b, a, -a] }), { t: 'array', r: a, c: b }); } if (r < 0.7) { const n = R(4, 7); let f = 1; for (let i = 2; i <= n; i++) f *= i; return N(`In how many different orders can ${n} books be lined up on a shelf?`, f, f / n, { offs: [f / n, -f / n * (n - 1) / n, n * n - f] }); } const n = R(5, 8), k = 2; return N(`How many ways can you choose ${k} people from a group of ${n} (order does not matter)?`, (n * (n - 1)) / 2, n, { offs: [(n * (n - 1)) / 2, n - (n * (n - 1)) / 2, 1] }); },
+    normal() { const mu = pick([50, 70, 100]), sd = pick([5, 10, 15]); const r = Math.random(); if (r < 0.5) { const k = pick([1, 2]); return S(`Test scores are normally distributed with mean ${mu} and standard deviation ${sd}. About what percent of scores fall between ${mu - k * sd} and ${mu + k * sd}?`, k === 1 ? '68%' : '95%', k === 1 ? ['95%', '50%', '99.7%'] : ['68%', '50%', '99.7%']); } const z = pick([-2, -1, 1, 2, 1.5]); return N(`Mean ${mu}, standard deviation ${sd}. What is the z-score of ${fmt(mu + z * sd)}?`, z, 0.5, { f: (v) => neg(fmt(v)), offs: [0.5, -0.5, -2 * z, 1] }); },
+    /* — grade 12 — */
+    limits() { const a = R(-4, 6); if (Math.random() < 0.5) return N(`What is the limit of (x² − ${a * a}) / (x − ${a < 0 ? '(' + neg(a) + ')' : a}) as x → ${neg(a)}?`, 2 * a, 2, { f: neg, offs: [-a, -2 * a * 2, a * a - 2 * a, 1].filter((x) => x) }); const b = R(1, 5), c = R(-5, 5); return N(`What is the limit of x² + ${b}x ${c < 0 ? '−' : '+'} ${Math.abs(c)} as x → ${neg(a)}?`, a * a + b * a + c, 2, { f: neg, offs: [2, -2, -2 * a * a, b] }); },
+    vectors() { const t = pick([[3, 4], [6, 8], [-3, 4], [4, -3], [8, 6]]); if (Math.random() < 0.5) return VV(N(`What is the magnitude (length) of the vector ⟨${neg(t[0])}, ${neg(t[1])}⟩?`, Math.hypot(t[0], t[1]), 1, { offs: [Math.abs(t[0]) + Math.abs(t[1]) - Math.hypot(t[0], t[1]), 1, -1, 2] }), { t: 'coord', pts: [[0, 0], [t[0], t[1], 'v']], line: true, range: 8 }); const a = [R(-4, 4), R(-4, 4)], b = [R(-4, 4), R(-4, 4)]; return S(`⟨${neg(a[0])}, ${neg(a[1])}⟩ + ⟨${neg(b[0])}, ${neg(b[1])}⟩ = ?`, `⟨${neg(a[0] + b[0])}, ${neg(a[1] + b[1])}⟩`, [`⟨${neg(a[0] - b[0])}, ${neg(a[1] - b[1])}⟩`, `⟨${neg(a[0] * b[0])}, ${neg(a[1] * b[1])}⟩`, `⟨${neg(a[0] + b[1])}, ${neg(a[1] + b[0])}⟩`]); },
+    trigId() { const t = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17]]), r = Math.random(); if (r < 0.4) return VV(S(`In this triangle, sin A = ${t[0]}/${t[2]}. What is cos A?`, `${t[1]}/${t[2]}`, [`${t[0]}/${t[1]}`, `${t[2]}/${t[1]}`, `${t[1]}/${t[0]}`]), { t: 'rtri', a: t[0], b: t[1], c: t[2], angle: 'A' }); if (r < 0.7) return S('For any angle θ, sin²θ + cos²θ = ?', '1', ['0', 'tan θ', '2']); return VV(S(`Using this triangle, tan A = sin A ÷ cos A = ?`, `${t[0]}/${t[1]}`, [`${t[1]}/${t[0]}`, `${t[0]}/${t[2]}`, `${t[2]}/${t[1]}`]), { t: 'rtri', a: t[0], b: t[1], c: t[2], angle: 'A' }); }
+  });
+
   window.LH_GEN = G;
+})();
+
+/* Lantern Homeschool — kid-friendly pictures for questions and video lessons.
+   LH_VIS(spec) returns an SVG string. Specs are plain objects, e.g. {t:'clock', h:3, m:30}.
+   Colors come from CSS classes (.va .vb .vc .vd .vk .vt .vm .vq) so pictures follow the light/dark theme. */
+(function () {
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const svg = (w, h, body, label) => `<svg class="vis-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label || 'Picture')}">${body}</svg>`;
+  const T = (x, y, s, size, cls, anchor) => `<text x="${x}" y="${y}" class="${cls || 'vt'}" font-size="${size || 14}" text-anchor="${anchor || 'middle'}" dominant-baseline="middle">${esc(s)}</text>`;
+  const Q = (x, y, s) => `<g><circle cx="${x}" cy="${y}" r="15" class="vq"/>${T(x, y + 1, s == null ? '?' : s, 17, 'vqt')}</g>`;
+  const R = (n) => Math.round(n * 10) / 10;
+
+  /* ── little icons for counting ── */
+  const ICON = {
+    apple: (x, y, s) => `<circle cx="${x}" cy="${y + s * 0.06}" r="${s * 0.42}" class="va"/><path d="M${x} ${y - s * 0.32}q${s * 0.04} ${-s * 0.16} ${s * 0.12} ${-s * 0.2}" class="vk" fill="none" stroke-width="2"/><ellipse cx="${x + s * 0.17}" cy="${y - s * 0.38}" rx="${s * 0.13}" ry="${s * 0.07}" class="vc"/>`,
+    star: (x, y, s) => { let p = ''; for (let i = 0; i < 10; i++) { const r = i % 2 ? s * 0.2 : s * 0.46, a = -Math.PI / 2 + (i * Math.PI) / 5; p += R(x + r * Math.cos(a)) + ',' + R(y + r * Math.sin(a)) + ' '; } return `<polygon points="${p}" class="vb"/>`; },
+    ball: (x, y, s) => `<circle cx="${x}" cy="${y}" r="${s * 0.42}" class="vd"/><path d="M${x - s * 0.42} ${y}q${s * 0.42} ${-s * 0.3} ${s * 0.84} 0" class="vw" fill="none" stroke-width="2"/>`,
+    fish: (x, y, s) => `<ellipse cx="${x - s * 0.05}" cy="${y}" rx="${s * 0.34}" ry="${s * 0.22}" class="vc"/><polygon points="${x + s * 0.25},${y} ${x + s * 0.48},${y - s * 0.2} ${x + s * 0.48},${y + s * 0.2}" class="vc"/><circle cx="${x - s * 0.2}" cy="${y - s * 0.05}" r="${s * 0.05}" class="vk"/>`,
+    heart: (x, y, s) => `<path d="M${x} ${y + s * 0.38}C${x - s * 0.6} ${y - s * 0.05} ${x - s * 0.3} ${y - s * 0.55} ${x} ${y - s * 0.18}C${x + s * 0.3} ${y - s * 0.55} ${x + s * 0.6} ${y - s * 0.05} ${x} ${y + s * 0.38}z" class="va"/>`
+  };
+  const icon = (name, x, y, s) => (ICON[name] || ICON.apple)(x, y, s);
+  function iconGrid(n, x0, y0, cols, s, name, crossFrom) {
+    let o = '';
+    for (let i = 0; i < n; i++) {
+      const x = x0 + (i % cols) * s + s / 2, y = y0 + Math.floor(i / cols) * s + s / 2;
+      o += icon(name, x, y, s * 0.92);
+      if (crossFrom != null && i >= crossFrom) o += `<path d="M${x - s * 0.35} ${y - s * 0.35}L${x + s * 0.35} ${y + s * 0.35}" class="vx" stroke-width="3"/>`;
+    }
+    return o;
+  }
+
+  const DRAW = {
+    /* {groups:[a,b], icon, op:'+'|'−'} — two groups to add, or one group with some crossed out */
+    count(v) {
+      const s = 28, ic = v.icon || 'apple';
+      if (v.op === '−') {
+        const n = v.groups[0], take = v.groups[1], cols = Math.min(10, n), rows = Math.ceil(n / cols);
+        const w = cols * s + 20, h = rows * s + 20;
+        return svg(w, h, iconGrid(n, 10, 10, cols, s, ic, n - take), `${n} take away ${take}`);
+      }
+      const [a, b] = v.groups, ca = Math.min(5, a), cb = Math.min(5, b);
+      const ha = Math.ceil(a / ca) * s, hb = Math.ceil(b / cb) * s, h = Math.max(ha, hb) + 20;
+      const wa = ca * s, w = wa + 50 + cb * s + 20;
+      return svg(w, h, `<rect x="4" y="4" width="${wa + 12}" height="${h - 8}" rx="10" class="vbox"/>` + iconGrid(a, 10, 10, ca, s, ic) +
+        T(wa + 34, h / 2, '+', 28, 'vt') + `<rect x="${wa + 52}" y="4" width="${cb * s + 12}" height="${h - 8}" rx="10" class="vbox"/>` + iconGrid(b, wa + 58, 10, cb, s, ic), `${a} plus ${b}`);
+    },
+    /* {n} — pairs of socks to show odd/even */
+    pairs(v) {
+      const s = 26, cols = Math.min(10, v.n), rows = Math.ceil(v.n / cols);
+      let o = '';
+      for (let i = 0; i < v.n; i++) { const x = 12 + (i % cols) * s, y = 12 + Math.floor(i / cols) * (s + 8); o += `<path d="M${x} ${y}h10v12l6 6-5 5-11-9z" class="${i % 2 ? 'vb' : 'va'}"/>`; }
+      return svg(cols * s + 20, rows * (s + 8) + 16, o, `${v.n} socks`);
+    },
+    /* {h, tens, ones} — base-ten blocks */
+    base10(v) {
+      let x = 10, o = ''; const u = 9;
+      for (let i = 0; i < (v.h || 0); i++) { o += `<rect x="${x}" y="10" width="${u * 10}" height="${u * 10}" class="vb vk2"/>`; for (let k = 1; k < 10; k++) o += `<path d="M${x + k * u} 10v${u * 10}M${x} ${10 + k * u}h${u * 10}" class="vgrid"/>`; x += u * 10 + 10; }
+      for (let i = 0; i < (v.tens || 0); i++) { o += `<rect x="${x}" y="10" width="${u}" height="${u * 10}" class="vc vk2"/>`; for (let k = 1; k < 10; k++) o += `<path d="M${x} ${10 + k * u}h${u}" class="vgrid"/>`; x += u + 6; }
+      x += 6;
+      for (let i = 0; i < (v.ones || 0); i++) { const cx = x + (i % 3) * (u + 4), cy = 10 + Math.floor(i / 3) * (u + 4); o += `<rect x="${cx}" y="${cy}" width="${u}" height="${u}" class="va vk2"/>`; }
+      if (v.ones) x += 3 * (u + 4);
+      return svg(Math.max(x + 10, 120), u * 10 + 20, o, `${v.h || 0} hundreds, ${v.tens || 0} tens, ${v.ones || 0} ones`);
+    },
+    /* {h, m} — analog clock */
+    clock(v) {
+      const c = 90, r = 78; let o = `<circle cx="${c}" cy="${c}" r="${r}" class="vface"/><circle cx="${c}" cy="${c}" r="${r}" class="vk2" fill="none" stroke-width="4"/>`;
+      for (let i = 1; i <= 12; i++) { const a = (i * Math.PI) / 6 - Math.PI / 2; o += T(R(c + 62 * Math.cos(a)), R(c + 62 * Math.sin(a)), i, 15, 'vt'); }
+      for (let i = 0; i < 60; i++) { const a = (i * Math.PI) / 30, l = i % 5 ? 4 : 8; o += `<path d="M${R(c + (r - 2) * Math.sin(a))} ${R(c - (r - 2) * Math.cos(a))}L${R(c + (r - 2 - l) * Math.sin(a))} ${R(c - (r - 2 - l) * Math.cos(a))}" class="vk" stroke-width="${i % 5 ? 1 : 2}"/>`; }
+      const ma = (v.m / 60) * 2 * Math.PI, ha = (((v.h % 12) + v.m / 60) / 12) * 2 * Math.PI;
+      o += `<path d="M${c} ${c}L${R(c + 40 * Math.sin(ha))} ${R(c - 40 * Math.cos(ha))}" class="vhand" stroke-width="7" stroke-linecap="round"/>`;
+      o += `<path d="M${c} ${c}L${R(c + 60 * Math.sin(ma))} ${R(c - 60 * Math.cos(ma))}" class="vhand2" stroke-width="4" stroke-linecap="round"/><circle cx="${c}" cy="${c}" r="5" class="vk"/>`;
+      return svg(180, 180, o, 'A clock');
+    },
+    /* {coins:[25,10,5,1,...]} */
+    coins(v) {
+      const size = { 1: 15, 5: 18, 10: 14, 25: 21, 100: 24 }, name = { 1: '1¢', 5: '5¢', 10: '10¢', 25: '25¢', 100: '$1' };
+      let x = 8, o = '';
+      v.coins.forEach((c) => { const r = size[c] || 16; x += r; o += `<circle cx="${x}" cy="30" r="${r}" class="${c === 1 ? 'vcopper' : 'vsilver'}"/><circle cx="${x}" cy="30" r="${r - 3}" fill="none" class="vk3"/>` + T(x, 31, name[c], c === 10 ? 10 : 12, 'vcoin'); x += r + 8; });
+      return svg(x + 4, 60, o, 'Coins');
+    },
+    /* {min,max,step, marks:[values], labels:{value:text}, hops:[[from,to]], q:value} */
+    nline(v) {
+      const W = 340, x0 = 20, x1 = W - 20, step = v.step || 1, n = Math.round((v.max - v.min) / step);
+      const X = (val) => R(x0 + ((val - v.min) / (v.max - v.min)) * (x1 - x0));
+      let o = `<path d="M${x0 - 10} 60H${x1 + 10}" class="vk" stroke-width="2.5"/><path d="M${x1 + 10} 60l-8 -5v10z M${x0 - 10} 60l8 -5v10z" class="vkf"/>`;
+      const every = n > 20 ? Math.ceil(n / 10) : 1;
+      for (let i = 0; i <= n; i++) { const val = v.min + i * step, x = X(val); o += `<path d="M${x} 53V67" class="vk" stroke-width="1.5"/>`; if (i % every === 0 && val !== v.q) o += T(x, 82, (v.labels && v.labels[val]) || +val.toFixed(2), 12, 'vt'); }
+      (v.hops || []).forEach(([a, b]) => { const xa = X(a), xb = X(b), mid = (xa + xb) / 2; o += `<path d="M${xa} 52Q${mid} ${52 - Math.min(40, Math.abs(xb - xa))} ${xb} 52" class="vhop" fill="none" stroke-width="2.5"/>`; });
+      (v.marks || []).forEach((m) => { o += `<circle cx="${X(m)}" cy="60" r="7" class="va"/>`; });
+      if (v.q != null) o += Q(X(v.q), 88);
+      return svg(W, 110, o, 'Number line');
+    },
+    /* {r, c, icon?} — an array of rows and columns */
+    array(v) {
+      const s = Math.min(30, Math.floor(300 / Math.max(v.c, 1))), w = v.c * s + 20, h = v.r * s + 20; let o = '';
+      for (let i = 0; i < v.r; i++) for (let j = 0; j < v.c; j++) o += v.icon ? icon(v.icon, 10 + j * s + s / 2, 10 + i * s + s / 2, s * 0.9) : `<circle cx="${10 + j * s + s / 2}" cy="${10 + i * s + s / 2}" r="${s * 0.32}" class="${i % 2 ? 'vb' : 'va'}"/>`;
+      return svg(w, h, o, `${v.r} rows of ${v.c}`);
+    },
+    /* {parts:[[n,d],...], shape:'pie'|'bar', labels:true} */
+    frac(v) {
+      let o = '', x = 10; const shape = v.shape || 'pie';
+      v.parts.forEach(([n, d], k) => {
+        if (shape === 'pie') {
+          const cx = x + 55, cy = 60, r = 50;
+          for (let i = 0; i < d; i++) {
+            const a0 = (i / d) * 2 * Math.PI - Math.PI / 2, a1 = ((i + 1) / d) * 2 * Math.PI - Math.PI / 2;
+            const large = a1 - a0 > Math.PI ? 1 : 0;
+            o += d === 1 ? `<circle cx="${cx}" cy="${cy}" r="${r}" class="${i < n ? 'va' : 'vempty'} vk2"/>` : `<path d="M${cx} ${cy}L${R(cx + r * Math.cos(a0))} ${R(cy + r * Math.sin(a0))}A${r} ${r} 0 ${large} 1 ${R(cx + r * Math.cos(a1))} ${R(cy + r * Math.sin(a1))}Z" class="${i < n ? (k ? 'vb' : 'va') : 'vempty'} vk2"/>`;
+          }
+          if (v.labels !== false) o += T(cx, 128, `${n}/${d}`, 16, 'vt');
+          x += 130;
+        } else {
+          const w = 220, y = 14 + k * 50;
+          for (let i = 0; i < d; i++) o += `<rect x="${10 + (i * w) / d}" y="${y}" width="${R(w / d)}" height="32" class="${i < n ? (k ? 'vb' : 'va') : 'vempty'} vk2"/>`;
+          if (v.labels !== false) o += T(w + 34, y + 16, `${n}/${d}`, 16, 'vt');
+        }
+      });
+      return shape === 'pie' ? svg(x, 142, o, 'Fraction picture') : svg(280, v.parts.length * 50 + 14, o, 'Fraction bars');
+    },
+    /* {w,h,unit, grid, lw?, lh?} rectangle with side labels ('?' allowed) */
+    rect(v) {
+      const sc = Math.min(22, 220 / Math.max(v.w, v.h)), W = v.w * sc, H = v.h * sc, x0 = 46, y0 = 24;
+      let o = `<rect x="${x0}" y="${y0}" width="${W}" height="${H}" class="vc2 vk2"/>`;
+      if (v.grid) { for (let i = 1; i < v.w; i++) o += `<path d="M${x0 + i * sc} ${y0}v${H}" class="vgrid"/>`; for (let j = 1; j < v.h; j++) o += `<path d="M${x0} ${y0 + j * sc}h${W}" class="vgrid"/>`; }
+      o += T(x0 + W / 2, y0 + H + 18, v.lw != null ? v.lw : `${v.w} ${v.unit || ''}`, 14) + T(x0 - 8, y0 + H / 2, v.lh != null ? v.lh : `${v.h} ${v.unit || ''}`, 14, 'vt', 'end');
+      return svg(x0 + W + 24, y0 + H + 34, o, `Rectangle ${v.w} by ${v.h}`);
+    },
+    /* {l,w,h,unit} box drawn at an angle */
+    box(v) {
+      const sc = Math.min(18, 150 / Math.max(v.l, v.w, v.h)), L = v.l * sc, Hh = v.h * sc, D = v.w * sc * 0.5, x = 40, y = 20 + D;
+      const o = `<path d="M${x} ${y}h${L}v${Hh}h${-L}z" class="vc2 vk2"/><path d="M${x} ${y}l${D} ${-D}h${L}l${-D} ${D}z" class="vb2 vk2"/><path d="M${x + L} ${y}l${D} ${-D}v${Hh}l${-D} ${D}z" class="va2 vk2"/>` +
+        T(x + L / 2, y + Hh + 16, `${v.l} ${v.unit || ''}`) + T(x - 6, y + Hh / 2, `${v.h} ${v.unit || ''}`, 14, 'vt', 'end') + T(x + L + D / 2 + 14, y - D / 2 + Hh / 2 + 4, `${v.w} ${v.unit || ''}`, 14, 'vt', 'start');
+      return svg(x + L + D + 70, y + Hh + 30, o, 'A box');
+    },
+    /* {a,b,c} right triangle legs a (vertical), b (horizontal), hypotenuse c; any may be '?' */
+    rtri(v) {
+      const x0 = 50, y0 = 150, W = 190, H = 110;
+      const o = `<path d="M${x0} ${y0}h${W}L${x0} ${y0 - H}z" class="vc2 vk2"/><path d="M${x0} ${y0 - 14}h14v14" class="vk" fill="none"/>` +
+        (v.a === '?' ? Q(x0 - 22, y0 - H / 2) : T(x0 - 10, y0 - H / 2, v.a, 15, 'vt', 'end')) +
+        (v.b === '?' ? Q(x0 + W / 2, y0 + 20) : T(x0 + W / 2, y0 + 18, v.b, 15)) +
+        (v.c === '?' ? Q(x0 + W / 2 + 16, y0 - H / 2 - 16) : T(x0 + W / 2 + 18, y0 - H / 2 - 12, v.c, 15, 'vt', 'start')) +
+        (v.angle ? T(x0 + W - 34, y0 - 10, v.angle, 13, 'vm') : '');
+      return svg(290, 180, o, 'Right triangle');
+    },
+    /* {angles:[a,b,c]} triangle with angle labels ('?' allowed) */
+    tri(v) {
+      const P = [[30, 150], [270, 150], [120, 25]];
+      let o = `<path d="M${P[0]}L${P[1]}L${P[2]}Z" class="vc2 vk2"/>`;
+      const off = [[34, -14], [-38, -14], [0, 30]];
+      v.angles.forEach((a, i) => { if (a === '') return; o += a === '?' ? Q(P[i][0] + off[i][0], P[i][1] + off[i][1]) : T(P[i][0] + off[i][0], P[i][1] + off[i][1], a + '°', 14); });
+      if (v.base) o += T(150, 168, v.base, 14) + `<path d="M120 25V150" class="vdash" stroke-width="1.5"/>` + T(130, 92, v.height, 14, 'vt', 'start');
+      return svg(300, 180, o, 'Triangle');
+    },
+    /* {r, unit} circle with radius */
+    circ(v) {
+      const o = `<circle cx="100" cy="90" r="74" class="vc2 vk2"/><path d="M100 90H174" class="vk" stroke-width="2.5"/><circle cx="100" cy="90" r="4" class="vkf"/>` + T(137, 78, `r = ${v.r} ${v.unit || ''}`, 14);
+      return svg(200, 180, o, `Circle with radius ${v.r}`);
+    },
+    /* {colors:{red:3, blue:2,...}} a bag of marbles */
+    marbles(v) {
+      const cls = { red: 'va', blue: 'vd', green: 'vc', yellow: 'vb' }; let o = `<path d="M40 40Q20 150 150 150Q280 150 260 40Z" class="vbag vk2"/><path d="M40 40Q150 20 260 40" class="vk" fill="none" stroke-width="2"/>`;
+      let i = 0; for (const c in v.colors) for (let k = 0; k < v.colors[c]; k++, i++) o += `<circle cx="${70 + (i % 8) * 22}" cy="${70 + Math.floor(i / 8) * 22}" r="9" class="${cls[c] || 'vm'} vk2"/>`;
+      return svg(300, 165, o, 'A bag of marbles');
+    },
+    /* {pts:[[x,y,label]], line:bool, range:n, seg:[[x1,y1],[x2,y2]]} coordinate grid */
+    coord(v) {
+      const rg = v.range || 6, neg = v.neg !== false, min = neg ? -rg : 0, s = Math.floor(200 / (rg - min)), W = (rg - min) * s;
+      const X = (x) => 20 + (x - min) * s, Y = (y) => 20 + (rg - y) * s;
+      let o = '';
+      for (let i = min; i <= rg; i++) { o += `<path d="M${X(i)} ${Y(min)}V${Y(rg)}M${X(min)} ${Y(i)}H${X(rg)}" class="vgrid"/>`; if (i && i % (rg > 8 ? 2 : 1) === 0) o += T(X(i), Y(0) + 11, i, 9, 'vm') + T(X(0) - 8, Y(i), i, 9, 'vm'); }
+      o += `<path d="M${X(min)} ${Y(0)}H${X(rg)}M${X(0)} ${Y(min)}V${Y(rg)}" class="vk" stroke-width="2"/>`;
+      if (v.line && v.pts.length > 1) o += `<path d="M${X(v.pts[0][0])} ${Y(v.pts[0][1])}L${X(v.pts[1][0])} ${Y(v.pts[1][1])}" class="vline" stroke-width="3"/>`;
+      if (v.poly) o += `<path d="M${v.poly.map((p) => X(p[0]) + ' ' + Y(p[1])).join('L')}Z" class="vc2 vk2" opacity=".85"/>`;
+      if (v.poly2) o += `<path d="M${v.poly2.map((p) => X(p[0]) + ' ' + Y(p[1])).join('L')}Z" class="vb2 vk2" opacity=".85"/>`;
+      (v.pts || []).forEach((p) => { o += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="6" class="va vk2"/>` + (p[2] ? T(X(p[0]) + 10, Y(p[1]) - 10, p[2], 12, 'vt', 'start') : ''); });
+      return svg(W + 40, W + 40, o, 'Coordinate grid');
+    },
+    /* {labels:[], values:[], title, q:index} bar graph */
+    bars(v) {
+      const n = v.labels.length, max = Math.max(...v.values), top = Math.ceil(max / (max > 20 ? 5 : 1)) * (max > 20 ? 5 : 1) || 1;
+      const H = 140, bw = Math.min(54, 260 / n), x0 = 40, step = top > 12 ? Math.ceil(top / 6 / 5) * 5 || 1 : top > 6 ? 2 : 1;
+      let o = '';
+      for (let t = 0; t <= top; t += step) { const y = 20 + H - (t / top) * H; o += `<path d="M${x0} ${y}H${x0 + n * (bw + 12) + 6}" class="vgrid"/>` + T(x0 - 8, y, t, 11, 'vm', 'end'); }
+      v.labels.forEach((l, i) => {
+        const h = (v.values[i] / top) * H, x = x0 + 10 + i * (bw + 12);
+        o += `<rect x="${x}" y="${20 + H - h}" width="${bw}" height="${h}" rx="4" class="${['va', 'vb', 'vc', 'vd'][i % 4]}"/>` + T(x + bw / 2, H + 34, l, 11, 'vt');
+        if (v.q === i) o += Q(x + bw / 2, 20 + H - h - 18);
+      });
+      o += `<path d="M${x0} 20V${20 + H}H${x0 + n * (bw + 12) + 6}" class="vk" fill="none" stroke-width="2"/>` + (v.title ? T(x0 + (n * (bw + 12)) / 2, 8, v.title, 12, 'vm') : '');
+      return svg(x0 + n * (bw + 12) + 20, H + 50, o, v.title || 'Bar graph');
+    },
+    /* {deg, known} angle; straight:true shows two angles on a line with known one labeled */
+    angle(v) {
+      const c = [150, 140], L = 120, a = (v.deg * Math.PI) / 180;
+      let o;
+      if (v.straight) {
+        o = `<path d="M30 140H270" class="vk" stroke-width="3"/><path d="M150 140L${R(150 + L * Math.cos(Math.PI - a))} ${R(140 - L * Math.sin(Math.PI - a))}" class="vk" stroke-width="3"/>` +
+          `<path d="M${150 + 34} 140A34 34 0 0 0 ${R(150 + 34 * Math.cos(Math.PI - a))} ${R(140 - 34 * Math.sin(Math.PI - a))}" class="vhop" fill="none" stroke-width="2.5"/>` +
+          Q(R(150 + 58 * Math.cos((Math.PI - a) / 2)), R(140 - 58 * Math.sin((Math.PI - a) / 2))) + T(R(150 + 52 * Math.cos(Math.PI - a / 2)), R(140 - 52 * Math.sin(Math.PI - a / 2)), v.deg + '°', 14);
+        return svg(300, 160, o, 'Angles on a straight line');
+      }
+      o = `<path d="M${c[0]} ${c[1]}H${c[0] + L}M${c[0]} ${c[1]}L${R(c[0] + L * Math.cos(a))} ${R(c[1] - L * Math.sin(a))}" class="vk" stroke-width="3"/>` +
+        `<path d="M${c[0] + 34} ${c[1]}A34 34 0 0 0 ${R(c[0] + 34 * Math.cos(a))} ${R(c[1] - 34 * Math.sin(a))}" class="vhop" fill="none" stroke-width="2.5"/>` + (v.label ? T(R(c[0] + 56 * Math.cos(a / 2)), R(c[1] - 56 * Math.sin(a / 2)), v.label, 14) : '');
+      return svg(300, 160, o, 'An angle');
+    },
+    /* {name} plane and solid shapes */
+    shape(v) {
+      const n = v.name, c = 'vc2 vk2';
+      const poly = (k, r) => { let p = ''; for (let i = 0; i < k; i++) { const a = -Math.PI / 2 + (i * 2 * Math.PI) / k + (k === 4 ? Math.PI / 4 : 0); p += R(100 + r * Math.cos(a)) + ',' + R(80 + r * Math.sin(a)) + ' '; } return `<polygon points="${p}" class="${c}"/>`; };
+      const S = {
+        triangle: poly(3, 66), square: poly(4, 70), pentagon: poly(5, 64), hexagon: poly(6, 64), octagon: poly(8, 64),
+        rectangle: `<rect x="30" y="40" width="140" height="80" class="${c}"/>`, circle: `<circle cx="100" cy="80" r="62" class="${c}"/>`,
+        rhombus: `<polygon points="100,18 160,80 100,142 40,80" class="${c}"/>`, trapezoid: `<polygon points="60,40 140,40 175,125 25,125" class="${c}"/>`,
+        cube: `<path d="M50 60h80v80h-80z" class="${c}"/><path d="M50 60l30-30h80l-30 30z" class="vb2 vk2"/><path d="M130 60l30-30v80l-30 30z" class="va2 vk2"/>`,
+        sphere: `<circle cx="100" cy="80" r="62" class="${c}"/><ellipse cx="100" cy="80" rx="62" ry="18" fill="none" class="vk3"/>`,
+        cylinder: `<path d="M50 40v80a50 16 0 0 0 100 0v-80" class="${c}"/><ellipse cx="100" cy="40" rx="50" ry="16" class="vb2 vk2"/>`,
+        cone: `<path d="M100 14L46 124a54 16 0 0 0 108 0Z" class="${c}"/><ellipse cx="100" cy="124" rx="54" ry="16" class="vb2 vk2" opacity=".6"/>`
+      };
+      return svg(200, 160, S[n] || S.square, 'A shape');
+    },
+    /* {len, unit, obj} object above a ruler */
+    ruler(v) {
+      const s = v.unit === 'cm' ? 22 : 40, n = v.max || (v.unit === 'cm' ? 12 : 7), W = n * s + 40;
+      let o = `<rect x="20" y="70" width="${n * s}" height="40" rx="4" class="vruler vk2"/>`;
+      for (let i = 0; i <= n; i++) { o += `<path d="M${20 + i * s} 70v14" class="vk" stroke-width="2"/>` + T(20 + i * s, 96, i, 12); if (v.unit !== 'cm' && i < n) o += `<path d="M${20 + i * s + s / 2} 70v8" class="vk"/>`; }
+      const L = v.len * s, colors = { pencil: 'vb', crayon: 'va', leaf: 'vc', worm: 'vd' };
+      o += v.obj === 'leaf' ? `<path d="M20 45Q${20 + L / 2} 10 ${20 + L} 45Q${20 + L / 2} 70 20 45z" class="vc vk2"/>`
+        : `<rect x="20" y="36" width="${L - 16}" height="18" rx="5" class="${colors[v.obj] || 'vb'} vk2"/><polygon points="${20 + L - 16},36 ${20 + L},45 ${20 + L - 16},54" class="vwood vk2"/>`;
+      o += T(16, 96, v.unit, 10, 'vm', 'end');
+      return svg(W, 120, o, 'An object next to a ruler');
+    },
+    /* {cols, rows, items:[[col,row,label,kind]]} a map grid with places */
+    mapgrid(v) {
+      const s = 46, x0 = 30, y0 = 26, letters = 'ABCDEFGH'; let o = '';
+      for (let i = 0; i < v.cols; i++) o += T(x0 + i * s + s / 2, 12, letters[i], 13, 'vm');
+      for (let j = 0; j < v.rows; j++) o += T(14, y0 + j * s + s / 2, j + 1, 13, 'vm');
+      for (let i = 0; i < v.cols; i++) for (let j = 0; j < v.rows; j++) o += `<rect x="${x0 + i * s}" y="${y0 + j * s}" width="${s}" height="${s}" class="vmap vgridline"/>`;
+      v.items.forEach(([c, r, label, kind]) => {
+        const cx = x0 + c * s + s / 2, cy = y0 + r * s + s / 2;
+        o += kind === 'tree' ? `<circle cx="${cx}" cy="${cy - 6}" r="12" class="vc"/><rect x="${cx - 3}" y="${cy + 4}" width="6" height="10" class="vwood"/>`
+          : kind === 'water' ? `<ellipse cx="${cx}" cy="${cy}" rx="18" ry="12" class="vd"/>`
+          : kind === 'school' ? `<path d="M${cx - 14} ${cy + 12}v-14l14-10 14 10v14z" class="va vk2"/><path d="M${cx} ${cy - 22}v-8h8" class="vk" fill="none"/>`
+          : `<path d="M${cx - 13} ${cy + 12}v-13l13-10 13 10v13z" class="vb vk2"/>`;
+        if (label) o += T(cx, cy + 20, label, 9, 'vt');
+      });
+      return svg(x0 + v.cols * s + 10, y0 + v.rows * s + 10, o, 'A map grid');
+    },
+    /* {ev:[[year,label]], q:index} timeline */
+    timeline(v) {
+      const n = v.ev.length, W = 340, x0 = 30, x1 = W - 30; let o = `<path d="M${x0 - 10} 60H${x1 + 10}" class="vk" stroke-width="3"/>`;
+      v.ev.forEach(([yr, lab], i) => {
+        const x = n === 1 ? (x0 + x1) / 2 : x0 + (i * (x1 - x0)) / (n - 1), up = i % 2 === 0;
+        o += `<circle cx="${x}" cy="60" r="7" class="${['va', 'vb', 'vc', 'vd'][i % 4]} vk2"/>`;
+        o += v.q === i ? Q(x, up ? 30 : 92) : T(x, up ? 36 : 86, yr, 13, 'vt');
+        o += T(x, up ? 18 : 104, lab, 10, 'vm');
+      });
+      return svg(W, 118, o, 'A timeline');
+    },
+    /* {d:'name', mark:'part'} labeled diagrams — the marked part shows a ? */
+    d(v) { return (DIAG[v.d] || DIAG.plant)(v.mark); }
+  };
+
+  /* ── labeled science & social studies diagrams ── */
+  function lab(x, y, text, key, mark, anchor) { return key === mark ? Q(x, y) : T(x, y, text, 12, 'vt', anchor); }
+  function cycle(names, keys, mark, art) {
+    const cx = 160, cy = 100, r = 70; let o = '';
+    names.forEach((nm, i) => {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / names.length, a2 = -Math.PI / 2 + ((i + 1) * 2 * Math.PI) / names.length;
+      const x = R(cx + r * Math.cos(a)), y = R(cy + r * Math.sin(a));
+      const mx = R(cx + (r - 6) * Math.cos((a + a2) / 2)), my = R(cy + (r - 6) * Math.sin((a + a2) / 2));
+      o += `<path d="M${R(cx + r * Math.cos(a + 0.42))} ${R(cy + r * Math.sin(a + 0.42))}Q${R(cx + (r + 22) * Math.cos((a + a2) / 2))} ${R(cy + (r + 22) * Math.sin((a + a2) / 2))} ${R(cx + r * Math.cos(a2 - 0.42))} ${R(cy + r * Math.sin(a2 - 0.42))}" class="vhop" fill="none" stroke-width="2.5" marker-end="url(#arr)"/>`;
+      o += `<circle cx="${x}" cy="${y}" r="24" class="vface vk2"/>` + (art[i] ? art[i](x, y) : '');
+      const lx = R(cx + (r + 50) * Math.cos(a)), ly = R(cy + (r + 40) * Math.sin(a));
+      o += lab(lx, ly, nm, keys[i], mark);
+      void mx; void my;
+    });
+    return svg(380, 252, ARROW + '<g transform="translate(30 26)">' + o + '</g>', 'Life cycle');
+  }
+  const ARROW = '<defs><marker id="arr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="vhopf"/></marker></defs>';
+  const DIAG = {
+    plant(mark) {
+      const o = `<path d="M150 170V70" class="vstem" stroke-width="6"/><ellipse cx="122" cy="120" rx="26" ry="11" class="vc" transform="rotate(-25 122 120)"/><ellipse cx="178" cy="105" rx="26" ry="11" class="vc" transform="rotate(25 178 105)"/>` +
+        [0, 1, 2, 3, 4, 5].map((i) => `<ellipse cx="${R(150 + 20 * Math.cos(i * 1.047))}" cy="${R(55 + 20 * Math.sin(i * 1.047))}" rx="14" ry="9" class="va" transform="rotate(${i * 60} ${R(150 + 20 * Math.cos(i * 1.047))} ${R(55 + 20 * Math.sin(i * 1.047))})"/>`).join('') + `<circle cx="150" cy="55" r="11" class="vb"/>` +
+        `<rect x="40" y="170" width="220" height="45" class="vsoil"/><path d="M150 170q-10 20-30 32M150 170q2 22-4 38M150 170q12 18 32 28M150 185q-14 6-24 6" class="vroot" fill="none" stroke-width="3"/>` +
+        lab(250, 50, 'flower', 'flower', mark, 'start') + `<path d="M246 50H172" class="vdash"/>` + lab(250, 105, 'leaf', 'leaf', mark, 'start') + `<path d="M246 105H200" class="vdash"/>` +
+        lab(60, 140, 'stem', 'stem', mark, 'end') + `<path d="M64 140H146" class="vdash"/>` + lab(250, 200, 'roots', 'roots', mark, 'start') + `<path d="M246 200H184" class="vdash"/>`;
+      return svg(320, 220, o, 'Parts of a plant');
+    },
+    butterfly(mark) {
+      return cycle(['egg', 'caterpillar', 'chrysalis', 'butterfly'], ['egg', 'caterpillar', 'chrysalis', 'butterfly'], mark, [
+        (x, y) => `<circle cx="${x - 5}" cy="${y}" r="5" class="vb"/><circle cx="${x + 5}" cy="${y + 2}" r="5" class="vb"/>`,
+        (x, y) => [0, 1, 2, 3].map((i) => `<circle cx="${x - 12 + i * 8}" cy="${y + (i % 2 ? 2 : -2)}" r="5" class="vc"/>`).join(''),
+        (x, y) => `<ellipse cx="${x}" cy="${y}" rx="7" ry="14" class="vwood"/>`,
+        (x, y) => `<ellipse cx="${x - 9}" cy="${y - 4}" rx="9" ry="11" class="va"/><ellipse cx="${x + 9}" cy="${y - 4}" rx="9" ry="11" class="va"/><ellipse cx="${x - 7}" cy="${y + 8}" rx="6" ry="7" class="vb"/><ellipse cx="${x + 7}" cy="${y + 8}" rx="6" ry="7" class="vb"/><rect x="${x - 2}" y="${y - 12}" width="4" height="24" rx="2" class="vkf"/>`
+      ]);
+    },
+    frog(mark) {
+      return cycle(['eggs', 'tadpole', 'froglet', 'frog'], ['eggs', 'tadpole', 'froglet', 'frog'], mark, [
+        (x, y) => [0, 1, 2, 3, 4].map((i) => `<circle cx="${x - 10 + (i % 3) * 10}" cy="${y - 5 + Math.floor(i / 3) * 10}" r="5" class="vd"/>`).join(''),
+        (x, y) => `<circle cx="${x - 6}" cy="${y}" r="7" class="vkf"/><path d="M${x} ${y}q10 -6 16 4" class="vk" stroke-width="3" fill="none"/>`,
+        (x, y) => `<ellipse cx="${x - 2}" cy="${y}" rx="11" ry="8" class="vc"/><path d="M${x + 8} ${y}q8 0 10 6" class="vc vstemc" stroke-width="3" fill="none"/>`,
+        (x, y) => `<ellipse cx="${x}" cy="${y + 3}" rx="14" ry="10" class="vc"/><circle cx="${x - 6}" cy="${y - 7}" r="4" class="vface vk2"/><circle cx="${x + 6}" cy="${y - 7}" r="4" class="vface vk2"/>`
+      ]);
+    },
+    plantcycle(mark) {
+      return cycle(['seed', 'sprout', 'seedling', 'adult plant'], ['seed', 'sprout', 'seedling', 'adult'], mark, [
+        (x, y) => `<ellipse cx="${x}" cy="${y}" rx="9" ry="6" class="vwood"/>`,
+        (x, y) => `<path d="M${x} ${y + 10}V${y - 2}" class="vstem" stroke-width="3"/><ellipse cx="${x + 5}" cy="${y - 4}" rx="6" ry="3" class="vc"/>`,
+        (x, y) => `<path d="M${x} ${y + 12}V${y - 8}" class="vstem" stroke-width="3"/><ellipse cx="${x - 7}" cy="${y - 2}" rx="7" ry="3" class="vc"/><ellipse cx="${x + 7}" cy="${y - 6}" rx="7" ry="3" class="vc"/>`,
+        (x, y) => `<path d="M${x} ${y + 14}V${y - 6}" class="vstem" stroke-width="3"/><circle cx="${x}" cy="${y - 9}" r="6" class="va"/><ellipse cx="${x - 8}" cy="${y + 2}" rx="7" ry="3" class="vc"/><ellipse cx="${x + 8}" cy="${y + 4}" rx="7" ry="3" class="vc"/>`
+      ]);
+    },
+    water(mark) {
+      const o = ARROW + `<circle cx="50" cy="40" r="22" class="vb"/><path d="M190 30a18 18 0 0 1 34 -6a16 16 0 0 1 26 18h-62a14 14 0 0 1 2 -12z" class="vcloud vk2"/>` +
+        `<path d="M0 170Q80 150 160 172T320 170V220H0z" class="vd"/><path d="M200 172L240 120L280 172z" class="vc2 vk2"/>` +
+        `<path d="M80 160C80 110 140 70 180 50" class="vhop" fill="none" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#arr)"/>` +
+        [0, 1, 2].map((i) => `<path d="M${226 + i * 12} 62v10" class="vrain" stroke-width="3" stroke-linecap="round"/><path d="M${232 + i * 12} 80v10" class="vrain" stroke-width="3" stroke-linecap="round"/>`).join('') +
+        `<path d="M270 175Q200 205 110 185" class="vhop" fill="none" stroke-width="2.5" marker-end="url(#arr)"/>` +
+        lab(60, 115, 'evaporation', 'evaporation', mark) + lab(222, 12, 'condensation', 'condensation', mark) + lab(290, 100, 'precipitation', 'precipitation', mark) + lab(160, 208, 'collection', 'collection', mark);
+      return svg(320, 220, o, 'The water cycle');
+    },
+    compass(mark) {
+      const o = `<circle cx="110" cy="100" r="80" class="vface vk2"/><polygon points="110,30 124,100 110,170 96,100" class="va2 vk2"/><polygon points="40,100 110,86 180,100 110,114" class="vc2 vk2"/>` +
+        lab(110, 12, 'N', 'north', mark) + lab(110, 190, 'S', 'south', mark) + lab(200, 100, 'E', 'east', mark) + lab(20, 100, 'W', 'west', mark);
+      return svg(220, 205, o, 'A compass rose');
+    },
+    foodchain(mark) {
+      const xs = [40, 120, 200, 280], names = ['sun', 'grass', 'rabbit', 'fox'];
+      const art = [(x) => `<circle cx="${x}" cy="70" r="22" class="vb"/>`, (x) => [0, 1, 2, 3].map((i) => `<path d="M${x - 15 + i * 10} 92q2 -20 6 -28" class="vstemc" stroke-width="4" fill="none"/>`).join(''),
+        (x) => `<ellipse cx="${x}" cy="78" rx="18" ry="13" class="vm2"/><ellipse cx="${x - 6}" cy="56" rx="4" ry="12" class="vm2"/><ellipse cx="${x + 4}" cy="56" rx="4" ry="12" class="vm2"/>`,
+        (x) => `<ellipse cx="${x}" cy="78" rx="20" ry="12" class="va2"/><polygon points="${x + 14},66 ${x + 30},72 ${x + 16},82" class="va2"/><path d="M${x - 20} 78q-14 -4 -18 6" class="va2s" stroke-width="7" fill="none"/>`];
+      let o = ARROW; xs.forEach((x, i) => { o += art[i](x) + lab(x, 120, names[i], names[i], mark); if (i < 3) o += `<path d="M${x + 26} 74H${xs[i + 1] - 28}" class="vhop" stroke-width="2.5" marker-end="url(#arr)"/>`; });
+      return svg(320, 140, o, 'A food chain');
+    },
+    earth(mark) {
+      const o = `<circle cx="120" cy="110" r="96" class="vcrust vk2"/><circle cx="120" cy="110" r="86" class="vmantle"/><circle cx="120" cy="110" r="52" class="vouter"/><circle cx="120" cy="110" r="26" class="vinner"/>` +
+        lab(270, 22, 'crust', 'crust', mark, 'start') + `<path d="M266 22L190 40" class="vdash"/>` + lab(270, 72, 'mantle', 'mantle', mark, 'start') + `<path d="M266 72L196 84" class="vdash"/>` +
+        lab(270, 122, 'outer core', 'outer', mark, 'start') + `<path d="M266 122L160 118" class="vdash"/>` + lab(270, 172, 'inner core', 'inner', mark, 'start') + `<path d="M266 172L134 118" class="vdash"/>`;
+      return svg(360, 220, o, "Earth's layers");
+    },
+    solar(mark) {
+      const P = [['Mercury', 5], ['Venus', 8], ['Earth', 8], ['Mars', 6], ['Jupiter', 17], ['Saturn', 14], ['Uranus', 11], ['Neptune', 11]];
+      const cls = ['vm2', 'vb', 'vd', 'va', 'vwood', 'vb', 'vd', 'vd'];
+      let o = `<circle cx="0" cy="80" r="46" class="vb"/>`, x = 58;
+      P.forEach(([nm, r], i) => { x += r + 9; o += `<circle cx="${x}" cy="80" r="${r}" class="${cls[i]} vk2"/>` + (nm === 'Saturn' ? `<ellipse cx="${x}" cy="80" rx="${r + 8}" ry="4" fill="none" class="vk3"/>` : '') + lab(x, i % 2 ? 124 : 40, nm, nm.toLowerCase(), mark); x += r + 5; });
+      return svg(x + 20, 150, o, 'The solar system');
+    },
+    moon(mark) {
+      const names = ['new moon', 'crescent', 'first quarter', 'full moon'], keys = ['new', 'crescent', 'quarter', 'full']; let o = '';
+      names.forEach((nm, i) => {
+        const x = 45 + i * 78; o += `<circle cx="${x}" cy="55" r="28" class="vnight"/>`;
+        if (i === 1) o += `<path d="M${x} 27A28 28 0 0 1 ${x} 83A18 28 0 0 0 ${x} 27z" class="vmoon"/>`;
+        if (i === 2) o += `<path d="M${x} 27A28 28 0 0 1 ${x} 83z" class="vmoon"/>`;
+        if (i === 3) o += `<circle cx="${x}" cy="55" r="28" class="vmoon"/>`;
+        o += lab(x, 102, nm, keys[i], mark);
+      });
+      return svg(320, 120, o, 'Phases of the moon');
+    },
+    atom(mark) {
+      const o = `<ellipse cx="150" cy="100" rx="110" ry="42" fill="none" class="vk3"/><ellipse cx="150" cy="100" rx="110" ry="42" fill="none" class="vk3" transform="rotate(60 150 100)"/><ellipse cx="150" cy="100" rx="110" ry="42" fill="none" class="vk3" transform="rotate(-60 150 100)"/>` +
+        `<circle cx="144" cy="96" r="10" class="va"/><circle cx="157" cy="98" r="10" class="vm2"/><circle cx="148" cy="108" r="10" class="vm2"/><circle cx="158" cy="110" r="10" class="va"/>` +
+        `<circle cx="260" cy="100" r="7" class="vd"/><circle cx="95" cy="5" r="7" class="vd"/>` +
+        lab(290, 30, 'electron', 'electron', mark, 'start') + `<path d="M286 34L264 94" class="vdash"/>` + lab(24, 170, 'nucleus', 'nucleus', mark, 'start') + `<path d="M70 166L140 112" class="vdash"/>` +
+        T(150, 196, 'red = proton · gray = neutron', 11, 'vm');
+      return svg(340, 205, o, 'An atom');
+    },
+    circuit(mark) {
+      const closed = mark !== 'open';
+      const o = `<path d="M60 60H150M190 60H260V160H60V60" class="vwire" fill="none" stroke-width="4"/>` +
+        (closed ? `<path d="M150 60H190" class="vwire" stroke-width="4"/>` : `<path d="M150 60L184 38" class="vwire" stroke-width="4"/>`) + `<circle cx="150" cy="60" r="5" class="vkf"/><circle cx="190" cy="60" r="5" class="vkf"/>` +
+        `<rect x="40" y="90" width="40" height="44" rx="4" class="vb vk2"/>${T(60, 112, '+ −', 13, 'vt')}` +
+        `<circle cx="260" cy="110" r="20" class="${closed ? 'vglow' : 'vface'} vk2"/><path d="M252 112q8 -12 16 0" class="vk" fill="none" stroke-width="2"/>` +
+        lab(30, 112, 'battery', 'battery', mark === 'open' ? null : mark, 'end') + lab(170, 22, 'switch', 'switch', mark === 'open' ? null : mark) + lab(300, 110, 'bulb', 'bulb', mark === 'open' ? null : mark, 'start') + lab(160, 182, 'wire', 'wire', mark === 'open' ? null : mark);
+      return svg(340, 195, o, closed ? 'A closed circuit' : 'An open circuit');
+    },
+    wave(mark) {
+      let p = 'M20 100'; for (let i = 0; i <= 280; i += 4) p += `L${20 + i} ${R(100 - 50 * Math.sin((i / 140) * 2 * Math.PI))}`;
+      const o = `<path d="M20 100H300" class="vdash"/><path d="${p}" class="vline" fill="none" stroke-width="3"/>` +
+        `<path d="M55 40H195" class="vk" stroke-width="1.5"/><path d="M55 34v12M195 34v12" class="vk"/>` + lab(125, 24, 'wavelength', 'wavelength', mark) +
+        `<path d="M250 100V150" class="vk" stroke-width="1.5"/>` + lab(300, 128, 'amplitude', 'amplitude', mark, 'end') +
+        lab(55, 66, 'crest', 'crest', mark) + lab(125, 168, 'trough', 'trough', mark);
+      return svg(320, 185, o, 'A wave');
+    },
+    lever(mark) {
+      const o = `<path d="M30 110L290 70" class="vwood" stroke-width="10" stroke-linecap="round"/><polygon points="160,92 136,140 184,140" class="vb vk2"/>` +
+        `<rect x="40" y="70" width="40" height="34" rx="4" class="va vk2" transform="rotate(-9 60 87)"/><path d="M270 20V58" class="vhop" stroke-width="3" marker-end="url(#arr)"/>` + ARROW +
+        lab(60, 50, 'load', 'load', mark) + lab(160, 158, 'fulcrum', 'fulcrum', mark) + lab(270, 10, 'effort', 'effort', mark);
+      return svg(320, 175, o, 'A lever');
+    },
+    magnet(mark) {
+      const pull = mark !== 'repel';
+      const o = `<rect x="20" y="50" width="60" height="40" class="va vk2"/><rect x="80" y="50" width="60" height="40" class="vd vk2"/>${T(50, 70, 'N', 18, 'vqt')}${T(110, 70, 'S', 18, 'vqt')}` +
+        (pull ? `<rect x="170" y="50" width="60" height="40" class="va vk2"/><rect x="230" y="50" width="60" height="40" class="vd vk2"/>${T(200, 70, 'N', 18, 'vqt')}${T(260, 70, 'S', 18, 'vqt')}`
+          : `<rect x="170" y="50" width="60" height="40" class="vd vk2"/><rect x="230" y="50" width="60" height="40" class="va vk2"/>${T(200, 70, 'S', 18, 'vqt')}${T(260, 70, 'N', 18, 'vqt')}`) +
+        T(155, 118, '?', 22, 'vt');
+      return svg(310, 135, o, 'Two magnets');
+    },
+    rocks(mark) {
+      const pts = [[160, 30, 'igneous', 'igneous'], [270, 150, 'sedimentary', 'sedimentary'], [50, 150, 'metamorphic', 'metamorphic']];
+      let o = ARROW;
+      pts.forEach(([x, y, nm, key], i) => { const [nx, ny] = pts[(i + 1) % 3]; o += `<path d="M${x + (nx - x) * 0.22} ${y + (ny - y) * 0.22}L${x + (nx - x) * 0.72} ${y + (ny - y) * 0.72}" class="vhop" stroke-width="2.5" marker-end="url(#arr)"/>` + `<ellipse cx="${x}" cy="${y}" rx="44" ry="22" class="${['va2', 'vb2', 'vc2'][i]} vk2"/>` + lab(x, y, nm, key, mark); });
+      o += T(240, 80, 'weathering', 10, 'vm') + T(160, 172, 'heat & pressure', 10, 'vm') + T(76, 80, 'melting', 10, 'vm');
+      return svg(320, 190, o, 'The rock cycle');
+    },
+    ph(mark) {
+      let o = ''; const cls = ['va', 'va', 'va', 'vb', 'vb', 'vb', 'vc', 'vc', 'vc', 'vd', 'vd', 'vd', 'vm2', 'vm2', 'vm2'];
+      for (let i = 0; i <= 14; i++) o += `<rect x="${10 + i * 20}" y="40" width="20" height="34" class="${cls[i]} vk2"/>` + T(20 + i * 20, 88, i, 11);
+      o += lab(60, 20, 'acid', 'acid', mark) + lab(160, 20, 'neutral', 'neutral', mark) + lab(270, 20, 'base', 'base', mark);
+      if (typeof mark === 'number') o += Q(20 + mark * 20, 112);
+      return svg(320, 130, o, 'The pH scale');
+    },
+    atmosphere(mark) {
+      const L = [['thermosphere', 'thermo', 'vd'], ['mesosphere', 'meso', 'vc2'], ['stratosphere', 'strato', 'vb2'], ['troposphere', 'tropo', 'va2']];
+      let o = ''; L.forEach(([nm, key, c], i) => { o += `<rect x="20" y="${10 + i * 44}" width="280" height="44" class="${c}"/>` + lab(160, 32 + i * 44, nm, key, mark); });
+      o += `<path d="M20 186H300" class="vk" stroke-width="3"/><path d="M40 186l14-20 14 20M240 186l20-26 20 26" class="vc"/>`;
+      return svg(320, 196, o, 'Layers of the atmosphere');
+    },
+    cell(mark) {
+      const o = `<ellipse cx="150" cy="100" rx="120" ry="80" class="vcell vk2"/><circle cx="150" cy="95" r="30" class="vd2 vk2"/><circle cx="150" cy="95" r="10" class="vd"/>` +
+        `<ellipse cx="80" cy="120" rx="20" ry="9" class="va2 vk2"/><path d="M64 120q8-6 16 0t16 0" class="vk" fill="none"/><ellipse cx="215" cy="70" rx="20" ry="9" class="va2 vk2"/>` +
+        lab(300, 30, 'membrane', 'membrane', mark, 'end') + `<path d="M246 36L232 46" class="vdash"/>` + lab(150, 145, 'nucleus', 'nucleus', mark) + lab(60, 168, 'mitochondria', 'mitochondria', mark, 'start') + `<path d="M74 158L80 130" class="vdash"/>` + lab(230, 145, 'cytoplasm', 'cytoplasm', mark);
+      return svg(310, 190, o, 'An animal cell');
+    },
+    branches(mark) {
+      const B = [['Legislative', 'Congress', 'legislative', 'va2'], ['Executive', 'President', 'executive', 'vb2'], ['Judicial', 'Courts', 'judicial', 'vc2']];
+      let o = `<polygon points="160,8 300,46 20,46" class="vm2 vk2"/>` + T(160, 34, 'U.S. Government', 13, 'vt');
+      B.forEach(([n, who, key, c], i) => { const x = 20 + i * 96; o += `<rect x="${x}" y="54" width="88" height="22" class="vm2 vk2"/><rect x="${x + 30}" y="76" width="28" height="70" class="vface vk2"/><rect x="${x}" y="146" width="88" height="40" rx="6" class="${c} vk2"/>` + (key === mark ? Q(x + 44, 166) : T(x + 44, 160, n, 12, 'vt') + T(x + 44, 176, who, 10, 'vm')); });
+      return svg(320, 194, o, 'Three branches of government');
+    },
+    supply(mark) {
+      const o = `<path d="M40 20V180H300" class="vk" fill="none" stroke-width="2"/><path d="M60 170L280 40" class="vline" stroke-width="3"/><path d="M60 40L280 170" class="vline2" stroke-width="3"/><circle cx="170" cy="105" r="7" class="vb vk2"/>` +
+        T(14, 100, 'price', 12, 'vm') + T(170, 196, 'quantity', 12, 'vm') + lab(286, 30, 'supply', 'supply', mark, 'end') + lab(286, 160, 'demand', 'demand', mark, 'end') + lab(200, 105, 'equilibrium', 'equilibrium', mark, 'start');
+      return svg(320, 205, o, 'Supply and demand');
+    }
+  };
+
+  /* ── Lumi, the lantern helper ── */
+  function mascot(mood) {
+    const mouth = { happy: 'M-9 8q9 9 18 0', cheer: 'M-11 6q11 14 22 0z', think: 'M-6 10h12', oops: '' }[mood || 'happy'];
+    const eyes = mood === 'think' ? '<circle cx="-8" cy="-4" r="3.2" class="lk"/><circle cx="8" cy="-4" r="3.2" class="lk"/>' : mood === 'cheer' ? '<path d="M-12 -2q4-6 8 0M4 -2q4-6 8 0" class="lks" fill="none" stroke-width="3" stroke-linecap="round"/>' : '<circle cx="-8" cy="-1" r="3.6" class="lk"/><circle cx="8" cy="-1" r="3.6" class="lk"/>';
+    return `<svg class="lumi lumi-${mood || 'happy'}" viewBox="-40 -52 80 100" aria-hidden="true"><path d="M-12 -40a12 12 0 0 1 24 0" fill="none" class="lks" stroke-width="3"/><rect x="-24" y="-40" width="48" height="10" rx="4" class="lcap"/>` +
+      `<rect x="-26" y="-30" width="52" height="58" rx="18" class="lbody"/><circle cx="0" cy="2" r="22" class="lglow"/>${eyes}` +
+      (mood === 'oops' ? '<circle cx="0" cy="11" r="4" class="lk"/>' : `<path d="${mouth}" class="${mood === 'cheer' ? 'lk' : 'lks'}" fill="${mood === 'cheer' ? '' : 'none'}" stroke-width="3" stroke-linecap="round"/>`) +
+      `<circle cx="-15" cy="8" r="4" class="lcheek"/><circle cx="15" cy="8" r="4" class="lcheek"/><rect x="-20" y="28" width="40" height="9" rx="4" class="lcap"/></svg>`;
+  }
+  function stars(n) {
+    let o = '';
+    for (let i = 0; i < 3; i++) { let p = ''; for (let k = 0; k < 10; k++) { const r = k % 2 ? 9 : 22, a = -Math.PI / 2 + (k * Math.PI) / 5; p += R(30 + i * 54 + r * Math.cos(a)) + ',' + R(30 + r * Math.sin(a)) + ' '; } o += `<polygon points="${p}" class="${i < n ? 'sfull' : 'sempty'}" style="animation-delay:${i * 0.18}s"/>`; }
+    return `<svg class="stars" viewBox="0 0 168 60" role="img" aria-label="${n} of 3 stars">${o}</svg>`;
+  }
+
+  window.LH_VIS = function (spec) { if (!spec) return ''; try { return (DRAW[spec.t] || (() => ''))(spec); } catch (e) { console.warn('visual failed', spec, e); return ''; } };
+  window.LH_MASCOT = mascot;
+  window.LH_STARS = stars;
 })();
 
 </script>
@@ -2208,22 +3229,34 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     return h('div', null, kidBar(), main);
   }
   function buildQuestions(u) {
-    if (u.g && GEN[u.g]) { const out = []; let guard = 0; while (out.length < 5 && guard++ < 40) { const p = GEN[u.g](); if (p && p.w && p.w.length >= 2 && !out.some((x) => x.q === p.q)) out.push({ q: p.q, a: p.a, choices: shuffle([p.a, ...p.w.slice(0, 3)]) }); } return out; }
-    return shuffle(u.q).map((row) => ({ q: row[0], a: row[1], choices: shuffle(row.slice(1)) }));
+    if (u.g && GEN[u.g]) { const out = []; let guard = 0; while (out.length < 5 && guard++ < 40) { const p = GEN[u.g](); if (p && p.w && p.w.length >= 2 && !out.some((x) => x.q === p.q)) out.push({ q: p.q, a: p.a, v: p.v || null, choices: shuffle([p.a, ...p.w.slice(0, 3)]) }); } return out; }
+    return shuffle(u.q).map((row) => ({ q: row[0], a: row[1], v: row[5] && typeof row[5] === 'object' ? row[5] : null, choices: shuffle(row.slice(1, 5).filter((x) => typeof x === 'string')) }));
   }
   function startQuiz(g, s, i) { S.quiz = { g, s, i, qs: buildQuestions(course(g, s).u[i]), at: 0, right: 0, picked: null }; go('quiz', { g, s, i }); }
+  function pic(spec, cls) { const s = spec && window.LH_VIS ? window.LH_VIS(spec) : ''; if (!s) return null; const d = h('div', { class: cls || 'q-pic' }); d.innerHTML = s; return d; }
+  function lumi(mood, text) { const w = h('div', { class: 'lumi-row' }); const m = h('span', { class: 'lumi-wrap' }); m.innerHTML = window.LH_MASCOT ? window.LH_MASCOT(mood) : ''; w.appendChild(m); if (text) w.appendChild(h('p', { class: 'bubble' }, text)); return w; }
+  const CHEER = ['Correct! You\'re glowing!', 'Yes! Great thinking!', 'Nailed it!', 'Brilliant!', 'That\'s right — keep shining!', 'Super job!'];
+  const OOPS = ['Not quite — you\'ve got this!', 'Good try! Mistakes help us learn.', 'Almost! Let\'s look at the answer.', 'Keep going — every try makes you stronger.'];
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  function confetti() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const box = h('div', { class: 'confetti', 'aria-hidden': 'true' });
+    for (let k = 0; k < 28; k++) { const i = h('i'); i.style.left = (Math.random() * 100) + '%'; i.style.animationDelay = (Math.random() * 0.25) + 's'; i.style.setProperty('--dx', ((Math.random() - 0.5) * 160) + 'px'); i.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg'); i.className = 'c' + (k % 5); box.appendChild(i); }
+    document.body.appendChild(box); setTimeout(() => box.remove(), 1800);
+  }
   function viewQuiz() {
     const Q = S.quiz; const c = course(Q.g, Q.s); const u = c.u[Q.i]; const item = Q.qs[Q.at]; const sm = SUBJ.find((x) => x.k === Q.s);
     const answered = Q.picked != null;
     const choices = h('div', { class: 'choices', role: 'group', 'aria-label': 'Answer choices' }, item.choices.map((ch, n) => {
       let cls = 'choice'; if (answered) { if (ch === item.a) cls += ' right'; else if (n === Q.picked) cls += ' wrong'; }
-      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { Q.picked = n; if (ch === item.a) Q.right++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
+      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { Q.picked = n; Q.msg = ch === item.a ? pick(CHEER) : pick(OOPS); if (ch === item.a) { Q.right++; confetti(); } render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
-    const fb = answered ? h('div', { class: 'feedback ' + (item.choices[Q.picked] === item.a ? 'ok' : 'no'), role: 'status' }, item.choices[Q.picked] === item.a ? 'Correct!' : 'Not quite. The answer is ' + item.a + '.') : null;
+    const ok = answered && item.choices[Q.picked] === item.a;
+    const fb = answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? (Q.msg || 'Correct!') : (Q.msg || 'Not quite.') + ' The answer is ' + item.a + '.')) : null;
     const next = answered ? h('button', { class: 'btn primary', onclick: () => { if (Q.at < Q.qs.length - 1) { Q.at++; Q.picked = null; render(); } else finishQuiz(); } }, Q.at < Q.qs.length - 1 ? 'Next question' : 'See my score') : null;
     const main = h('main', { class: 'wrap quiz' },
       h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow ' + sm.c }, u.t), h('div', { class: 'q-progress' }, 'Question ' + (Q.at + 1) + ' of ' + Q.qs.length), bar(Math.round((Q.at / Q.qs.length) * 100), sm.c)),
-      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)));
+      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)));
     setTimeout(() => { const b = answered ? $('.q-actions .primary') : $('.choice'); b && b.focus({ preventScroll: true }); }, 0);
     return h('div', null, kidBar(), main);
   }
@@ -2241,7 +3274,9 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     const r = Q.result; const c = course(Q.g, Q.s); const sm = SUBJ.find((x) => x.k === Q.s); const nextI = Q.i + 1 < c.u.length ? Q.i + 1 : null;
     const main = h('main', { class: 'wrap result' },
       h('section', { class: 'result-card ' + (r.pass ? 'pass' : 'retry') },
+        (() => { const st = h('div', { class: 'result-stars' }); st.innerHTML = window.LH_STARS ? window.LH_STARS(r.score >= 100 ? 3 : r.score >= settings().passMark ? 2 : r.score >= 40 ? 1 : 0) : ''; return st; })(),
         ring(r.score, Q.right + ' of ' + Q.qs.length, 'lg'),
+        lumi(r.pass ? 'cheer' : 'think', r.pass ? (r.score >= 100 ? 'A perfect score! You\'re a superstar!' : 'You did it! I\'m so proud of you.') : 'Let\'s review together and try again. You can do it!'),
         h('h1', null, r.pass ? (r.newly ? 'Unit mastered!' : 'Great work!') : 'Almost there'),
         h('p', { class: 'lede' }, r.pass ? 'You scored ' + r.score + '% on ' + c.u[Q.i].t + '.' : 'You need ' + settings().passMark + '% to master this unit. Review the lesson and try again — every try gets fresh questions.'),
         h('div', { class: 'actions' },
@@ -2462,8 +3497,8 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     if (u.g && GEN[u.g]) {
       if (!Player.example || Player.example.key !== key) Player.example = { key, p: GEN[u.g]() };
       const p = Player.example.p;
-      sc.push({ t: 'exq', text: p.q, say: "Let's try one together. " + p.q + ' Take a moment to think.' });
-      sc.push({ t: 'exa', text: p.q, ans: p.a, say: 'The answer is ' + p.a + '.' });
+      sc.push({ t: 'exq', text: p.q, v: p.v, say: "Let's try one together. " + p.q + ' Take a moment to think.' });
+      sc.push({ t: 'exa', text: p.q, v: p.v, ans: p.a, say: 'The answer is ' + p.a + '.' });
     }
     if (u.try) sc.push({ t: 'try', text: u.try, say: 'Try it at home. ' + u.try });
     sc.push({ t: 'end', say: "Great job watching! When you're ready, take the quiz to show what you know." });
@@ -2506,8 +3541,8 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
       let body;
       if (sc.t === 'title') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, c.t + ' · Unit ' + (i + 1) + ' of ' + c.u.length), h('h2', { class: 'vtitle' }, u.t), h('p', { class: 'vsub' }, 'Video lesson · about ' + totalMin + ' min'));
       else if (sc.t === 'point') body = h('div', { class: 'vpoint' }, h('span', { class: 'vnum', 'aria-hidden': 'true' }, String(sc.n + 1)), h('div', null, h('p', { class: 'veyebrow' }, 'Key idea ' + (sc.n + 1) + ' of ' + sc.of), words(sc.text)));
-      else if (sc.t === 'exq') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, "Let's solve one together"), words(sc.text), h('p', { class: 'think' }, 'Think about it', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
-      else if (sc.t === 'exa') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, 'Answer'), h('p', { class: 'vq-small' }, sc.text), h('p', { class: 'vanswer' }, sc.ans));
+      else if (sc.t === 'exq') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, "Let's solve one together"), pic(sc.v, 'v-pic'), words(sc.text), h('p', { class: 'think' }, 'Think about it', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
+      else if (sc.t === 'exa') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, 'Answer'), pic(sc.v, 'v-pic sm'), h('p', { class: 'vq-small' }, sc.text), h('p', { class: 'vanswer' }, sc.ans));
       else if (sc.t === 'try') body = h('div', { class: 'vpoint' }, h('span', { class: 'vlamp', 'aria-hidden': 'true' }), h('div', null, h('p', { class: 'veyebrow' }, 'Try it at home'), words(sc.text)));
       else body = h('div', { class: 'vcenter' }, h('span', { class: 'vcheck', 'aria-hidden': 'true' }), h('h2', { class: 'vtitle' }, 'Lesson complete'), h('p', { class: 'vsub' }, 'Now show what you know.'),
         h('div', { class: 'vend-actions' }, h('button', { class: 'btn primary', type: 'button', onclick: () => { Player.stop(); onQuiz(); } }, 'Take the quiz'), h('button', { class: 'btn vghost', type: 'button', onclick: () => { Player.idx = 0; play(); } }, 'Watch again')));
