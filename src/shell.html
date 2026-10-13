@@ -618,6 +618,25 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .con-story .con-text { font-size: 1.1rem; line-height: 1.6; } .con-story h3 { margin: 8px 0; }
 .con-opts { display: grid; gap: 8px; margin: 8px 0 12px; }
 .reflect-view p { margin: 4px 0; }
+
+/* Quests */
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 18px; } .two-col > .card { margin: 0; }
+.quest-card { display: grid; gap: 10px; align-content: start; } .quest-card h3 { margin: 0; } .quest-card .btn { justify-self: start; }
+.quest-row { display: flex; gap: 12px; align-items: center; } .quest-e { font-size: 2rem; line-height: 1; } .quest-e.big { font-size: 3rem; }
+.quest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.quest-pick { display: grid; gap: 6px; align-content: start; } .quest-pick h3 { margin: 4px 0 0; } .quest-pick p { margin: 0; } .quest-pick .btn { justify-self: start; margin-top: 6px; }
+.quest-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 14px; } .quest-info h4 { margin: 0 0 6px; }
+.safe-note { color: var(--warn); font-weight: 600; }
+.quest-steps { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 10px; }
+.qstep { display: grid; gap: 8px; } .qstep.next { border-color: var(--soc); box-shadow: 0 0 0 2px color-mix(in srgb, var(--soc) 30%, transparent); } .qstep.done { background: var(--good-bg); }
+.qs-head { display: flex; gap: 12px; align-items: flex-start; } .qs-head p { margin: 2px 0 0; }
+.qstep .tick { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--rule); display: grid; place-items: center; font-weight: 800; flex: none; }
+.qstep.done .tick { background: var(--good); border-color: var(--good); color: #fff; }
+.qs-note { margin: 0; color: var(--ink-2); font-style: italic; }
+.qs-form { display: grid; gap: 6px; } .qs-form textarea { font-family: inherit; } .qs-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .qs-row input { width: 110px; }
+.show-ready { display: grid; gap: 8px; border-top: 5px solid var(--soc); }
+.portfolio { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; } .portfolio li { display: flex; gap: 12px; } .portfolio p { margin: 2px 0; }
+.qnotes li { margin: 4px 0; } .show-fb textarea { font-family: inherit; }
 </style>
 <div id="app"></div>
 <script>

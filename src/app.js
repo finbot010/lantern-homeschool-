@@ -24,7 +24,7 @@
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
-    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'other', n: 'Other' }
+    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'other', n: 'Other' }
   ];
   const SUBJ_NAME = Object.fromEntries([...SUBJ, ...EXTRA].map((s) => [s.k, s.n]));
   const COLORS = ['#3461C1', '#C2453A', '#2F8A57', '#7B4FA6', '#C27A12', '#1F8A8A', '#B23A7A', '#5B6B2F'];
@@ -48,7 +48,8 @@
     { id: 'author', n: 'Young author', d: 'Wrote 5 journal entries' },
     { id: 'hola', n: '¡Hola!', d: 'Mastered 4 Spanish lessons' },
     { id: 'planner', n: 'Plan finisher', d: 'Finished 5 daily plans' },
-    { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' }
+    { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' },
+    { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -264,7 +265,7 @@
     earn('speller', Object.values(lit.spell || {}).filter((x) => x.best >= pass).length >= 5);
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
-    const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4);
+    const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
 
@@ -314,11 +315,11 @@
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -552,7 +553,7 @@
         h('div', { class: 'stat-row' },
           stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
-    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(weekCard(k)); }
+    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); }
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
@@ -1739,6 +1740,9 @@
       const key = g + '-' + s + '-' + cs.next;
       items.push({ id: 'u:' + key, kind: 'unit', key, t: SUBJ_NAME[s] + ': ' + c.u[cs.next].t, min: [20, 25, 25, 30][pb] }); n++;
     }
+    if (dow === 2 || dow === 4) { const qp = questProgress(k.id);
+      if (qp && qp.next >= 0) items.push({ id: 'quest', kind: 'quest', t: 'Quest: ' + qp.q.steps[qp.next].t, min: [15, 20, 25, 30][pb] });
+      else if (!qp && !(questDoc(k.id).hist || []).length) items.push({ id: 'quest', kind: 'quest', t: 'Choose your first Quest', min: 10 }); }
     items.push({ id: 'read', kind: 'read', t: 'Read a book', min: [15, 20, 25, 30][pb] });
     if (pb < 3 || trickyDue(k.id).length) items.push({ id: 'spell', kind: 'spell', t: trickyDue(k.id).length ? 'Spelling: review tricky words' : 'Spelling practice', min: 10 });
     const wk = weekStart(), cu = conundrumFor(k);
@@ -1766,6 +1770,7 @@
     if (it.kind === 'write') return go('journal');
     if (it.kind === 'span') { S.es = null; return go('spanish'); }
     if (it.kind === 'con') return go('conundrum');
+    if (it.kind === 'quest') return go('quest');
   }
   function todayCard(k) {
     const items = buildPlan(k), r = dayRec(k.id); const done = items.filter((it) => itemDone(k, it));
@@ -1953,12 +1958,114 @@
       w.reflect ? h('div', { class: 'reflect-view' }, h('p', null, h('b', null, 'Went well: '), w.reflect.good || '—'), h('p', null, h('b', null, 'Was hard: '), w.reflect.hard || '—'), h('p', null, h('b', null, 'Will try: '), w.reflect.next || '—')) : h('p', { class: 'small muted' }, 'Reflection not written yet (it appears on their dashboard from Thursday).'),
       h('form', { class: 'jr-note-form', onsubmit: (e) => { e.preventDefault(); w.pnote = $('#wk-note').value.trim().slice(0, 600) || null; saveDay(k.id); toast('Note saved. ' + k.name + ' will see it on their dashboard.'); render(); } },
         h('label', { class: 'small', for: 'wk-note' }, 'Note to ' + k.name), h('textarea', { id: 'wk-note', rows: 2, maxlength: 600 }, w.pnote || ''), h('button', { class: 'btn ghost xs', type: 'submit' }, 'Save note'))));
+    wrap.appendChild(pQuest(k));
     const c = conundrumFor(k), ca = c && (d.con || {})[c.id];
     if (c) wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Conundrum of the week: ' + c.t), h('p', { class: 'small' }, c.story + ' ' + c.q),
       ca ? [h('p', null, h('b', null, k.name + ' chose: '), ca.choice), h('p', { class: 'jr-text' }, ca.why)] : h('p', { class: 'small muted' }, 'Not answered yet — it shows up in Wednesday\'s plan.'),
       h('h4', null, 'Questions for your family talk'), h('ul', { class: 'points' }, c.talk.concat(c.think).map((t) => h('li', null, t))),
       ca ? h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: ca.talked ? true : null, onchange: (e) => { ca.talked = e.target.checked; saveDay(k.id); } }), ' We talked about it together') : null));
     return wrap;
+  }
+
+  /* ─────────────── Quests: multi-week projects with a family Show Day ─────────────── */
+  // dayDoc.q = { active: {id, start, steps: {i: {note, m, at}}, ready, showDate}, hist: [{id, start, end, steps, fb: {loved, grow}}] }
+  const QUESTS = window.LH_QUESTS || [];
+  const questDoc = (kidId) => { const d = dayDoc(kidId); return d.q || (d.q = { active: null, hist: [] }); };
+  const questById = (id) => QUESTS.find((x) => x.id === id);
+  function questProgress(kidId) { const a = questDoc(kidId).active; if (!a) return null; const q = questById(a.id); if (!q) return null; const done = q.steps.filter((s, i) => a.steps[i]).length; return { q, a, done, total: q.steps.length, next: q.steps.findIndex((s, i) => !a.steps[i]) }; }
+  function questCard(k) {
+    const p = questProgress(k.id), hist = questDoc(k.id).hist || [];
+    const box = h('section', { class: 'card quest-card' }, h('div', { class: 'card-head' }, h('h3', null, 'My Quest'), hist.length ? h('span', { class: 'small muted' }, hist.length + ' finished') : null));
+    if (!p) {
+      box.appendChild(h('p', { class: 'small' }, 'A Quest is a 2–5 week project you build with your hands and your brain, then show to your family on Show Day.'));
+      box.appendChild(h('button', { class: 'btn primary sm', onclick: () => go('quest') }, 'Choose a Quest'));
+    } else {
+      box.appendChild(h('div', { class: 'quest-row' }, h('span', { class: 'quest-e', 'aria-hidden': 'true' }, p.q.e), h('div', null, h('b', null, p.q.t), h('div', { class: 'small muted' }, p.a.ready ? 'Ready for Show Day!' : p.next >= 0 ? 'Next: ' + p.q.steps[p.next].t : 'All steps done — plan your Show Day'))));
+      box.appendChild(bar(Math.round((p.done / p.total) * 100), 'soc'));
+      box.appendChild(h('button', { class: 'btn primary sm', onclick: () => go('quest') }, 'Open my Quest'));
+    }
+    return box;
+  }
+  function viewQuest() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    const qd = questDoc(k.id), p = questProgress(k.id);
+    const main = h('main', { class: 'wrap quest' }, h('button', { class: 'btn ghost sm back', onclick: () => go('home') }, '← Dashboard'));
+    if (!p) {
+      const band = S.qband != null ? S.qband : conBand(k.grade);
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Quests'), h('h1', null, 'Choose your Quest'),
+        h('p', { class: 'lede' }, 'Pick a project that sounds fun. You\'ll work on it a little each week, then present it to your family on Show Day.'),
+        h('div', { class: 'bf-tabs' }, [['Grades 1–4', 0], ['Grades 5–8', 1], ['Grades 9–12', 2]].map(([n, b]) => h('button', { type: 'button', class: 'gchip' + (band === b ? ' on' : ''), onclick: () => { S.qband = b; render(); } }, n + (b === conBand(k.grade) ? ' (mine)' : ''))))));
+      main.appendChild(h('div', { class: 'quest-grid' }, QUESTS.filter((q) => q.band === band).map((q) => {
+        const did = (qd.hist || []).some((x) => x.id === q.id);
+        return h('article', { class: 'card quest-pick' }, h('span', { class: 'quest-e big', 'aria-hidden': 'true' }, q.e), h('h3', null, q.t + (did ? ' ✓' : '')), h('p', { class: 'small' }, q.drive),
+          h('p', { class: 'small muted' }, q.weeks + ' weeks · ' + q.subj.join(', ') + ' · ' + q.steps.length + ' steps'),
+          h('button', { class: 'btn primary sm', onclick: () => { qd.active = { id: q.id, start: todayStr(), steps: {} }; saveDay(k.id); markAct(k.id, 'quest'); confetti(); render(); } }, 'Start this Quest'));
+      })));
+      if ((qd.hist || []).length) main.appendChild(questPortfolio(k));
+      return h('div', null, kidBar(), main);
+    }
+    const { q, a } = p;
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'My Quest · started ' + fmtDate(a.start)), h('h1', null, q.e + ' ' + q.t),
+      h('p', { class: 'lede' }, h('b', null, 'Big question: '), q.drive), bar(Math.round((p.done / p.total) * 100), 'soc'),
+      h('p', { class: 'small muted' }, p.done + ' of ' + p.total + ' steps done · plan for about ' + q.weeks + ' weeks')));
+    main.appendChild(h('div', { class: 'quest-info' },
+      h('article', { class: 'card' }, h('h4', null, 'You\'ll need'), h('ul', { class: 'points' }, q.need.map((x) => h('li', null, x)))),
+      h('article', { class: 'card' }, h('h4', null, 'Show Day'), h('p', { class: 'small' }, q.show), q.safe ? h('p', { class: 'small safe-note' }, '⚠️ ' + q.safe) : null)));
+    main.appendChild(h('ol', { class: 'quest-steps' }, q.steps.map((st, i) => {
+      const s = a.steps[i], isNext = i === p.next;
+      const li = h('li', { class: 'card qstep' + (s ? ' done' : '') + (isNext ? ' next' : '') }, h('div', { class: 'qs-head' }, h('span', { class: 'tick', 'aria-hidden': 'true' }, s ? '✓' : String(i + 1)), h('div', null, h('b', null, st.t), h('p', { class: 'small' }, st.d))));
+      if (s) li.appendChild(h('p', { class: 'small qs-note' }, '“' + s.note + '”' + (s.m ? ' · ' + s.m + ' min' : '')));
+      else if (isNext || S.qopen === i) {
+        const ta = h('textarea', { rows: 2, maxlength: 600, placeholder: 'What did you do? What did you learn or notice?' }), mi = h('input', { type: 'number', min: 0, max: 300, step: 1, placeholder: 'Minutes' }), err = h('p', { class: 'err', role: 'alert' });
+        li.appendChild(h('form', { class: 'qs-form', onsubmit: (e) => {
+          e.preventDefault(); const note = ta.value.trim(), m = Math.round(Number(mi.value) || 0);
+          if (wordCount(note) < (k.grade <= 3 ? 3 : 8)) return (err.textContent = 'Tell a little more about what you did.');
+          a.steps[i] = { note: note.slice(0, 600), m, at: Date.now() }; S.qopen = null;
+          if (m > 0) { logDoc(k.id).e.push({ id: uid(), d: todayStr(), s: 'quest', m, n: 'Quest: ' + q.t + ' — ' + st.t, auto: false, kid: true }); saveLog(k.id); }
+          saveDay(k.id); markAct(k.id, 'quest'); markActive(k.id); confetti(); render();
+        } }, h('label', { class: 'small' }, 'My notes for this step'), ta, h('div', { class: 'qs-row' }, h('label', { class: 'small' }, 'Time spent (optional)'), mi, h('button', { class: 'btn primary sm', type: 'submit' }, 'Step done ✓')), err));
+      } else li.appendChild(h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.qopen = i; render(); } }, 'Do this step now'));
+      return li;
+    })));
+    if (p.next < 0) {
+      main.appendChild(a.ready
+        ? h('article', { class: 'card show-ready' }, h('h3', null, '🎤 Ready for Show Day' + (a.showDate ? ' — ' + fmtDate(a.showDate) : '')), h('p', null, 'After your show, your grown-up will finish the Quest and write you feedback in their portal.'))
+        : h('form', { class: 'card form show-ready', onsubmit: (e) => { e.preventDefault(); a.ready = true; a.showDate = $('#show-date').value || todayStr(); saveDay(k.id); confetti(); render(); } },
+          h('h3', null, '🎉 All steps done! Plan your Show Day'), h('p', { class: 'small' }, q.show),
+          h('ul', { class: 'points small' }, h('li', null, 'Practice out loud at least once.'), h('li', null, 'Have your work ready to show.'), h('li', null, 'Think of one thing you would do differently next time.')),
+          h('label', { for: 'show-date' }, 'Show Day date'), h('input', { id: 'show-date', type: 'date', min: todayStr(), value: todayStr() }),
+          h('button', { class: 'btn primary', type: 'submit' }, 'I\'m ready for Show Day')));
+    }
+    main.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => { if (confirm('Stop this Quest? Your notes so far will be deleted.')) { qd.active = null; saveDay(k.id); render(); } } }, 'Switch Quest')));
+    add(main, lumiFab({ kidId: k.id, g: k.grade, s: 'sci', unit: 'Quest: ' + q.t, points: [q.drive].concat(q.steps.map((x) => x.t + ': ' + x.d)), mode: 'lesson' }));
+    return h('div', null, kidBar(), main);
+  }
+  function questPortfolio(k) {
+    const hist = (questDoc(k.id).hist || []).slice().reverse();
+    return h('section', { class: 'card' }, h('h3', null, 'My Quest portfolio'), h('ul', { class: 'portfolio' }, hist.map((x) => { const q = questById(x.id) || { e: '⭐', t: x.id };
+      return h('li', null, h('span', { class: 'quest-e', 'aria-hidden': 'true' }, q.e), h('div', null, h('b', null, q.t), h('div', { class: 'small muted' }, fmtDate(x.start) + ' – ' + fmtDate(x.end)),
+        x.fb && x.fb.loved ? h('p', { class: 'small' }, h('b', null, 'What we loved: '), x.fb.loved) : null, x.fb && x.fb.grow ? h('p', { class: 'small' }, h('b', null, 'Idea to grow: '), x.fb.grow) : null)); })));
+  }
+  function pQuest(k) {
+    const qd = questDoc(k.id), p = questProgress(k.id);
+    const box = h('article', { class: 'card' }, h('h3', null, 'Quest'));
+    if (!p) box.appendChild(h('p', { class: 'small muted' }, (qd.hist || []).length ? 'No Quest in progress — ' + k.name + ' can choose a new one from their dashboard.' : k.name + ' hasn\'t started a Quest yet. It shows up in their plan on Tuesdays and Thursdays.'));
+    else {
+      box.appendChild(h('p', null, h('b', null, p.q.e + ' ' + p.q.t), ' · ' + p.done + ' of ' + p.total + ' steps · started ' + fmtDate(p.a.start)));
+      box.appendChild(h('ol', { class: 'small qnotes' }, p.q.steps.map((st, i) => h('li', null, h('b', null, st.t + ': '), p.a.steps[i] ? '“' + p.a.steps[i].note + '”' + (p.a.steps[i].m ? ' (' + p.a.steps[i].m + ' min)' : '') : h('span', { class: 'muted' }, 'not yet')))));
+      if (p.q.safe) box.appendChild(h('p', { class: 'small safe-note' }, '⚠️ ' + p.q.safe));
+      if (p.next < 0) box.appendChild(h('form', { class: 'form show-fb', onsubmit: (e) => {
+        e.preventDefault(); const loved = $('#fb-loved').value.trim(), grow = $('#fb-grow').value.trim(); if (!loved) return ($('#fb-err').textContent = 'Tell them one thing you loved about their show.');
+        qd.hist = qd.hist || []; qd.hist.push({ id: p.a.id, start: p.a.start, end: todayStr(), steps: p.a.steps, fb: { loved, grow } }); qd.active = null;
+        saveDay(k.id); checkBadges(k.id); toast('Quest complete! ' + k.name + ' will see your feedback in their portfolio.'); render();
+      } }, h('h4', null, p.a.ready ? '🎤 Show Day' + (p.a.showDate ? ' — ' + fmtDate(p.a.showDate) : '') + ': after the show, give feedback' : 'All steps are done — Show Day is next'),
+        h('p', { class: 'small' }, p.q.show),
+        h('label', { for: 'fb-loved' }, 'What I loved'), h('textarea', { id: 'fb-loved', rows: 2, maxlength: 400 }),
+        h('label', { for: 'fb-grow' }, 'One idea to grow'), h('textarea', { id: 'fb-grow', rows: 2, maxlength: 400 }),
+        h('p', { id: 'fb-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary sm', type: 'submit' }, 'We watched the show — complete the Quest 🎉')));
+    }
+    if ((qd.hist || []).length) box.appendChild(h('p', { class: 'small muted' }, 'Finished Quests: ' + qd.hist.map((x) => (questById(x.id) || { t: x.id }).t).join(', ')));
+    return box;
   }
 
   /* ─────────────── Lumi, the AI tutor (Claude API through a secure Netlify function) ─────────────── */
