@@ -568,6 +568,31 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .kindle-help { margin: 4px 0 12px; } .kindle-help summary { cursor: pointer; font-weight: 700; } .kindle-help ol { margin: 8px 0; padding-left: 20px; display: grid; gap: 4px; }
 .shelf-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; max-height: 320px; overflow: auto; }
 .shelf-list li { display: flex; justify-content: space-between; gap: 10px; align-items: center; border-bottom: 1px solid var(--rule); padding: 6px 0; }
+
+/* Language Lab */
+.lit-card.spanish .lit-ico { background: #C2453A; font-size: 1rem; }
+.es-grid { list-style: none; padding: 0; margin: 12px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.es-grid.opts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 640px) { .es-grid.opts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.es-card { width: 100%; min-height: 130px; display: grid; justify-items: center; align-content: center; gap: 6px; padding: 14px 8px; border: 2px solid var(--rule); border-radius: 16px; background: var(--sheet); color: var(--ink); font: inherit; cursor: pointer; transition: transform .12s, border-color .12s; }
+.es-card:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--soc); }
+.es-card.on { border-color: var(--soc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--soc) 25%, transparent); }
+.es-card.good { border-color: var(--good); background: var(--good-bg); } .es-card.bad { border-color: var(--bad); background: var(--bad-bg); }
+.es-card b { font-size: 1.15rem; } .es-card small, .es-en { color: var(--ink-3); font-size: .8rem; }
+.es-pic { display: inline-grid; place-items: center; }
+.es-pic.emoji { font-size: 3rem; line-height: 1; white-space: nowrap; display: inline-block; } .es-pic.big.emoji { font-size: 5rem; }
+.es-pic.swatch { width: 64px; height: 64px; border-radius: 50%; background: var(--sw); border: 2px solid var(--rule); } .es-pic.big.swatch { width: 110px; height: 110px; }
+.es-pic.dots { grid-template-columns: repeat(5, 14px); gap: 6px; min-height: 48px; } .es-pic.big.dots { grid-template-columns: repeat(5, 22px); gap: 8px; }
+.es-pic.dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--soc); } .es-pic.big.dots i { width: 22px; height: 22px; }
+.es-peek { display: flex; gap: 8px; align-items: center; } .es-peek .es-pic.emoji { font-size: 1.8rem; } .es-peek .es-pic.swatch { width: 28px; height: 28px; } .es-peek .es-pic.dots { grid-template-columns: repeat(5, 6px); gap: 3px; min-height: 0; } .es-peek .es-pic.dots i { width: 6px; height: 6px; }
+.es-prompt { margin: 0; font-weight: 700; color: var(--ink-2); }
+.es-stem { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.es-word { font: 800 2rem/1.2 var(--f-display); }
+.es-words { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.es-words .choice { justify-content: center; font-weight: 700; }
+.es-words .choice.good { border-color: var(--good); background: var(--good-bg); } .es-words .choice.bad { border-color: var(--bad); background: var(--bad-bg); }
+.accents { display: flex; flex-wrap: wrap; gap: 6px; }
+.mic-row { justify-content: center; } .btn.mic { font-size: 1.1rem; padding: 12px 22px; } .btn.mic.on { animation: pulse 1.2s infinite; }
 </style>
 <div id="app"></div>
 <script>

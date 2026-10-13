@@ -24,7 +24,7 @@
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
-    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'other', n: 'Other' }
+    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'other', n: 'Other' }
   ];
   const SUBJ_NAME = Object.fromEntries([...SUBJ, ...EXTRA].map((s) => [s.k, s.n]));
   const COLORS = ['#3461C1', '#C2453A', '#2F8A57', '#7B4FA6', '#C27A12', '#1F8A8A', '#B23A7A', '#5B6B2F'];
@@ -45,7 +45,8 @@
     { id: 'watch10', n: 'Good listener', d: 'Watched 10 video lessons' },
     { id: 'speller', n: 'Spelling star', d: 'Mastered 5 spelling lists' },
     { id: 'bookworm', n: 'Bookworm', d: 'Finished 5 books' },
-    { id: 'author', n: 'Young author', d: 'Wrote 5 journal entries' }
+    { id: 'author', n: 'Young author', d: 'Wrote 5 journal entries' },
+    { id: 'hola', n: '¡Hola!', d: 'Mastered 4 Spanish lessons' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -260,6 +261,7 @@
     const lit = litDoc(kidId);
     earn('speller', Object.values(lit.spell || {}).filter((x) => x.best >= pass).length >= 5);
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
+    earn('hola', esMastered(kidId) >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
 
@@ -303,17 +305,17 @@
   }
   document.addEventListener('focusout', () => { if (S.dirty) { S.dirty = false; setTimeout(scheduleRender, 50); } });
 
-  function go(screen, view) { lumiClose(); Player.stop(); if (!['lesson', 'quiz', 'spell', 'journal'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
+  function go(screen, view) { lumiClose(); Player.stop(); if (!['lesson', 'quiz', 'spell', 'journal', 'spanish'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
 
   function render() {
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -561,7 +563,7 @@
           h('button', { class: 'btn ghost sm', onclick: () => go('course', { g, s: s.k }) }, 'All units')));
     })));
     const un = unlockedThemes(k.id), cur = kidTheme(k.id);
-    main.appendChild(h('h2', { class: 'sec' }, 'Reading, spelling & writing'));
+    main.appendChild(h('h2', { class: 'sec' }, 'Reading, writing & Spanish'));
     main.appendChild(litCards(k));
     main.appendChild(h('h2', { class: 'sec' }, 'My themes'));
     main.appendChild(h('ul', { class: 'themes' },
@@ -679,7 +681,7 @@
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & writing'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
     const body = { overview: pOverview, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
@@ -716,6 +718,8 @@
   function transcript(k) {
     const rows = [];
     for (let g = 9; g <= 12; g++) SUBJ.forEach((s) => { const st = courseStats(k.id, g, s.k); if (st.tried || st.mastered) { const c = course(g, s.k); rows.push({ g, title: c.t, pct: st.pct, letter: LETTER(st.avg), done: st.pct === 100, credit: st.pct === 100 ? c.credit || 1 : 0 }); } });
+    const L = langDoc(k.id);
+    if (L.doneAt && L.doneGrade >= 9) { const bs = ES.units.map((u) => ((L.units || {})[u.id] || {}).best).filter((x) => x != null); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null; rows.push({ g: L.doneGrade, title: 'Spanish 1: Beginner (Language Lab)', pct: 100, letter: LETTER(avg), done: true, credit: 0.5 }); }
     const done = rows.filter((r) => r.done && r.letter !== '—');
     const gpa = done.length ? (done.reduce((a, r) => a + POINTS[r.letter], 0) / done.length).toFixed(2) : null;
     return { rows, gpa, credits: rows.reduce((a, r) => a + r.credit, 0) };
@@ -763,7 +767,7 @@
     wrap.appendChild(h('article', { class: 'card transcript' },
       h('h2', null, 'High school transcript'),
       tr.rows.length ? [
-        h('p', { class: 'muted small' }, 'Each completed core course earns 1.0 credit; AI & Me and Money Smart courses earn 0.5. GPA is unweighted (A = 4.0) and counts completed courses only.'),
+        h('p', { class: 'muted small' }, 'Each completed core course earns 1.0 credit; AI & Me, Money Smart and Spanish 1 earn 0.5. GPA is unweighted (A = 4.0) and counts completed courses only.'),
         h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Grade', 'Course', 'Status', 'Letter', 'Credit'].map((t) => h('th', { scope: 'col' }, t)))), h('tbody', null, tr.rows.map((r) => h('tr', null, h('td', { class: 'num' }, r.g), h('td', null, r.title), h('td', null, r.done ? 'Completed' : 'In progress · ' + r.pct + '%'), h('td', { class: 'num grade-cell' }, r.letter), h('td', { class: 'num' }, r.credit.toFixed(1))))), h('tfoot', null, h('tr', null, h('td', { colspan: 3 }, 'Cumulative'), h('td', { class: 'num' }, tr.gpa ? 'GPA ' + tr.gpa : '—'), h('td', { class: 'num' }, tr.credits.toFixed(1)))))),
         h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: () => downloadTranscript(k) }, 'Download transcript'))
       ] : h('p', { class: 'muted' }, 'High school courses (grades 9–12) appear here once ' + k.name + ' starts one.')));
@@ -838,7 +842,7 @@
     wrap.appendChild(h('h2', { class: 'sec' }, 'Learners'));
     kids().forEach((k) => {
       wrap.appendChild(h('div', { class: 'kid-edit' }, kidForm(k, () => render()),
-        S.confirmKid === k.id ? h('div', { class: 'card danger-zone' }, h('p', null, 'Remove ' + k.name + ' and all of their progress and hours? This cannot be undone.'), h('div', { class: 'actions' }, h('button', { class: 'btn danger sm', onclick: async () => { f.kids = f.kids.filter((x) => x.id !== k.id); saveFamily(); await Store.remove('kid-' + k.id); await Store.remove('log-' + k.id); await Store.remove('lit-' + k.id); S.confirmKid = null; toast(k.name + ' was removed.'); render(); } }, 'Remove ' + k.name), h('button', { class: 'btn ghost sm', onclick: () => { S.confirmKid = null; render(); } }, 'Cancel')))
+        S.confirmKid === k.id ? h('div', { class: 'card danger-zone' }, h('p', null, 'Remove ' + k.name + ' and all of their progress and hours? This cannot be undone.'), h('div', { class: 'actions' }, h('button', { class: 'btn danger sm', onclick: async () => { f.kids = f.kids.filter((x) => x.id !== k.id); saveFamily(); await Store.remove('kid-' + k.id); await Store.remove('log-' + k.id); await Store.remove('lit-' + k.id); await Store.remove('lang-' + k.id); S.confirmKid = null; toast(k.name + ' was removed.'); render(); } }, 'Remove ' + k.name), h('button', { class: 'btn ghost sm', onclick: () => { S.confirmKid = null; render(); } }, 'Cancel')))
           : h('button', { class: 'btn ghost sm remove-kid', onclick: () => { S.confirmKid = k.id; render(); } }, 'Remove ' + k.name)));
     });
     wrap.appendChild(kidForm(null, () => render()));
@@ -1171,7 +1175,8 @@
         h('button', { class: 'btn primary sm', onclick: () => go('reading') }, 'Log my reading')),
       h('article', { class: 'lit-card write' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, '✎'), h('h3', null, 'My journal'),
         h('p', { class: 'muted small' }, unseen ? 'You have a new note from your grown-up!' : jr.length + ' entr' + (jr.length === 1 ? 'y' : 'ies') + ' written'),
-        h('button', { class: 'btn primary sm', onclick: () => go('journal') }, 'Write today')));
+        h('button', { class: 'btn primary sm', onclick: () => go('journal') }, 'Write today')),
+      esCard(k));
   }
   function litBack() { return h('button', { class: 'btn ghost sm back', onclick: () => { S.sp = null; go('home'); } }, '← Dashboard'); }
 
@@ -1463,7 +1468,7 @@
 
   /* ── parent: reading & writing ── */
   function pLiteracy() {
-    const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Reading & writing'));
+    const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Reading, writing & languages'));
     if (!kids().length) { wrap.appendChild(h('p', { class: 'muted' }, 'Add a learner first.')); return wrap; }
     const k = kidById(S.pkid) || kids()[0]; S.pkid = k.id; const L = litDoc(k.id), pass = settings().passMark;
     wrap.appendChild(h('div', { class: 'filters' }, h('label', { for: 'p-kid' }, 'Learner'), kidSelect()));
@@ -1475,6 +1480,7 @@
       h('article', { class: 'card' }, h('h3', null, 'Spelling · ' + GRADE_NAME(g) + ' lists'),
         h('ul', { class: 'hbars' }, lists.map((l) => { const r = L.spell[l.id]; return h('li', null, h('span', null, l.t), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'ela'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })),
         h('p', { class: 'small muted' }, 'Learners can switch to an easier or harder grade\'s lists on their spelling page.'))));
+    wrap.appendChild(pSpanish(k));
     wrap.appendChild(familyShelf());
     wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Tricky words'),
       trW.length ? [h('p', { class: 'small muted' }, 'Words missed in tests. Each comes back for review after 1, 3, 7 and 14 days and leaves the list once it\'s spelled right every time.'),
@@ -1493,6 +1499,188 @@
       h('form', { class: 'jr-note-form', onsubmit: (ev) => { ev.preventDefault(); const v = ev.target.querySelector('textarea').value.trim(); e.pn = v.slice(0, 600) || null; e.seen = false; saveLit(k.id); toast(v ? 'Note saved. ' + k.name + ' will see it in their journal.' : 'Note removed.'); render(); } },
         h('label', { class: 'small', for: 'pn-' + e.id }, 'Note to ' + k.name), h('textarea', { id: 'pn-' + e.id, rows: 2, maxlength: 600 }, e.pn || ''), h('button', { class: 'btn ghost xs', type: 'submit' }, e.pn ? 'Update note' : 'Save note'))))));
     return wrap;
+  }
+
+  /* ─────────────── Language Lab: Spanish (immersion-style practice) ─────────────── */
+  // lang-{kidId} = { units: {unitId: {best,last,tries,at}}, review: {es: {box,due,miss}}, eng: bool, doneAt, doneGrade }
+  const ES = window.LH_SPANISH || { units: [] };
+  const langDoc = (id) => Store.cache['lang-' + id] || (Store.cache['lang-' + id] = { units: {}, review: {} });
+  function saveLang(id) { Store.set('lang-' + id, langDoc(id)); }
+  const fold = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[¿?¡!.,;:"'’]/g, ' ').replace(/\s+/g, ' ').trim();
+  const stripArt = (s) => s.replace(/^(el|la|los|las|un|una) /, '');
+  const esFind = (es) => { for (const u of ES.units) { const it = u.items.find((x) => x.es === es); if (it) return { u, it }; } return null; };
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  function esVoice() {
+    const vs = Player.synth ? Player.synth.getVoices().filter((v) => /^es[-_]/i.test(v.lang)) : [];
+    for (const p of [/^es[-_](US|MX|419)/i, /español de Estados Unidos/i, /Google español/i]) { const v = vs.find((x) => p.test(x.lang) || p.test(x.name)); if (v) return v; }
+    return vs[0] || null;
+  }
+  function sayEs(text, rate) {
+    const sy = Player.synth; if (!sy) return false;
+    try { sy.cancel(); const u = new SpeechSynthesisUtterance(text); const v = esVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-US'; u.rate = Math.max(0.4, Math.min(1.6, (rate || 0.85) * (Player.rate || 1))); sy.speak(u); return true; } catch (e) { return false; }
+  }
+  function esPic(it, big) {
+    const cls = 'es-pic' + (big ? ' big' : '');
+    if (it.c) return h('span', { class: cls + ' swatch', style: '--sw:' + it.c, 'aria-hidden': 'true' });
+    if (it.n) return h('span', { class: cls + ' dots', 'aria-hidden': 'true' }, Array.from({ length: it.n }, () => h('i')));
+    return h('span', { class: cls + ' emoji', 'aria-hidden': 'true' }, it.p);
+  }
+  const esHint = (k, it) => (langDoc(k.id).eng ? h('small', { class: 'es-en' }, it.en) : null);
+  function langDue(kidId) { const r = langDoc(kidId).review || {}, t = todayStr(); return Object.keys(r).filter((w) => r[w].due <= t && esFind(w)); }
+  const esMastered = (kidId) => ES.units.filter((u) => ((langDoc(kidId).units || {})[u.id] || {}).best >= settings().passMark).length;
+  // Similarity for speaking checks (speech recognizers often drop or change articles and accents).
+  function lev(a, b) { const m = a.length, n = b.length; const d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; }
+  function saidRight(heard, target) {
+    const t = stripArt(fold(target)); return heard.some((x) => { const f = stripArt(fold(x)); return f === t || f.includes(t) || (t.length >= 4 && 1 - lev(f, t) / Math.max(f.length, t.length) >= 0.75); });
+  }
+
+  function esQuestions(items, pool) {
+    const types = ['listen', 'pic', 'read', 'speak', 'type', 'listen', 'pic', 'speak', 'read', 'type', 'listen', 'pic'];
+    const order = shuffle(items), qs = [], n = Math.min(12, Math.max(items.length, Math.round(items.length * 1.5)));
+    for (let i = 0; qs.length < n; i++) {
+      const it = order[i % order.length]; let t = types[qs.length % types.length];
+      if (t === 'speak' && !SpeechRec) t = 'pic';
+      if (t === 'listen' && !Player.synth) t = 'read';
+      const others = shuffle(pool.filter((x) => x.es !== it.es)).slice(0, 3);
+      qs.push({ t, it, opts: shuffle([it].concat(others)) });
+    }
+    return qs;
+  }
+  function startEs(unit, review) {
+    const kidId = S.who; let items, pool;
+    if (review) { items = langDue(kidId).slice(0, 10).map((w) => esFind(w).it); pool = ES.units.reduce((a, u) => a.concat(u.items), []); }
+    else { items = unit.items; pool = unit.items; }
+    S.es = { uid: review ? null : unit.id, title: review ? 'Repaso' : unit.t, qs: esQuestions(items, pool), at: 0, right: 0, skipped: 0, missed: [], phase: 'ask', tries: 0, heard: null, review: !!review, spoken: -1 };
+    go('spanish', { play: 1 });
+  }
+  function esAnswer(ok) {
+    const s = S.es, q = s.qs[s.at];
+    if (ok) { s.right++; s.phase = 'right'; sayEs(q.it.es); render(); setTimeout(() => { if (S.es === s && s.phase === 'right') esNext(); }, 1100); }
+    else { if (!s.missed.includes(q.it.es)) s.missed.push(q.it.es); s.phase = 'wrong'; sayEs(q.it.es); render(); }
+  }
+  function esNext() { const s = S.es; s.at++; s.phase = 'ask'; s.tries = 0; s.heard = null; s.pick = null; if (s.at >= s.qs.length) return esFinish(); render(); }
+  function esFinish() {
+    const s = S.es, kidId = S.who, L = langDoc(kidId), k = kidById(kidId); L.units = L.units || {}; L.review = L.review || {};
+    const counted = Math.max(1, s.qs.length - s.skipped), score = Math.round((s.right / counted) * 100);
+    const asked = Array.from(new Set(s.qs.map((q) => q.it.es)));
+    asked.forEach((w) => {
+      const r = L.review[w];
+      if (s.missed.includes(w)) L.review[w] = { box: 0, due: addDays(1), miss: ((r && r.miss) || 0) + 1 };
+      else if (r && s.review) { const box = r.box + 1; if (box >= BOX_DAYS.length) delete L.review[w]; else L.review[w] = Object.assign(r, { box, due: addDays(BOX_DAYS[box]) }); }
+    });
+    if (s.uid) { const p = L.units[s.uid]; L.units[s.uid] = { best: Math.max(score, p ? p.best : 0), last: score, tries: (p ? p.tries : 0) + 1, at: Date.now() }; }
+    if (!L.doneAt && esMastered(kidId) === ES.units.length) { L.doneAt = Date.now(); L.doneGrade = k ? k.grade : null; }
+    saveLang(kidId); Timer.accrue(); Timer.flush(); checkBadges(kidId);
+    s.phase = 'done'; s.score = score; s.pass = score >= settings().passMark; if (s.pass) setTimeout(confetti, 50); render();
+  }
+  function esListen(s) {
+    if (!SpeechRec) return;
+    const q = s.qs[s.at];
+    try {
+      const rec = new SpeechRec(); rec.lang = (esVoice() && esVoice().lang) || 'es-US'; rec.interimResults = false; rec.maxAlternatives = 5;
+      s.listening = true; s.heard = null; render();
+      rec.onresult = (e) => { const alts = []; for (let i = 0; i < e.results.length; i++) for (let j = 0; j < e.results[i].length; j++) alts.push(e.results[i][j].transcript); s.heard = alts[0] || ''; s.listening = false; if (saidRight(alts, q.it.es)) esAnswer(true); else { s.tries++; render(); } };
+      rec.onerror = (e) => { s.listening = false; s.micErr = e && e.error === 'not-allowed' ? 'The microphone is blocked. Ask your grown-up to allow it in the browser, or skip.' : 'I didn\'t catch that. Try again.'; render(); };
+      rec.onend = () => { if (s.listening) { s.listening = false; render(); } };
+      s.micErr = null; rec.start();
+    } catch (e) { s.listening = false; s.micErr = 'The microphone isn\'t available here.'; render(); }
+  }
+
+  function viewSpanish() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'span') Timer.start(k.id, 'span');
+    const L = langDoc(k.id), main = h('main', { class: 'wrap spanish' });
+    if (S.es && S.view.play) { main.appendChild(esPlay(k, S.es)); return h('div', null, kidBar(), main); }
+    main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.es = null; go('home'); } }, '← Dashboard'));
+    if (S.view.learn) {
+      const u = ES.units.find((x) => x.id === S.view.learn);
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Spanish 1 · Aprende'), h('h1', null, u.t), L.eng ? h('p', { class: 'muted' }, u.en) : null,
+        h('p', { class: 'lede' }, 'Mira, escucha y repite. (Look, listen and repeat.)')));
+      main.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => { let i = 0; const next = () => { if (S.screen !== 'spanish' || i >= u.items.length) return; const el = document.querySelectorAll('.es-card')[i]; document.querySelectorAll('.es-card').forEach((c) => c.classList.remove('on')); if (el) el.classList.add('on'); sayEs(u.items[i].es, 0.8); i++; setTimeout(next, 2200); }; next(); } }, icon('voice'), ' Escuchar todo')));
+      main.appendChild(h('ul', { class: 'es-grid learn' }, u.items.map((it) => h('li', null, h('button', { type: 'button', class: 'es-card', onclick: (e) => { document.querySelectorAll('.es-card').forEach((c) => c.classList.remove('on')); e.currentTarget.classList.add('on'); sayEs(it.es, 0.8); } }, esPic(it), h('b', null, it.es), esHint(k, it))))));
+      main.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => startEs(u) }, '¡A practicar! (Practice)'), h('button', { class: 'btn ghost', onclick: () => go('spanish') }, 'Todas las lecciones')));
+      return h('div', null, kidBar(), main);
+    }
+    const pass = settings().passMark, due = langDue(k.id), m = esMastered(k.id);
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Language Lab'), h('h1', null, '¡Hola, ' + k.name + '! · Spanish 1'),
+      h('p', { class: 'lede' }, 'Learn Spanish the way you learned English: by matching words to pictures, listening and speaking. No translating needed.'),
+      h('div', { class: 'stat-row' }, stat(m + '/' + ES.units.length, 'lessons mastered'), stat(String(Object.keys(L.review || {}).length), 'words to review')),
+      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: L.eng ? true : null, onchange: (e) => { L.eng = e.target.checked; saveLang(k.id); render(); } }), ' Show English hints')));
+    if (!Player.synth || !esVoice()) main.appendChild(h('div', { class: 'banner' }, Player.synth ? 'This device has no Spanish voice installed, so words may be read with an English accent. On a Chromebook, the Google español voice is usually built in — try restarting Chrome.' : 'This browser can\'t read aloud, so listening practice is turned off.'));
+    if (!SpeechRec) main.appendChild(h('p', { class: 'small muted' }, 'Speaking practice needs the Chrome browser with a microphone, so it is skipped on this device.'));
+    if (due.length) main.appendChild(h('article', { class: 'card tricky-card' }, h('div', null, h('h3', null, 'Repaso (review)'), h('p', { class: 'muted small' }, due.length + ' word' + (due.length === 1 ? '' : 's') + ' ready to review today')), h('button', { class: 'btn primary sm', onclick: () => startEs(null, true) }, 'Review ' + Math.min(10, due.length) + ' words')));
+    main.appendChild(h('div', { class: 'spell-lists' }, ES.units.map((u, i) => {
+      const r = (L.units || {})[u.id]; const st = !r ? ['new', 'Nuevo'] : r.best >= pass ? ['mastered', '¡Excelente! · ' + r.best + '%'] : ['trying', 'Best ' + r.best + '%'];
+      return h('article', { class: 'card spell-list es-unit' }, h('div', { class: 'sl-top' }, h('span', { class: 'unit-n' }, 'Lección ' + (i + 1)), h('span', { class: 'pill ' + st[0] }, st[1])),
+        h('h3', null, u.t), h('p', { class: 'muted small' }, u.en), h('div', { class: 'es-peek' }, u.items.slice(0, 4).map((it) => esPic(it))),
+        h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => go('spanish', { learn: u.id }) }, 'Aprender (learn)'), h('button', { class: 'btn primary sm', onclick: () => startEs(u) }, r ? 'Practice again' : 'Practice')));
+    })));
+    return h('div', null, kidBar(), main);
+  }
+  function esPlay(k, s) {
+    const wrap = h('section', { class: 'spell-play es-play' });
+    wrap.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.es = null; go('spanish'); } }, '← Lecciones'));
+    if (s.phase === 'done') {
+      const st = h('div', { class: 'result-stars' }); st.innerHTML = window.LH_STARS ? window.LH_STARS(s.score >= 100 ? 3 : s.pass ? 2 : s.score >= 40 ? 1 : 0) : '';
+      wrap.appendChild(h('div', { class: 'result-card ' + (s.pass ? 'pass' : 'retry') }, st, ring(s.score, s.right + ' of ' + (s.qs.length - s.skipped), 'lg'),
+        lumi(s.pass ? 'cheer' : 'think', s.pass ? '¡Muy bien! Great job!' : '¡Buen intento! Good try — practice and try again.'),
+        h('h1', null, s.review ? '¡Repaso terminado!' : s.pass ? '¡Lección dominada!' : 'Sigue practicando'),
+        s.missed.length ? h('div', { class: 'missed' }, h('p', null, 'Practice these (they\'ll come back for review):'), h('ul', { class: 'chips' }, s.missed.map((w) => h('li', null, h('button', { type: 'button', class: 'chip-btn', onclick: () => sayEs(w, 0.8) }, w))))) : null,
+        h('div', { class: 'actions' },
+          !s.review ? h('button', { class: 'btn primary', onclick: () => startEs(ES.units.find((u) => u.id === s.uid)) }, 'Practice again') : null,
+          s.review && langDue(k.id).length ? h('button', { class: 'btn primary', onclick: () => startEs(null, true) }, 'Review more') : null,
+          h('button', { class: 'btn ghost', onclick: () => { S.es = null; go('spanish'); } }, 'Todas las lecciones'))));
+      return wrap;
+    }
+    const q = s.qs[s.at], it = q.it, hear = () => sayEs(it.es, 0.85);
+    if (s.spoken !== s.at && s.phase === 'ask' && (q.t === 'listen' || q.t === 'type' || q.t === 'speak')) { s.spoken = s.at; setTimeout(hear, 300); }
+    const PROMPT = { listen: 'Escucha y toca la imagen. (Listen and tap the picture.)', read: 'Lee y toca la imagen. (Read and tap the picture.)', pic: '¿Qué es? Toca la palabra. (What is it? Tap the word.)', type: 'Escucha y escribe. (Listen and type.)', speak: 'Escucha y repite. (Listen and say it.)' };
+    wrap.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, s.title + ' · ' + (s.at + 1) + ' / ' + s.qs.length), bar(Math.round((s.at / s.qs.length) * 100), 'soc')));
+    const card = h('div', { class: 'spell-card card es-q' }, h('p', { class: 'es-prompt' }, PROMPT[q.t]));
+    const done = s.phase !== 'ask';
+    const audioBtn = Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: hear }, icon('voice'), ' Escuchar') : null;
+    if (q.t === 'listen' || q.t === 'read') {
+      card.appendChild(h('div', { class: 'es-stem' }, q.t === 'read' || done ? h('b', { class: 'es-word' }, it.es) : null, audioBtn));
+      card.appendChild(h('ul', { class: 'es-grid opts' }, q.opts.map((o) => h('li', null, h('button', { type: 'button', class: 'es-card' + (done && o.es === it.es ? ' good' : '') + (done && s.pick === o.es && o.es !== it.es ? ' bad' : ''), disabled: done ? true : null, 'aria-label': o.en ? 'Picture ' + (q.opts.indexOf(o) + 1) : '', onclick: () => { s.pick = o.es; esAnswer(o.es === it.es); } }, esPic(o), done ? h('small', null, o.es) : null)))));
+    } else if (q.t === 'pic') {
+      card.appendChild(h('div', { class: 'es-stem' }, esPic(it, true), esHint(k, it)));
+      card.appendChild(h('div', { class: 'es-words' }, q.opts.map((o) => h('button', { type: 'button', class: 'choice' + (done && o.es === it.es ? ' good' : '') + (done && s.pick === o.es && o.es !== it.es ? ' bad' : ''), disabled: done ? true : null, onclick: () => { s.pick = o.es; esAnswer(o.es === it.es); } }, o.es))));
+    } else if (q.t === 'type') {
+      card.appendChild(h('div', { class: 'es-stem' }, esPic(it, true), audioBtn, esHint(k, it)));
+      if (s.phase === 'ask') {
+        const inp = h('input', { id: 'es-in', class: 'sp-input', autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off', spellcheck: 'false', lang: 'es', 'aria-label': 'Type the Spanish words', maxlength: 40 });
+        card.appendChild(h('div', { class: 'accents' }, ['á', 'é', 'í', 'ó', 'ú', 'ñ', '¿', '¡'].map((c) => h('button', { type: 'button', class: 'chip-btn', onclick: () => { const p = inp.selectionStart || inp.value.length; inp.value = inp.value.slice(0, p) + c + inp.value.slice(p); inp.focus(); inp.setSelectionRange(p + 1, p + 1); } }, c))));
+        card.appendChild(h('form', { class: 'sp-form', onsubmit: (e) => { e.preventDefault(); const v = fold(inp.value); if (!v) return; s.typed = inp.value.trim(); const t = fold(it.es); s.accentNote = v === t && inp.value.trim().toLowerCase() !== it.es.toLowerCase(); esAnswer(v === t || stripArt(v) === stripArt(t)); } }, inp, h('button', { class: 'btn primary', type: 'submit' }, 'Comprobar (check)')));
+        setTimeout(() => { const x = $('#es-in'); if (x) x.focus(); }, 30);
+      } else card.appendChild(h('p', { class: s.phase === 'right' ? 'sp-ok' : 'sp-wrong' }, s.phase === 'right' ? '✓ ' + it.es + (s.accentNote ? ' — watch the accents!' : '') : 'You wrote "' + (s.typed || '') + '". It\'s spelled: ', s.phase === 'right' ? null : h('b', { class: 'sp-right' }, it.es)));
+    } else if (q.t === 'speak') {
+      card.appendChild(h('div', { class: 'es-stem' }, esPic(it, true), h('b', { class: 'es-word' }, it.es), audioBtn, esHint(k, it)));
+      if (s.phase === 'ask') {
+        card.appendChild(h('div', { class: 'actions mic-row' },
+          h('button', { type: 'button', class: 'btn primary mic' + (s.listening ? ' on' : ''), disabled: s.listening ? true : null, onclick: () => esListen(s) }, s.listening ? 'Escuchando… (listening)' : '🎤 Hablar (speak)'),
+          h('button', { type: 'button', class: 'btn ghost sm', onclick: () => { s.skipped++; esNext(); } }, s.tries >= 2 ? 'Next' : 'Skip')));
+        if (s.heard != null && !s.listening) card.appendChild(h('p', { class: 'small' }, 'Te oí (I heard): "' + s.heard + '". ' + (s.tries >= 2 ? 'Good effort! Listen once more, then move on.' : 'Listen and try again!')));
+        if (s.micErr) card.appendChild(h('p', { class: 'small err' }, s.micErr));
+      } else card.appendChild(h('p', { class: 'sp-ok' }, '✓ ¡Perfecto! ' + it.es));
+    }
+    if (s.phase === 'wrong') card.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: esNext }, 'Siguiente (next)')));
+    if (s.phase === 'right' && q.t !== 'type' && q.t !== 'speak') card.appendChild(h('p', { class: 'sp-ok', role: 'status' }, '✓ ¡Muy bien!'));
+    wrap.appendChild(card);
+    return wrap;
+  }
+  function esCard(k) {
+    const m = esMastered(k.id), due = langDue(k.id).length;
+    return h('article', { class: 'lit-card spanish' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, '¡H!'), h('h3', null, 'Spanish'),
+      h('p', { class: 'muted small' }, m + ' of ' + ES.units.length + ' lessons mastered' + (due ? ' · ' + due + ' to review' : '')),
+      bar(Math.round((m / ES.units.length) * 100), 'soc'),
+      h('button', { class: 'btn primary sm', onclick: () => { S.es = null; go('spanish'); } }, due ? 'Review Spanish' : '¡Vamos! (Let\'s go)'));
+  }
+  function pSpanish(k) {
+    const L = langDoc(k.id), pass = settings().passMark, rv = L.review || {};
+    return h('article', { class: 'card' }, h('h3', null, 'Spanish 1 (Language Lab)'),
+      h('ul', { class: 'hbars' }, ES.units.map((u) => { const r = (L.units || {})[u.id]; return h('li', null, h('span', null, u.t + ' · ' + u.en), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'soc'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })),
+      Object.keys(rv).length ? h('p', { class: 'small' }, 'Words to review: ' + Object.keys(rv).join(', ')) : null,
+      h('p', { class: 'small muted' }, 'Time in Spanish is logged in the Hours log. High school learners who master all 8 lessons get Spanish 1: Beginner (0.5 credit) on their transcript. Speaking practice uses Chrome\'s built-in speech recognition, which may send the audio to Google to turn it into text; learners can skip it.'));
   }
 
   /* ─────────────── Lumi, the AI tutor (Claude API through a secure Netlify function) ─────────────── */
@@ -1609,8 +1797,8 @@
   async function loadSchool() {
     try { await Store.get('family'); } catch (e) { if (Store.provider === 'firebase') { S.screen = 'auth'; S.view = { mode: 'in' }; render(); toast('Could not load your school: ' + ((e && e.code) || 'error') + '. Check the Firestore rules, then sign in again.'); return; } Store.mode = 'local'; await Store.get('family'); }
     if (!fam()) { S.screen = 'setup'; S.view = { step: 1 }; render(); return; }
-    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.get('lit-' + k.id).catch(() => null), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
-    Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); Store.watch('lit-' + k.id); });
+    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.get('lit-' + k.id).catch(() => null), Store.get('lang-' + k.id).catch(() => null), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
+    Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); Store.watch('lit-' + k.id); Store.watch('lang-' + k.id); });
     S.screen = kids().length ? 'picker' : 'setup'; S.view = kids().length ? {} : { step: 2 }; render();
   }
   window.addEventListener('pagehide', () => { Player.stop(); Timer.stop(); });
