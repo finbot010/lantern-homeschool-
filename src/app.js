@@ -1253,6 +1253,42 @@
     return wrap;
   }
 
+  /* ── book picks: free curated books + the family bookshelf (e.g. Kindle titles the parent adds) ── */
+  const BOOKS = window.LH_BOOKS || [];
+  const WHERE = { kindle: 'Kindle', home: 'Book at home', library: 'Library book', online: 'Online' };
+  const KINDLE_URL = 'https://read.amazon.com/kindle-library';
+  const shelfFor = (kidId) => ((fam() && fam().shelf) || []).filter((b) => !b.kids || !b.kids.length || b.kids.includes(kidId));
+  function pickBook(b) {
+    const t = $('#rd-title'), a = $('#rd-auth'); if (!t) return;
+    t.value = b.t; a.value = b.a || ''; const f = t.closest('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => { const m = $('#rd-min'); if (m) m.focus(); }, 350); toast('Great pick! Log your minutes when you finish reading.');
+  }
+  function booksForMe(k, books) {
+    const g = k.grade, mode = S.bf || 'mine', done = {};
+    books.forEach((b) => { if (b.fin) done[b.t.trim().toLowerCase()] = 1; });
+    const shelf = shelfFor(k.id).map((b) => ({ t: b.t, a: b.a, k: b.w, u: b.u || (b.w === 'kindle' ? KINDLE_URL : ''), d: WHERE[b.w] ? 'From our family bookshelf · ' + WHERE[b.w] : 'From our family bookshelf', mine: true }));
+    const lists = {
+      mine: shelf.concat(BOOKS.filter((b) => b.g[0] <= g && g <= b.g[1])),
+      easier: BOOKS.filter((b) => b.g[1] < g && b.g[1] >= g - 3),
+      harder: BOOKS.filter((b) => b.g[0] > g && b.g[0] <= g + 2),
+      shelf
+    };
+    const list = lists[mode] || lists.mine;
+    const tabs = [['mine', 'For my grade'], ['easier', 'Easier'], ['harder', 'A challenge'], ['shelf', 'Our bookshelf' + (shelf.length ? ' (' + shelf.length + ')' : '')]].filter(([key]) => key !== 'easier' || lists.easier.length).filter(([key]) => key !== 'harder' || lists.harder.length);
+    const tag = (b) => b.k === 'video' ? 'Read-aloud video' : b.k === 'ebook' ? 'Free e-book' : WHERE[b.k] || 'Our book';
+    return h('section', { class: 'card books-for-me' },
+      h('div', { class: 'card-head' }, h('h3', null, 'Books for me'), h('span', { class: 'small muted' }, 'Pick a book, then tap "I\'m reading this" to log it')),
+      h('div', { class: 'bf-tabs', role: 'tablist' }, tabs.map(([key, n]) => h('button', { type: 'button', role: 'tab', 'aria-selected': mode === key ? 'true' : 'false', class: 'gchip' + (mode === key ? ' on' : ''), onclick: () => { S.bf = key; render(); } }, n))),
+      list.length ? h('ul', { class: 'bf-grid' }, list.map((b) => { const fin = done[b.t.trim().toLowerCase()];
+        return h('li', { class: 'bf-card ' + (b.k || 'other') + (fin ? ' read' : '') },
+          h('span', { class: 'bf-tag' }, fin ? '✓ Finished' : tag(b)), h('b', { class: 'bf-t' }, b.t), b.a ? h('span', { class: 'small muted' }, b.a) : null,
+          b.mine ? null : h('span', { class: 'small' }, b.d), b.note ? h('span', { class: 'small bf-note' }, b.note) : null,
+          h('div', { class: 'bf-actions' },
+            b.u ? h('a', { class: 'btn ghost xs', href: b.u, target: '_blank', rel: 'noopener noreferrer' }, b.k === 'video' ? 'Watch & read' : b.k === 'kindle' ? 'Open Kindle' : 'Open book', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
+            h('button', { type: 'button', class: 'btn primary xs', onclick: () => pickBook(b) }, 'I\'m reading this'))); }))
+        : h('p', { class: 'muted small' }, mode === 'shelf' ? 'No books here yet. Ask your grown-up to add books from your home or Kindle library.' : 'No books in this list.'));
+  }
+
   /* ── reading log ── */
   function viewReading() {
     const k = kidById(S.who); if (!k) return viewPicker();
@@ -1277,6 +1313,7 @@
       h('div', { class: 'row4' }, h('div', null, h('label', { for: 'rd-min' }, 'Minutes'), h('input', { id: 'rd-min', type: 'number', min: 1, max: 300, step: 1, value: g <= 3 ? 15 : 20 })), h('div', null, h('label', { for: 'rd-pages' }, 'Pages (optional)'), h('input', { id: 'rd-pages', type: 'number', min: 0, max: 2000 })), h('div', null, h('label', { for: 'rd-rate' }, 'How was it?'), ratingSel), h('div', { class: 'fin-box' }, h('label', { class: 'check' }, h('input', { id: 'rd-fin', type: 'checkbox' }), ' I finished the book!'))),
       h('label', { for: 'rd-note' }, READ_PROMPT[band(g)] + ' (optional)'), h('textarea', { id: 'rd-note', rows: 3, maxlength: 1000 }),
       h('p', { id: 'rd-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary', type: 'submit' }, 'Save reading'));
+    main.appendChild(booksForMe(k, books));
     main.appendChild(form);
     const fin = []; books.forEach((b) => { if (b.fin && !fin.some((x) => x.t.trim().toLowerCase() === b.t.trim().toLowerCase())) fin.push(b); });
     if (fin.length) main.appendChild(h('article', { class: 'card' }, h('h3', null, 'My bookshelf'), h('ul', { class: 'shelf' }, fin.map((b, i) => h('li', { class: 'spine', style: '--sp:' + COLORS[i % COLORS.length] }, h('b', null, b.t), b.a ? h('small', null, b.a) : null)))));
@@ -1336,6 +1373,47 @@
     S.jbusy = null; render();
   }
 
+  /* ── parent: family bookshelf ── */
+  function parseBookLine(line) {
+    let s = line.replace(/\s+/g, ' ').trim(); if (!s) return null;
+    let u = ''; const m = s.match(/https?:\/\/\S+/); if (m) { u = m[0]; s = s.replace(m[0], '').trim(); }
+    let t = s, a = '';
+    const sep = s.match(/^(.*?)\s+(?:—|–|-|\|)\s+(.*)$/) || s.match(/^(.*)\s+by\s+(.+)$/i) || s.match(/^(.*?)\t(.*)$/);
+    if (sep) { t = sep[1].trim(); a = sep[2].trim(); }
+    t = t.replace(/^["“]|["”]$/g, '').slice(0, 100); a = a.slice(0, 60);
+    return t ? { t, a, u: /^https:\/\//.test(u) ? u.slice(0, 300) : '' } : null;
+  }
+  function familyShelf() {
+    const f = fam(); f.shelf = f.shelf || []; const shelf = f.shelf;
+    const box = h('article', { class: 'card family-shelf' }, h('h3', null, 'Family bookshelf'),
+      h('p', { class: 'hint' }, 'Add books your children can choose from — Kindle books, books at home or library books. They appear under "Our bookshelf" on the learner\'s reading page.'),
+      h('details', { class: 'kindle-help' }, h('summary', null, 'How to add your Kindle books'),
+        h('ol', { class: 'small' },
+          h('li', null, 'On a computer, sign in at ', h('a', { href: KINDLE_URL, target: '_blank', rel: 'noopener noreferrer' }, 'read.amazon.com'), ' (Kindle for Web), or open the Kindle app, and go to your Library.'),
+          h('li', null, 'Copy the titles you want your children to read, or type them.'),
+          h('li', null, 'Paste them below, one book per line. You can add the author after a dash: "Charlotte\'s Web — E. B. White".'),
+          h('li', null, 'Choose "Kindle" and which learners should see them, then press Add books.')),
+        h('p', { class: 'small muted' }, 'Amazon doesn\'t let other apps read your Kindle library, so titles are added by hand. Your children open the books in your Kindle app or on read.amazon.com. To put your Kindle books on a child\'s own Kindle or tablet, use Amazon\'s family sharing (Amazon Household or the Amazon Parent Dashboard).')));
+    const where = h('select', { id: 'sh-where' }, Object.entries(WHERE).map(([v, n]) => h('option', { value: v }, n)));
+    box.appendChild(h('form', { class: 'form', onsubmit: (e) => {
+      e.preventDefault(); const lines = $('#sh-lines').value.split(/\r?\n/).map(parseBookLine).filter(Boolean); const err = $('#sh-err');
+      if (!lines.length) return (err.textContent = 'Paste or type at least one book title.');
+      const ks = kids().filter((k) => { const c = $('#sh-k-' + k.id); return c && c.checked; }).map((k) => k.id);
+      if (!ks.length) return (err.textContent = 'Choose at least one learner.');
+      let added = 0;
+      lines.forEach((b) => { const ex = shelf.find((x) => x.t.toLowerCase() === b.t.toLowerCase()); if (ex) { ex.kids = ks.length === kids().length ? null : ks; return; } shelf.push({ id: uid(), t: b.t, a: b.a, u: b.u, w: where.value, kids: ks.length === kids().length ? null : ks, at: Date.now() }); added++; });
+      f.shelf = shelf.slice(-400); saveFamily(); toast(added ? 'Added ' + added + ' book' + (added === 1 ? '' : 's') + '.' : 'Those books were already on the shelf.'); render();
+    } },
+      h('label', { for: 'sh-lines' }, 'Books (one per line)'), h('textarea', { id: 'sh-lines', rows: 4, placeholder: 'Charlotte\'s Web — E. B. White\nMagic Tree House: Dinosaurs Before Dark — Mary Pope Osborne' }),
+      h('div', { class: 'row2' }, h('div', null, h('label', { for: 'sh-where' }, 'Where is it?'), where),
+        h('fieldset', { class: 'lt-kids' }, h('legend', { class: 'label' }, 'Who can see these'), kids().map((k) => h('label', { class: 'check' }, h('input', { id: 'sh-k-' + k.id, type: 'checkbox', checked: true }), ' ' + k.name)))),
+      h('p', { id: 'sh-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary sm', type: 'submit' }, 'Add books')));
+    if (shelf.length) box.appendChild(h('ul', { class: 'shelf-list' }, shelf.slice().reverse().map((b) => h('li', null,
+      h('span', null, h('b', null, b.t), b.a ? ' — ' + b.a : '', h('span', { class: 'small muted' }, ' · ' + (WHERE[b.w] || '') + ' · ' + (b.kids ? b.kids.map((id) => (kidById(id) || {}).name).filter(Boolean).join(', ') : 'everyone'))),
+      h('button', { type: 'button', class: 'btn ghost xs', 'aria-label': 'Remove ' + b.t, onclick: () => { f.shelf = shelf.filter((x) => x.id !== b.id); saveFamily(); render(); } }, 'Remove')))));
+    return box;
+  }
+
   /* ── parent: reading & writing ── */
   function pLiteracy() {
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Reading & writing'));
@@ -1350,6 +1428,7 @@
       h('article', { class: 'card' }, h('h3', null, 'Spelling · ' + GRADE_NAME(g) + ' lists'),
         h('ul', { class: 'hbars' }, lists.map((l) => { const r = L.spell[l.id]; return h('li', null, h('span', null, l.t), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'ela'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })),
         h('p', { class: 'small muted' }, 'Learners can switch to an easier or harder grade\'s lists on their spelling page.'))));
+    wrap.appendChild(familyShelf());
     wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Tricky words'),
       trW.length ? [h('p', { class: 'small muted' }, 'Words missed in tests. Each comes back for review after 1, 3, 7 and 14 days and leaves the list once it\'s spelled right every time.'),
         h('ul', { class: 'chips' }, trW.slice(0, 60).map((w) => h('li', { class: 'chip-word' }, w, tr[w].miss > 1 ? h('small', null, ' ×' + tr[w].miss) : null)))]
