@@ -136,11 +136,12 @@ export default async (req) => {
     const r = await fetch(API_URL(), {
       method: 'POST',
       headers: { 'x-api-key': API_KEY(), 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, max_tokens: 400, system: systemPrompt(b), messages, metadata: { user_id: crypto.createHash('sha256').update(uid).digest('hex').slice(0, 32) } })
+      body: JSON.stringify({ model: MODEL, max_tokens: b.mode === 'writing' ? 1500 : 700, system: systemPrompt(b), messages, metadata: { user_id: crypto.createHash('sha256').update(uid).digest('hex').slice(0, 32) } })
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { console.error('anthropic', r.status, j && j.error && j.error.type, j && j.error && j.error.message); return reply(req, r.status === 429 || r.status === 529 ? 503 : 502, { error: 'Lumi is resting right now. Try again in a little while.' }); }
     const text = (j.content || []).filter((c) => c.type === 'text').map((c) => c.text).join('\n').trim();
+    if (!text || j.stop_reason === 'max_tokens') console.warn('lumi reply', j.stop_reason, (j.content || []).map((c) => c.type).join(','), j.usage && j.usage.output_tokens);
     return reply(req, 200, { reply: text || 'Hmm, I\'m not sure how to help with that. Can you ask about our lesson another way?' });
   } catch (e) {
     console.error('lumi', e && e.message);
