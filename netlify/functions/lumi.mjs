@@ -27,7 +27,8 @@ function cors(req) {
   const o = req.headers.get('origin');
   return o && ORIGINS.includes(o) ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'POST, OPTIONS', Vary: 'Origin' } : {};
 }
-const reply = (req, status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...cors(req) } });
+// X-Lumi-Billing says which account pays (never the key itself): 'own-key' = your Claude API key, 'netlify' = Netlify AI Gateway credits.
+const reply = (req, status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Lumi-Billing': process.env.LUMI_ANTHROPIC_KEY ? 'own-key' : (process.env.ANTHROPIC_API_KEY ? 'netlify' : 'none'), ...cors(req) } });
 
 /* ── Firebase ID token check (RS256, Google's published keys) ── */
 let KEYS = null, KEYS_AT = 0;
