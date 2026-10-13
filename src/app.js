@@ -10,7 +10,17 @@
     { k: 'ela', n: 'English', c: 'ela' },
     { k: 'sci', n: 'Science', c: 'sci' },
     { k: 'soc', n: 'Social Studies', c: 'soc' },
-    { k: 'ai', n: 'AI & Me', c: 'ai' }
+    { k: 'ai', n: 'AI & Me', c: 'ai' },
+    { k: 'fin', n: 'Money Smart', c: 'fin' }
+  ];
+  // One background theme per subject, unlocked by finishing any course (every unit mastered) in that subject.
+  const THEMES = [
+    { id: 'galaxy', n: 'Galaxy', s: 'math', d: 'Stars, planets and space dust' },
+    { id: 'storybook', n: 'Storybook', s: 'ela', d: 'Warm pages and floating letters' },
+    { id: 'ocean', n: 'Ocean Deep', s: 'sci', d: 'Bubbles, fish and seaweed' },
+    { id: 'treasure', n: 'Treasure Map', s: 'soc', d: 'Dotted trails and a compass' },
+    { id: 'circuit', n: 'Circuit City', s: 'ai', d: 'Glowing neon circuits' },
+    { id: 'gold', n: 'Gold Rush', s: 'fin', d: 'Shiny coins and sparkles' }
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
@@ -181,6 +191,12 @@
     c.u.forEach((u, i) => { const p = prog[g + '-' + s + '-' + i]; if (p) { tried++; sum += p.best; } if (p && p.best >= pass) mastered++; else if (next < 0) next = i; });
     return { total: c.u.length, mastered, pct: Math.round((mastered / c.u.length) * 100), avg: tried ? Math.round(sum / tried) : null, tried, next };
   }
+  function unlockedThemes(kidId) {
+    const out = {};
+    THEMES.forEach((t) => { for (let g = 1; g <= 12; g++) { if (COURSES[g + '-' + t.s] && courseStats(kidId, g, t.s).pct === 100) { out[t.id] = g; break; } } });
+    return out;
+  }
+  function kidTheme(kidId) { const t = kidDoc(kidId).theme; return t && unlockedThemes(kidId)[t] ? t : null; }
   function gradeStats(kidId, g) {
     const cs = SUBJ.map((s) => courseStats(kidId, g, s.k));
     const pct = Math.round(cs.reduce((a, c) => a + c.pct, 0) / cs.length);
@@ -266,6 +282,8 @@
       home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent
     }[S.screen] || viewPicker;
     root.appendChild(scr());
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result'].includes(S.screen) ? kidTheme(S.who) : null;
+    if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
 
@@ -489,6 +507,14 @@
           nextU ? h('button', { class: 'btn primary sm', onclick: () => go('lesson', { g, s: s.k, i: cs.next }) }, cs.tried ? 'Continue' : 'Start', h('span', { class: 'next-u' }, ': ' + nextU.t)) : h('span', { class: 'done-pill' }, 'Course complete'),
           h('button', { class: 'btn ghost sm', onclick: () => go('course', { g, s: s.k }) }, 'All units')));
     })));
+    const un = unlockedThemes(k.id), cur = kidTheme(k.id);
+    main.appendChild(h('h2', { class: 'sec' }, 'My themes'));
+    main.appendChild(h('ul', { class: 'themes' },
+      h('li', null, h('button', { type: 'button', class: 'theme-card' + (!cur ? ' on' : ''), 'aria-pressed': !cur ? 'true' : 'false', onclick: () => { kd.theme = null; saveKid(k.id); render(); } }, h('span', { class: 'sw th-default', 'aria-hidden': 'true' }), h('b', null, 'Classic'), h('small', null, 'The original Lantern look'))),
+      THEMES.map((t) => { const got = un[t.id], sn = SUBJ_NAME[t.s];
+        return h('li', null, h('button', { type: 'button', class: 'theme-card' + (cur === t.id ? ' on' : '') + (got ? '' : ' locked'), disabled: got ? null : true, 'aria-pressed': cur === t.id ? 'true' : 'false', onclick: () => { kd.theme = t.id; saveKid(k.id); render(); } },
+          h('span', { class: 'sw th-' + t.id, 'aria-hidden': 'true' }), got ? null : h('span', { class: 'lock', 'aria-hidden': 'true', html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h6V7a3 3 0 0 0-6 0v3z"/></svg>' }),
+          h('b', null, t.n), h('small', null, got ? t.d : 'Finish any ' + sn + ' course to unlock'))); })));
     main.appendChild(h('h2', { class: 'sec' }, 'Badges'));
     main.appendChild(h('ul', { class: 'badges' }, BADGES.map((b) => { const on = kd.badges && kd.badges[b.id]; return h('li', { class: 'badge' + (on ? ' on' : '') }, h('span', { class: 'medal', 'aria-hidden': 'true' }), h('b', null, b.n), h('small', null, on ? 'Earned ' + new Date(on).toLocaleDateString() : b.d)); })));
     return h('div', null, kidBar(), main);
@@ -567,10 +593,11 @@
   function finishQuiz() {
     const Q = S.quiz; const kidId = S.who; const id = Q.g + '-' + Q.s + '-' + Q.i; const score = Math.round((Q.right / Q.qs.length) * 100);
     const kd = kidDoc(kidId); const prev = kd.prog[id]; const pass = settings().passMark;
-    const wasMastered = prev && prev.best >= pass;
+    const wasMastered = prev && prev.best >= pass; const themesBefore = unlockedThemes(kidId);
     kd.prog[id] = { best: Math.max(score, prev ? prev.best : 0), last: score, tries: (prev ? prev.tries : 0) + 1, at: Date.now(), first: prev ? prev.first : Date.now() };
     saveKid(kidId); Timer.accrue(); Timer.flush(); checkBadges(kidId);
-    S.quiz.result = { score, pass: score >= pass, newly: !wasMastered && score >= pass };
+    const newTheme = THEMES.find((t) => !themesBefore[t.id] && unlockedThemes(kidId)[t.id]);
+    S.quiz.result = { score, pass: score >= pass, newly: !wasMastered && score >= pass, theme: newTheme ? newTheme.id : null };
     go('result', { g: Q.g, s: Q.s, i: Q.i });
   }
   function viewResult() {
@@ -582,6 +609,7 @@
         ring(r.score, Q.right + ' of ' + Q.qs.length, 'lg'),
         lumi(r.pass ? 'cheer' : 'think', r.pass ? (r.score >= 100 ? 'A perfect score! You\'re a superstar!' : 'You did it! I\'m so proud of you.') : 'Let\'s review together and try again. You can do it!'),
         h('h1', null, r.pass ? (r.newly ? 'Unit mastered!' : 'Great work!') : 'Almost there'),
+        r.theme ? (() => { const t = THEMES.find((x) => x.id === r.theme); const on = kidTheme(S.who) === t.id; return h('div', { class: 'unlock-card', role: 'status' }, h('p', { class: 'eyebrow' }, 'Course complete · new theme unlocked'), h('span', { class: 'sw th-' + t.id, 'aria-hidden': 'true' }), h('b', null, t.n + ': ' + t.d), on ? h('span', { class: 'small muted' }, 'It\'s on now!') : h('button', { class: 'btn primary sm', onclick: () => { kidDoc(S.who).theme = t.id; saveKid(S.who); confetti(); render(); } }, 'Use my new theme')); })() : null,
         h('p', { class: 'lede' }, r.pass ? 'You scored ' + r.score + '% on ' + c.u[Q.i].t + '.' : 'You need ' + settings().passMark + '% to master this unit. Review the lesson and try again — every try gets fresh questions.'),
         h('div', { class: 'actions' },
           r.pass && nextI != null ? h('button', { class: 'btn primary', onclick: () => go('lesson', { g: Q.g, s: Q.s, i: nextI }) }, 'Next unit: ' + c.u[nextI].t) : null,
@@ -656,7 +684,7 @@
     wrap.appendChild(h('article', { class: 'card transcript' },
       h('h2', null, 'High school transcript'),
       tr.rows.length ? [
-        h('p', { class: 'muted small' }, 'Each completed core course earns 1.0 credit; AI courses earn 0.5. GPA is unweighted (A = 4.0) and counts completed courses only.'),
+        h('p', { class: 'muted small' }, 'Each completed core course earns 1.0 credit; AI & Me and Money Smart courses earn 0.5. GPA is unweighted (A = 4.0) and counts completed courses only.'),
         h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Grade', 'Course', 'Status', 'Letter', 'Credit'].map((t) => h('th', { scope: 'col' }, t)))), h('tbody', null, tr.rows.map((r) => h('tr', null, h('td', { class: 'num' }, r.g), h('td', null, r.title), h('td', null, r.done ? 'Completed' : 'In progress · ' + r.pct + '%'), h('td', { class: 'num grade-cell' }, r.letter), h('td', { class: 'num' }, r.credit.toFixed(1))))), h('tfoot', null, h('tr', null, h('td', { colspan: 3 }, 'Cumulative'), h('td', { class: 'num' }, tr.gpa ? 'GPA ' + tr.gpa : '—'), h('td', { class: 'num' }, tr.credits.toFixed(1)))))),
         h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: () => downloadTranscript(k) }, 'Download transcript'))
       ] : h('p', { class: 'muted' }, 'High school courses (grades 9–12) appear here once ' + k.name + ' starts one.')));
@@ -914,7 +942,7 @@
   }
   function downloadTranscript(k) {
     const tr = transcript(k); const f = fam();
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} transcript</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Official homeschool transcript · ${esc(k.name)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th class="n">Grade</th><th>Course</th><th>Status</th><th class="n">Letter</th><th class="n">Credit</th></tr></thead><tbody>${tr.rows.map((r) => `<tr><td class="n">${r.g}</td><td>${esc(r.title)}</td><td>${r.done ? 'Completed' : 'In progress (' + r.pct + '%)'}</td><td class="n">${r.letter}</td><td class="n">${r.credit.toFixed(1)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Cumulative</td><td class="n">${tr.gpa ? 'GPA ' + tr.gpa : '—'}</td><td class="n">${tr.credits.toFixed(1)}</td></tr></tfoot></table><p class="m">GPA is unweighted on a 4.0 scale and includes completed courses only. Core courses earn 1.0 credit and AI courses 0.5 credit when completed.</p><div class="sig"><div>Parent / administrator signature</div><div>Date</div></div></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} transcript</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Official homeschool transcript · ${esc(k.name)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th class="n">Grade</th><th>Course</th><th>Status</th><th class="n">Letter</th><th class="n">Credit</th></tr></thead><tbody>${tr.rows.map((r) => `<tr><td class="n">${r.g}</td><td>${esc(r.title)}</td><td>${r.done ? 'Completed' : 'In progress (' + r.pct + '%)'}</td><td class="n">${r.letter}</td><td class="n">${r.credit.toFixed(1)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Cumulative</td><td class="n">${tr.gpa ? 'GPA ' + tr.gpa : '—'}</td><td class="n">${tr.credits.toFixed(1)}</td></tr></tfoot></table><p class="m">GPA is unweighted on a 4.0 scale and includes completed courses only. Core courses earn 1.0 credit; AI & Me and Money Smart courses earn 0.5 credit when completed.</p><div class="sig"><div>Parent / administrator signature</div><div>Date</div></div></body></html>`;
     offer(k.name.replace(/\W+/g, '-') + '-transcript.html', html);
   }
   function downloadCSV(k) {
