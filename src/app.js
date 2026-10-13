@@ -42,7 +42,10 @@
     { id: 'master5', n: 'Five down', d: 'Mastered 5 units' },
     { id: 'course', n: 'Course complete', d: 'Finished every unit in a course' },
     { id: 'grade', n: 'Grade complete', d: 'Finished every course in a grade' },
-    { id: 'watch10', n: 'Good listener', d: 'Watched 10 video lessons' }
+    { id: 'watch10', n: 'Good listener', d: 'Watched 10 video lessons' },
+    { id: 'speller', n: 'Spelling star', d: 'Mastered 5 spelling lists' },
+    { id: 'bookworm', n: 'Bookworm', d: 'Finished 5 books' },
+    { id: 'author', n: 'Young author', d: 'Wrote 5 journal entries' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -254,6 +257,9 @@
     for (let g = 1; g <= 12; g++) { const gs = gradeStats(kidId, g); if (gs.courses.some((c) => c.pct === 100)) anyCourse = true; if (gs.pct === 100) anyGrade = true; }
     earn('course', anyCourse); earn('grade', anyGrade);
     earn('watch10', Object.keys(k.watched || {}).length >= 10);
+    const lit = litDoc(kidId);
+    earn('speller', Object.values(lit.spell || {}).filter((x) => x.best >= pass).length >= 5);
+    earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
 
@@ -297,16 +303,16 @@
   }
   document.addEventListener('focusout', () => { if (S.dirty) { S.dirty = false; setTimeout(scheduleRender, 50); } });
 
-  function go(screen, view) { lumiClose(); Player.stop(); if (!['lesson', 'quiz'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
+  function go(screen, view) { lumiClose(); Player.stop(); if (!['lesson', 'quiz', 'spell', 'journal'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
 
   function render() {
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal
     }[S.screen] || viewPicker;
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -534,6 +540,8 @@
           h('button', { class: 'btn ghost sm', onclick: () => go('course', { g, s: s.k }) }, 'All units')));
     })));
     const un = unlockedThemes(k.id), cur = kidTheme(k.id);
+    main.appendChild(h('h2', { class: 'sec' }, 'Reading, spelling & writing'));
+    main.appendChild(litCards(k));
     main.appendChild(h('h2', { class: 'sec' }, 'My themes'));
     main.appendChild(h('ul', { class: 'themes' },
       h('li', null, h('button', { type: 'button', class: 'theme-card' + (!cur ? ' on' : ''), 'aria-pressed': !cur ? 'true' : 'false', onclick: () => { kd.theme = null; saveKid(k.id); render(); } }, h('span', { class: 'sw th-default', 'aria-hidden': 'true' }), h('b', null, 'Classic'), h('small', null, 'The original Lantern look'))),
@@ -648,10 +656,10 @@
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & writing'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
-    const body = { overview: pOverview, reports: pReports, hours: pHours, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
+    const body = { overview: pOverview, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
@@ -757,13 +765,13 @@
       h('div', { class: 'row4' },
         h('div', null, h('label', { for: 'h-date' }, 'Date'), h('input', { id: 'h-date', type: 'date', value: todayStr(), max: todayStr() })),
         h('div', null, h('label', { for: 'h-subj' }, 'Subject'), subjSel),
-        h('div', null, h('label', { for: 'h-min' }, 'Minutes'), h('input', { id: 'h-min', type: 'number', min: 1, max: 720, step: 5, value: 30 })),
+        h('div', null, h('label', { for: 'h-min' }, 'Minutes'), h('input', { id: 'h-min', type: 'number', min: 1, max: 720, step: 1, value: 30 })),
         h('div', { class: 'grow' }, h('label', { for: 'h-note' }, 'Note'), h('input', { id: 'h-note', placeholder: 'e.g. Library visit, soccer practice', maxlength: 80 }))),
       h('p', { id: 'h-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary sm', type: 'submit' }, 'Add entry')));
     const entries = log.e.slice().sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
     wrap.appendChild(h('article', { class: 'card' }, h('div', { class: 'card-head' }, h('h3', null, 'Entries'), h('button', { class: 'btn ghost sm', onclick: () => downloadCSV(k) }, 'Download CSV')),
       entries.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Date', 'Subject', 'Minutes', 'Note', 'Source', ''].map((t) => h('th', { scope: 'col' }, t)))),
-        h('tbody', null, entries.slice(0, 200).map((e) => h('tr', null, h('td', null, fmtDate(e.d)), h('td', null, SUBJ_NAME[e.s] || e.s), h('td', { class: 'num' }, e.m), h('td', null, e.n || ''), h('td', null, e.auto ? 'Automatic' : 'Parent'),
+        h('tbody', null, entries.slice(0, 200).map((e) => h('tr', null, h('td', null, fmtDate(e.d)), h('td', null, SUBJ_NAME[e.s] || e.s), h('td', { class: 'num' }, e.m), h('td', null, e.n || ''), h('td', null, e.auto ? 'Automatic' : e.kid ? 'Learner' : 'Parent'),
           h('td', null, S.confirmDel === e.id ? h('span', { class: 'confirm' }, h('button', { class: 'btn danger xs', onclick: () => { log.e = log.e.filter((x) => x.id !== e.id); S.confirmDel = null; saveLog(k.id); render(); } }, 'Delete'), h('button', { class: 'btn ghost xs', onclick: () => { S.confirmDel = null; render(); } }, 'Keep')) : h('button', { class: 'btn ghost xs', 'aria-label': 'Delete entry from ' + fmtDate(e.d), onclick: () => { S.confirmDel = e.id; render(); } }, 'Remove'))))))) : h('p', { class: 'muted small' }, 'No entries yet.')));
     return wrap;
   }
@@ -807,7 +815,7 @@
     wrap.appendChild(h('h2', { class: 'sec' }, 'Learners'));
     kids().forEach((k) => {
       wrap.appendChild(h('div', { class: 'kid-edit' }, kidForm(k, () => render()),
-        S.confirmKid === k.id ? h('div', { class: 'card danger-zone' }, h('p', null, 'Remove ' + k.name + ' and all of their progress and hours? This cannot be undone.'), h('div', { class: 'actions' }, h('button', { class: 'btn danger sm', onclick: async () => { f.kids = f.kids.filter((x) => x.id !== k.id); saveFamily(); await Store.remove('kid-' + k.id); await Store.remove('log-' + k.id); S.confirmKid = null; toast(k.name + ' was removed.'); render(); } }, 'Remove ' + k.name), h('button', { class: 'btn ghost sm', onclick: () => { S.confirmKid = null; render(); } }, 'Cancel')))
+        S.confirmKid === k.id ? h('div', { class: 'card danger-zone' }, h('p', null, 'Remove ' + k.name + ' and all of their progress and hours? This cannot be undone.'), h('div', { class: 'actions' }, h('button', { class: 'btn danger sm', onclick: async () => { f.kids = f.kids.filter((x) => x.id !== k.id); saveFamily(); await Store.remove('kid-' + k.id); await Store.remove('log-' + k.id); await Store.remove('lit-' + k.id); S.confirmKid = null; toast(k.name + ' was removed.'); render(); } }, 'Remove ' + k.name), h('button', { class: 'btn ghost sm', onclick: () => { S.confirmKid = null; render(); } }, 'Cancel')))
           : h('button', { class: 'btn ghost sm remove-kid', onclick: () => { S.confirmKid = k.id; render(); } }, 'Remove ' + k.name)));
     });
     wrap.appendChild(kidForm(null, () => render()));
@@ -997,7 +1005,7 @@
   }
   function downloadCSV(k) {
     const q = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
-    const lines = [['Date', 'Subject', 'Minutes', 'Hours', 'Note', 'Source'].join(',')].concat(logDoc(k.id).e.slice().sort((a, b) => (a.d < b.d ? -1 : 1)).map((e) => [e.d, q(SUBJ_NAME[e.s] || e.s), e.m, (e.m / 60).toFixed(2), q(e.n), e.auto ? 'Automatic' : 'Parent'].join(',')));
+    const lines = [['Date', 'Subject', 'Minutes', 'Hours', 'Note', 'Source'].join(',')].concat(logDoc(k.id).e.slice().sort((a, b) => (a.d < b.d ? -1 : 1)).map((e) => [e.d, q(SUBJ_NAME[e.s] || e.s), e.m, (e.m / 60).toFixed(2), q(e.n), e.auto ? 'Automatic' : e.kid ? 'Learner' : 'Parent'].join(',')));
     offer(k.name.replace(/\W+/g, '-') + '-hours.csv', lines.join('\n'));
   }
 
@@ -1085,6 +1093,280 @@
     }
     paint();
     return box;
+  }
+
+  /* ─────────────── Reading, spelling & writing ─────────────── */
+  // One document per learner: lit-{kidId} = { spell: {listId: {best,last,tries,at}}, tricky: {word: {id,box,due,miss}}, sg: grade, books: [...], jr: [...] }
+  const SPELL = window.LH_SPELL || {};
+  const litDoc = (id) => Store.cache['lit-' + id] || (Store.cache['lit-' + id] = { spell: {}, tricky: {}, books: [], jr: [] });
+  function saveLit(id) { const d = litDoc(id); d.books = (d.books || []).slice(-500); d.jr = (d.jr || []).slice(0, 200); Store.set('lit-' + id, d); }
+  const spellList = (id) => { const g = parseInt(id, 10); return (SPELL[g] || []).find((l) => l.id === id); };
+  const band = (g) => (g <= 3 ? 0 : g <= 6 ? 1 : g <= 8 ? 2 : 3);
+  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
+  const BOX_DAYS = [1, 3, 7, 14];
+  function booksFinished(kidId) { const t = {}; (litDoc(kidId).books || []).forEach((b) => { if (b.fin) t[b.t.trim().toLowerCase()] = 1; }); return Object.keys(t).length; }
+  const readingMinutes = (kidId, from) => minutes(kidId, (e) => e.s === 'read' && (!from || e.d >= from));
+  function trickyDue(kidId) { const tr = litDoc(kidId).tricky || {}; const t = todayStr(); return Object.keys(tr).filter((w) => tr[w].due <= t); }
+  const wordCount = (t) => (String(t || '').trim().match(/[A-Za-z0-9'’-]+/g) || []).length;
+  const JOURNAL_GOAL = [20, 60, 120, 200];
+  const PROMPTS = [
+    ['Write about your favorite animal. What does it look like and what does it do?', 'Tell about the best day you ever had.', 'If you could have any pet, what would it be? Why?', 'Write about something that makes you laugh.', 'What do you like to do when it rains?', 'Write a story about a talking tree.', 'Tell how to make your favorite snack, step by step.', 'Who is someone you love? What do you like to do together?', 'If you were a superhero, what would your power be?', 'Write about a place you like to go.', 'What did you learn this week?', 'Describe your bedroom so someone could picture it.', 'Write a story that starts: "I opened the door and saw…"', 'What is something you are good at?', 'If you could fly, where would you go?'],
+    ['Write about a time you were proud of yourself. What happened?', 'If you could invent something, what would it be and how would it help people?', 'Describe a place using all five senses.', 'Write a letter to your future self ten years from now.', 'What is the most interesting thing you learned this week? Explain it.', 'Write a story about a kid who finds a mysterious map.', 'Should kids get paid for chores? Give reasons.', 'Tell about a challenge you faced and how you handled it.', 'If you could visit any time in history, when would you go and why?', 'Describe your perfect weekend.', 'Write about a book or movie character you would like to meet.', 'What makes a good friend? Use examples.', 'Write a story told by a lost sock.', 'What rule would you add to your home? Convince your family.', 'Write about something you want to get better at, and your plan.'],
+    ['What is one thing you would change about your town? Explain how and why.', 'Write about a mistake that taught you something.', 'Describe a goal you have for this year and the steps to reach it.', 'Is it better to be a leader or a team player? Defend your answer.', 'Write a short story where the main character has to make a hard choice.', 'Which invention has changed the world the most? Explain.', 'Write about a song, book or game that means a lot to you.', 'Should phones be allowed at the dinner table? Argue one side.', 'Describe a person you admire and what makes them admirable.', 'What would you do with one day of complete freedom?', 'Write a news story about something that happened at home this week.', 'If you could solve one world problem, which would it be and how?', 'Explain how to do something you are good at, so a beginner could do it.', 'Write about a time you changed your mind about something.', 'Write a dialogue between two characters who disagree.'],
+    ['What does success mean to you? How might your answer change in ten years?', 'Argue for or against a four-day school week, using evidence.', 'Write about a belief you hold and where it came from.', 'Should artificial intelligence be used to grade essays? Make your case.', 'Reflect on a book that changed how you see the world.', 'Write a personal narrative about a turning point in your life.', 'What is one skill every adult should have? Persuade the reader.', 'Analyze a news headline: what does it want you to feel, and how?', 'Describe the career you might want and what draws you to it.', 'Is it more important to be kind or to be honest? Explore both sides.', 'Write a short story that ends with a surprising twist.', 'What would you tell your younger self? Be specific.', 'Should social media have age limits? Take a position.', 'Write about a problem in your community and a realistic solution.', 'What does it mean to be a good citizen?']
+  ];
+  const READ_PROMPT = ['Who was in the story? What happened?', 'What was the most important thing that happened? Why?', 'What problem did a character face, and how was it solved?', 'What is the author saying? Describe one part that stood out to you.'];
+  const RATINGS = [['4', 'Loved it'], ['3', 'Liked it'], ['2', 'It was okay'], ['1', 'Didn\'t like it']];
+
+  function say(text, rate) {
+    const sy = Player.synth; if (!sy) return false;
+    try { sy.cancel(); const u = new SpeechSynthesisUtterance(text); if (Player.voice) { u.voice = Player.voice; u.lang = Player.voice.lang; } else u.lang = 'en-US'; u.rate = rate || 0.9; sy.speak(u); return true; } catch (e) { return false; }
+  }
+  const blankOut = (sentence, w) => sentence.replace(new RegExp('(^|[^A-Za-z])(' + w + ')(?=[^A-Za-z]|$)', 'gi'), (m, a) => a + '_____');
+
+  /* ── home cards ── */
+  function litCards(k) {
+    const L = litDoc(k.id), g = L.sg || k.grade, lists = SPELL[g] || [], pass = settings().passMark;
+    const mastered = lists.filter((l) => (L.spell[l.id] || {}).best >= pass).length, due = trickyDue(k.id).length;
+    const jr = L.jr || [], unseen = jr.some((e) => e.pn && !e.seen);
+    return h('div', { class: 'lit-cards' },
+      h('article', { class: 'lit-card spell' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, 'Aa'), h('h3', null, 'Spelling'),
+        h('p', { class: 'muted small' }, mastered + ' of ' + lists.length + ' ' + GRADE_NAME(g) + ' lists mastered' + (due ? ' · ' + due + ' tricky word' + (due === 1 ? '' : 's') + ' to review' : '')),
+        bar(lists.length ? Math.round((mastered / lists.length) * 100) : 0, 'ela'),
+        h('button', { class: 'btn primary sm', onclick: () => { S.sp = null; go('spell'); } }, due ? 'Review tricky words' : 'Practice spelling')),
+      h('article', { class: 'lit-card read' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, h('span', { class: 'book-ico' })), h('h3', null, 'Reading log'),
+        h('p', { class: 'muted small' }, fmtHours(readingMinutes(k.id, weekStart())) + ' h read this week · ' + booksFinished(k.id) + ' book' + (booksFinished(k.id) === 1 ? '' : 's') + ' finished'),
+        h('button', { class: 'btn primary sm', onclick: () => go('reading') }, 'Log my reading')),
+      h('article', { class: 'lit-card write' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, '✎'), h('h3', null, 'My journal'),
+        h('p', { class: 'muted small' }, unseen ? 'You have a new note from your grown-up!' : jr.length + ' entr' + (jr.length === 1 ? 'y' : 'ies') + ' written'),
+        h('button', { class: 'btn primary sm', onclick: () => go('journal') }, 'Write today')));
+  }
+  function litBack() { return h('button', { class: 'btn ghost sm back', onclick: () => { S.sp = null; go('home'); } }, '← Dashboard'); }
+
+  /* ── spelling ── */
+  function startSpell(kidId, list, review) {
+    let words;
+    if (review) {
+      const tr = litDoc(kidId).tricky; words = trickyDue(kidId).slice(0, 10).map((w) => { const l = spellList(tr[w].id); const row = l && l.w.find((x) => x[0] === w); return row || [w, '']; });
+    } else words = shuffle(list.w);
+    S.sp = { id: review ? null : list.id, title: review ? 'Tricky words review' : list.t, tip: review ? 'These are words you missed before. Get each one right a few times and it leaves the list.' : list.tip, words, at: 0, right: 0, missed: [], helped: [], phase: 'ask', review: !!review, spoken: -1, hint: false };
+    go('spell', { play: 1 });
+  }
+  function spellAnswer(val) {
+    const sp = S.sp, w = sp.words[sp.at][0]; val = String(val || '').trim();
+    if (!val) return;
+    if (sp.phase === 'fix') { if (val.toLowerCase() === w.toLowerCase()) spellNext(); else { sp.fixErr = true; render(); } return; }
+    sp.last = val;
+    if (val.toLowerCase() === w.toLowerCase()) { sp.right++; if (sp.hint) sp.helped.push(w); sp.phase = 'right'; render(); setTimeout(() => { if (S.sp === sp && sp.phase === 'right') spellNext(); }, 900); }
+    else { sp.missed.push(w); sp.phase = 'fix'; render(); }
+  }
+  function spellNext() {
+    const sp = S.sp; sp.at++; sp.phase = 'ask'; sp.hint = false; sp.fixErr = false; sp.last = '';
+    if (sp.at >= sp.words.length) return spellFinish();
+    render();
+  }
+  function spellFinish() {
+    const sp = S.sp, kidId = S.who, L = litDoc(kidId); L.tricky = L.tricky || {}; L.spell = L.spell || {};
+    const score = Math.round((sp.right / sp.words.length) * 100), pass = settings().passMark;
+    const findList = (w) => (sp.id ? sp.id : (L.tricky[w] || {}).id);
+    sp.words.forEach(([w]) => {
+      const missed = sp.missed.includes(w), helped = sp.helped.includes(w), t = L.tricky[w];
+      if (missed || helped) L.tricky[w] = { id: findList(w), box: 0, due: addDays(1), miss: ((t && t.miss) || 0) + (missed ? 1 : 0) };
+      else if (t && sp.review) { const box = t.box + 1; if (box >= BOX_DAYS.length) delete L.tricky[w]; else L.tricky[w] = Object.assign(t, { box, due: addDays(BOX_DAYS[box]) }); }
+    });
+    if (sp.id) { const prev = L.spell[sp.id]; L.spell[sp.id] = { best: Math.max(score, prev ? prev.best : 0), last: score, tries: (prev ? prev.tries : 0) + 1, at: Date.now() }; }
+    saveLit(kidId); Timer.accrue(); Timer.flush(); checkBadges(kidId);
+    sp.phase = 'done'; sp.score = score; sp.pass = score >= pass; if (sp.pass) setTimeout(confetti, 50); render();
+  }
+  function viewSpell() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'ela') Timer.start(k.id, 'ela');
+    const L = litDoc(k.id), sp = S.sp; const main = h('main', { class: 'wrap spell' });
+    if (sp && S.view.play) { main.appendChild(spellPlay(k, sp)); return h('div', null, kidBar(), main); }
+    const g = S.view.study ? parseInt(S.view.study, 10) : (L.sg || k.grade), pass = settings().passMark;
+    main.appendChild(litBack());
+    if (S.view.study) {
+      const l = spellList(S.view.study);
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, GRADE_NAME(g) + ' spelling'), h('h1', null, l.t), h('p', { class: 'lede' }, l.tip)));
+      main.appendChild(h('p', { class: 'hint' }, 'Study the words: look, say it out loud, cover it, write it on paper, then check. Tap a word to hear it.'));
+      main.appendChild(h('ul', { class: 'study-words' }, l.w.map(([w, s]) => h('li', null, h('button', { type: 'button', class: 'sw-btn', onclick: () => say(w + '. ' + s, 0.85) }, h('b', null, w), h('span', { class: 'muted small' }, s))))));
+      main.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => startSpell(k.id, l) }, 'Test me on these'), h('button', { class: 'btn ghost', onclick: () => go('spell') }, 'All lists')));
+      return h('div', null, kidBar(), main);
+    }
+    const maxG = settings().freeRoam ? 12 : k.grade;
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Spelling'), h('h1', null, 'Spelling practice'),
+      h('p', { class: 'lede' }, 'Listen to each word in a sentence, then type it. Words you miss come back for review a few days later until you\'ve got them.'),
+      h('div', { class: 'grade-switch' }, h('label', { for: 'sp-g' }, 'Word lists for'), h('select', { id: 'sp-g', onchange: (e) => { L.sg = Number(e.target.value); saveLit(k.id); render(); } }, Array.from({ length: maxG }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : '')))))));
+    if (!Player.synth) main.appendChild(h('div', { class: 'banner' }, 'This browser can\'t read words aloud, so each word will flash for a few seconds instead. Look at it, then type it from memory.'));
+    const due = trickyDue(k.id), allT = Object.keys(L.tricky || {});
+    if (allT.length) main.appendChild(h('article', { class: 'card tricky-card' }, h('div', null, h('h3', null, 'My tricky words'), h('p', { class: 'muted small' }, due.length ? due.length + ' ready to review today · ' + allT.length + ' on your list' : 'Nothing due today. ' + allT.length + ' word' + (allT.length === 1 ? '' : 's') + ' will come back soon.')),
+      due.length ? h('button', { class: 'btn primary sm', onclick: () => startSpell(k.id, null, true) }, 'Review ' + Math.min(10, due.length) + ' words') : null));
+    main.appendChild(h('div', { class: 'spell-lists' }, (SPELL[g] || []).map((l, i) => {
+      const r = L.spell[l.id]; const st = !r ? ['new', 'New'] : r.best >= pass ? ['mastered', 'Mastered · ' + r.best + '%'] : ['trying', 'Best ' + r.best + '%'];
+      return h('article', { class: 'card spell-list' }, h('div', { class: 'sl-top' }, h('span', { class: 'unit-n' }, 'List ' + (i + 1)), h('span', { class: 'pill ' + st[0] }, st[1])), h('h3', null, l.t), h('p', { class: 'muted small' }, l.tip),
+        h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: () => startSpell(k.id, l) }, r ? 'Test again' : 'Test me'), h('button', { class: 'btn ghost sm', onclick: () => go('spell', { study: l.id }) }, 'Study words')));
+    })));
+    return h('div', null, kidBar(), main);
+  }
+  function spellPlay(k, sp) {
+    const wrap = h('section', { class: 'spell-play' });
+    wrap.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.sp = null; go('spell'); } }, '← Word lists'));
+    if (sp.phase === 'done') {
+      const st = h('div', { class: 'result-stars' }); st.innerHTML = window.LH_STARS ? window.LH_STARS(sp.score >= 100 ? 3 : sp.pass ? 2 : sp.score >= 40 ? 1 : 0) : '';
+      wrap.appendChild(h('div', { class: 'result-card ' + (sp.pass ? 'pass' : 'retry') }, st, ring(sp.score, sp.right + ' of ' + sp.words.length, 'lg'),
+        lumi(sp.pass ? 'cheer' : 'think', sp.pass ? (sp.score === 100 ? 'Every word right! Amazing spelling!' : 'Great spelling! Keep it up.') : 'Good practice! Study the words and try again.'),
+        h('h1', null, sp.review ? 'Review done!' : sp.pass ? 'List mastered!' : 'Keep practicing'),
+        sp.missed.length ? h('div', { class: 'missed' }, h('p', null, 'Words to practice (they\'ll come back for review):'), h('ul', { class: 'chips' }, sp.missed.map((w) => h('li', null, h('button', { type: 'button', class: 'chip-btn', onclick: () => say(w, 0.8) }, w))))) : null,
+        h('div', { class: 'actions' },
+          !sp.review ? h('button', { class: 'btn primary', onclick: () => startSpell(k.id, spellList(sp.id)) }, 'Try this list again') : null,
+          trickyDue(k.id).length && sp.review ? h('button', { class: 'btn primary', onclick: () => startSpell(k.id, null, true) }, 'Review more') : null,
+          h('button', { class: 'btn ghost', onclick: () => { S.sp = null; go('spell'); } }, 'All word lists'))));
+      return wrap;
+    }
+    const [w, sentence] = sp.words[sp.at];
+    const hear = () => say(w + '. ' + (sentence ? sentence + ' ' : '') + w + '.', 0.9);
+    if (sp.spoken !== sp.at && sp.phase === 'ask') { sp.spoken = sp.at; if (Player.synth) setTimeout(hear, 250); else { sp.flash = true; setTimeout(() => { if (S.sp === sp) { sp.flash = false; render(); } }, 3000); } }
+    wrap.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, sp.title + ' · word ' + (sp.at + 1) + ' of ' + sp.words.length), bar(Math.round((sp.at / sp.words.length) * 100), 'ela')));
+    const card = h('div', { class: 'spell-card card' });
+    card.appendChild(h('div', { class: 'sp-audio' },
+      Player.synth ? h('button', { type: 'button', class: 'btn primary', onclick: hear }, icon('voice'), ' Hear the word') : h('button', { type: 'button', class: 'btn primary', onclick: () => { sp.flash = true; render(); setTimeout(() => { if (S.sp === sp) { sp.flash = false; render(); } }, 3000); } }, 'Show the word again'),
+      Player.synth ? h('button', { type: 'button', class: 'btn ghost', onclick: () => say(w, 0.55) }, 'Say it slowly') : null,
+      sp.phase === 'ask' && !sp.hint ? h('button', { type: 'button', class: 'btn ghost', onclick: () => { sp.hint = true; render(); } }, 'Hint') : null));
+    if (sp.flash && sp.phase === 'ask') card.appendChild(h('p', { class: 'sp-flash' }, w));
+    if (sentence) card.appendChild(h('p', { class: 'sp-sentence' }, blankOut(sentence, w)));
+    if (sp.hint && sp.phase === 'ask') card.appendChild(h('p', { class: 'sp-hint', 'aria-label': 'Starts with ' + w[0] + ', ' + w.length + ' letters' }, w[0] + ' ' + Array(w.length).join('_ ').trim() + '  (' + w.length + ' letters)'));
+    if (sp.phase === 'right') card.appendChild(h('p', { class: 'sp-ok', role: 'status' }, '✓ Correct: ' + w));
+    if (sp.phase === 'fix') {
+      const lw = sp.last.toLowerCase(), cw = w.toLowerCase();
+      card.appendChild(h('div', { class: 'sp-wrong', role: 'status' },
+        h('p', null, 'You wrote: ', h('span', { class: 'sp-try' }, Array.from(sp.last).map((c, i) => h('span', { class: lw[i] === cw[i] ? '' : 'bad' }, c)))),
+        h('p', null, 'It\'s spelled: ', h('b', { class: 'sp-right' }, w)),
+        h('p', { class: 'small' }, sp.fixErr ? 'Not quite. Look carefully and type it once more.' : 'Type it correctly once to lock it in.')));
+    }
+    if (sp.phase !== 'right') {
+      const inp = h('input', { id: 'sp-in', class: 'sp-input', autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off', spellcheck: 'false', 'aria-label': sp.phase === 'fix' ? 'Type the word correctly' : 'Type the word you hear', maxlength: 40 });
+      card.appendChild(h('form', { class: 'sp-form', onsubmit: (e) => { e.preventDefault(); spellAnswer(inp.value); } }, inp, h('button', { class: 'btn primary', type: 'submit' }, sp.phase === 'fix' ? 'Next word' : 'Check')));
+      setTimeout(() => { const x = $('#sp-in'); if (x) x.focus(); }, 30);
+    }
+    wrap.appendChild(card);
+    wrap.appendChild(h('p', { class: 'muted small' }, sp.tip));
+    return wrap;
+  }
+
+  /* ── reading log ── */
+  function viewReading() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    const L = litDoc(k.id), books = L.books || [], g = k.grade;
+    const main = h('main', { class: 'wrap reading' }, litBack());
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Reading'), h('h1', null, 'My reading log'),
+      h('div', { class: 'stat-row' }, stat(fmtHours(readingMinutes(k.id, weekStart())) + ' h', 'this week'), stat(fmtHours(readingMinutes(k.id, settings().yearStart)) + ' h', 'this school year'), stat(String(booksFinished(k.id)), 'books finished'))));
+    const reading = []; books.slice().reverse().forEach((b) => { const key = b.t.trim().toLowerCase(); if (!reading.some((x) => x.t.trim().toLowerCase() === key)) reading.push(b); });
+    const open = reading.filter((b) => !books.some((x) => x.fin && x.t.trim().toLowerCase() === b.t.trim().toLowerCase())).slice(0, 6);
+    const ratingSel = h('select', { id: 'rd-rate' }, h('option', { value: '' }, 'Choose…'), RATINGS.map(([v, n]) => h('option', { value: v }, n)));
+    const form = h('form', { class: 'card form', onsubmit: (e) => {
+      e.preventDefault(); const t = $('#rd-title').value.trim(), a = $('#rd-auth').value.trim(), m = Math.round(Number($('#rd-min').value)), p = Math.round(Number($('#rd-pages').value) || 0), fin = $('#rd-fin').checked, note = $('#rd-note').value.trim(), err = $('#rd-err');
+      if (!t) return (err.textContent = 'Write the name of the book.');
+      if (!(m >= 1 && m <= 300)) return (err.textContent = 'How many minutes did you read? (1 to 300)');
+      const d = todayStr();
+      books.push({ id: uid(), d, t: t.slice(0, 80), a: a.slice(0, 60), m, p, fin, r: ratingSel.value || null, note: note.slice(0, 1000) }); L.books = books; saveLit(k.id);
+      const log = logDoc(k.id); log.e.push({ id: uid(), d, s: 'read', m, n: 'Reading: ' + t.slice(0, 60), auto: false, kid: true }); saveLog(k.id);
+      markActive(k.id); checkBadges(k.id); toast(fin ? 'You finished a book! Great reading!' : 'Reading logged: ' + m + ' minutes.'); if (fin) confetti(); render();
+    } }, h('h3', null, 'What did you read today?'),
+      open.length ? h('div', { class: 'chips-row' }, h('span', { class: 'small muted' }, 'Still reading: '), open.map((b) => h('button', { type: 'button', class: 'chip-btn', onclick: () => { $('#rd-title').value = b.t; $('#rd-auth').value = b.a || ''; $('#rd-min').focus(); } }, b.t))) : null,
+      h('div', { class: 'row2' }, h('div', null, h('label', { for: 'rd-title' }, 'Book title'), h('input', { id: 'rd-title', maxlength: 80, autocomplete: 'off' })), h('div', null, h('label', { for: 'rd-auth' }, 'Author (if you know it)'), h('input', { id: 'rd-auth', maxlength: 60, autocomplete: 'off' }))),
+      h('div', { class: 'row4' }, h('div', null, h('label', { for: 'rd-min' }, 'Minutes'), h('input', { id: 'rd-min', type: 'number', min: 1, max: 300, step: 1, value: g <= 3 ? 15 : 20 })), h('div', null, h('label', { for: 'rd-pages' }, 'Pages (optional)'), h('input', { id: 'rd-pages', type: 'number', min: 0, max: 2000 })), h('div', null, h('label', { for: 'rd-rate' }, 'How was it?'), ratingSel), h('div', { class: 'fin-box' }, h('label', { class: 'check' }, h('input', { id: 'rd-fin', type: 'checkbox' }), ' I finished the book!'))),
+      h('label', { for: 'rd-note' }, READ_PROMPT[band(g)] + ' (optional)'), h('textarea', { id: 'rd-note', rows: 3, maxlength: 1000 }),
+      h('p', { id: 'rd-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary', type: 'submit' }, 'Save reading'));
+    main.appendChild(form);
+    const fin = []; books.forEach((b) => { if (b.fin && !fin.some((x) => x.t.trim().toLowerCase() === b.t.trim().toLowerCase())) fin.push(b); });
+    if (fin.length) main.appendChild(h('article', { class: 'card' }, h('h3', null, 'My bookshelf'), h('ul', { class: 'shelf' }, fin.map((b, i) => h('li', { class: 'spine', style: '--sp:' + COLORS[i % COLORS.length] }, h('b', null, b.t), b.a ? h('small', null, b.a) : null)))));
+    if (books.length) main.appendChild(h('article', { class: 'card' }, h('h3', null, 'Recent reading'), h('ul', { class: 'read-list' }, books.slice().reverse().slice(0, 15).map((b) => h('li', null, h('span', { class: 'small muted' }, fmtDate(b.d)), h('b', null, b.t), h('span', { class: 'small' }, b.m + ' min' + (b.p ? ' · ' + b.p + ' pages' : '') + (b.fin ? ' · finished' : '') + (b.r ? ' · ' + RATINGS.find((x) => x[0] === b.r)[1] : '')), b.note ? h('p', { class: 'small read-note' }, b.note) : null)))));
+    main.appendChild(h('article', { class: 'card' }, h('h3', null, 'Free books to read'), h('ul', { class: 'res-list' },
+      (g <= 4 ? [['Storyline Online — picture books read aloud', 'https://storylineonline.net/library'], ['Starfall — learn to read', 'https://www.starfall.com/h/learn-to-read/']] : []).concat(g >= 3 ? [['CommonLit — free reading passages', 'https://www.commonlit.org/texts']] : [], [['Project Gutenberg — free classic books', 'https://www.gutenberg.org/ebooks/bookshelf/20']]).map((r) => h('li', null, extLink(r)))),
+      h('p', { class: 'small muted' }, 'Your local library is great too — many have free e-books you can borrow.')));
+    return h('div', null, kidBar(), main);
+  }
+
+  /* ── writing journal ── */
+  function viewJournal() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'ela') Timer.start(k.id, 'ela');
+    const L = litDoc(k.id); L.jr = L.jr || []; const b = band(k.grade), list = PROMPTS[b], goal = JOURNAL_GOAL[b];
+    if (L.jr.some((e) => e.pn && !e.seen)) { L.jr.forEach((e) => { if (e.pn) e.seen = true; }); saveLit(k.id); }
+    if (S.jp == null) { const d = new Date(); S.jp = (d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate()) % list.length; }
+    const prompt = S.jp === -1 ? 'Write about anything you like.' : list[S.jp % list.length];
+    const main = h('main', { class: 'wrap journal' }, litBack());
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Writing'), h('h1', null, 'My journal')));
+    const count = h('span', { class: 'wc' }); const upd = (t) => { const n = wordCount(t); count.textContent = n + ' word' + (n === 1 ? '' : 's') + ' · goal ' + goal; count.classList.toggle('good', n >= goal); };
+    const ta = h('textarea', { id: 'jr-text', rows: 9, maxlength: 3000, placeholder: 'Start writing here…', 'aria-label': 'Your writing' });
+    ta.value = S.jdraft || ''; upd(ta.value); ta.addEventListener('input', () => { S.jdraft = ta.value; upd(ta.value); });
+    main.appendChild(h('form', { class: 'card form journal-form', onsubmit: (e) => {
+      e.preventDefault(); const t = ta.value.trim(); const err = $('#jr-err');
+      if (wordCount(t) < 3) return (err.textContent = 'Write a little more first.');
+      L.jr.unshift({ id: uid(), d: todayStr(), at: Date.now(), p: prompt, t }); S.jdraft = ''; saveLit(k.id); markActive(k.id); checkBadges(k.id);
+      toast(wordCount(t) >= goal ? 'Saved! You reached your word goal!' : 'Saved to your journal.'); if (wordCount(t) >= goal) confetti(); render();
+    } },
+      h('div', { class: 'prompt-box' }, h('p', { class: 'eyebrow' }, 'Today\'s prompt'), h('p', { class: 'prompt' }, prompt),
+        h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.jp = S.jp === -1 ? 0 : (S.jp + 1) % list.length; render(); } }, 'Different prompt'), h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.jp = -1; render(); } }, 'Free write'))),
+      ta, h('div', { class: 'jr-foot' }, count, h('span', { class: 'small muted' }, 'Tip: read it out loud when you finish. Fix anything that sounds wrong.')),
+      h('p', { id: 'jr-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary', type: 'submit' }, 'Save my writing')));
+    if (L.jr.length) {
+      main.appendChild(h('h2', { class: 'sec' }, 'My entries'));
+      main.appendChild(h('ol', { class: 'jr-list' }, L.jr.slice(0, 20).map((e) => h('li', { class: 'card jr-entry' },
+        h('p', { class: 'small muted' }, fmtDate(e.d) + ' · ' + wordCount(e.t) + ' words'), h('p', { class: 'jr-prompt' }, e.p), h('p', { class: 'jr-text' }, e.t),
+        e.fb ? h('div', { class: 'jr-fb' }, h('b', null, 'Lumi says: '), e.fb) : null,
+        e.pn ? h('div', { class: 'jr-pn' }, h('b', null, 'Note from your grown-up: '), e.pn) : null,
+        !e.fb && lumiReady(k.id) && wordCount(e.t) >= 10 ? h('button', { class: 'btn ghost xs', disabled: S.jbusy ? true : null, onclick: () => lumiWriting(k, e) }, S.jbusy === e.id ? 'Lumi is reading…' : 'Ask Lumi for feedback') : null))));
+    }
+    return h('div', null, kidBar(), main);
+  }
+  async function lumiWriting(k, e) {
+    if (S.jbusy) return;
+    if (lumiToday(k.id) >= lumiCfg().perDay) return toast('Lumi has answered all your questions for today. Try tomorrow!');
+    S.jbusy = e.id; render();
+    try {
+      const u = window.firebase.auth().currentUser; if (!u) throw new Error('Please sign in again to talk with Lumi.');
+      const r = await fetch(LUMI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (await u.getIdToken()) },
+        body: JSON.stringify({ grade: k.grade, subject: 'English', unit: 'Writing journal', mode: 'writing', prompt: e.p, writing: e.t }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.reply) throw new Error(j.error || 'Lumi is resting right now. Try again in a little while.');
+      e.fb = j.reply; saveLit(k.id);
+      const d = lumiDoc(k.id); d.e.push({ at: Date.now(), d: todayStr(), g: k.grade, s: 'ela', u: 'Writing journal', m: 'writing', q: e.t.slice(0, 300), a: j.reply }); if (d.e.length > 150) d.e = d.e.slice(-150); Store.set('lumi-' + k.id, d);
+    } catch (err) { toast((err && err.message) || 'Something went wrong.'); }
+    S.jbusy = null; render();
+  }
+
+  /* ── parent: reading & writing ── */
+  function pLiteracy() {
+    const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Reading & writing'));
+    if (!kids().length) { wrap.appendChild(h('p', { class: 'muted' }, 'Add a learner first.')); return wrap; }
+    const k = kidById(S.pkid) || kids()[0]; S.pkid = k.id; const L = litDoc(k.id), pass = settings().passMark;
+    wrap.appendChild(h('div', { class: 'filters' }, h('label', { for: 'p-kid' }, 'Learner'), kidSelect()));
+    const g = L.sg || k.grade, lists = SPELL[g] || [], tr = L.tricky || {};
+    const trW = Object.keys(tr).sort((a, b) => (tr[b].miss || 0) - (tr[a].miss || 0));
+    wrap.appendChild(h('div', { class: 'hours-top' },
+      h('article', { class: 'card' }, h('h3', null, 'Reading'), h('p', { class: 'big-num' }, fmtHours(readingMinutes(k.id, weekStart())), h('small', null, ' h this week')),
+        h('p', { class: 'muted small' }, fmtHours(readingMinutes(k.id, settings().yearStart)) + ' h this school year · ' + booksFinished(k.id) + (booksFinished(k.id) === 1 ? ' book' : ' books') + ' finished · ' + (L.jr || []).length + ((L.jr || []).length === 1 ? ' journal entry' : ' journal entries'))),
+      h('article', { class: 'card' }, h('h3', null, 'Spelling · ' + GRADE_NAME(g) + ' lists'),
+        h('ul', { class: 'hbars' }, lists.map((l) => { const r = L.spell[l.id]; return h('li', null, h('span', null, l.t), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'ela'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })),
+        h('p', { class: 'small muted' }, 'Learners can switch to an easier or harder grade\'s lists on their spelling page.'))));
+    wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Tricky words'),
+      trW.length ? [h('p', { class: 'small muted' }, 'Words missed in tests. Each comes back for review after 1, 3, 7 and 14 days and leaves the list once it\'s spelled right every time.'),
+        h('ul', { class: 'chips' }, trW.slice(0, 60).map((w) => h('li', { class: 'chip-word' }, w, tr[w].miss > 1 ? h('small', null, ' ×' + tr[w].miss) : null)))]
+        : h('p', { class: 'muted small' }, 'No missed words yet.')));
+    const books = (L.books || []).slice().reverse();
+    wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Reading log'), books.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'report' },
+      h('thead', null, h('tr', null, ['Date', 'Book', 'Minutes', 'Pages', 'Finished', 'Rating', 'What they wrote'].map((t) => h('th', { scope: 'col' }, t)))),
+      h('tbody', null, books.slice(0, 100).map((b) => h('tr', null, h('td', null, fmtDate(b.d)), h('td', null, b.t + (b.a ? ' — ' + b.a : '')), h('td', { class: 'num' }, b.m), h('td', { class: 'num' }, b.p || ''), h('td', null, b.fin ? 'Yes' : ''), h('td', null, b.r ? RATINGS.find((x) => x[0] === b.r)[1] : ''), h('td', { class: 'small' }, b.note || '')))))) : h('p', { class: 'muted small' }, 'No reading logged yet. Reading minutes also appear in the Hours log as Independent reading.')));
+    const jr = L.jr || [];
+    wrap.appendChild(h('h2', { class: 'sec' }, 'Journal'));
+    if (!jr.length) wrap.appendChild(h('p', { class: 'muted small' }, 'No journal entries yet.'));
+    else wrap.appendChild(h('ol', { class: 'jr-list' }, jr.slice(0, 40).map((e) => h('li', { class: 'card jr-entry' },
+      h('p', { class: 'small muted' }, fmtDate(e.d) + ' · ' + wordCount(e.t) + ' words'), h('p', { class: 'jr-prompt' }, e.p), h('p', { class: 'jr-text' }, e.t),
+      e.fb ? h('div', { class: 'jr-fb' }, h('b', null, 'Lumi\'s feedback: '), e.fb) : null,
+      h('form', { class: 'jr-note-form', onsubmit: (ev) => { ev.preventDefault(); const v = ev.target.querySelector('textarea').value.trim(); e.pn = v.slice(0, 600) || null; e.seen = false; saveLit(k.id); toast(v ? 'Note saved. ' + k.name + ' will see it in their journal.' : 'Note removed.'); render(); } },
+        h('label', { class: 'small', for: 'pn-' + e.id }, 'Note to ' + k.name), h('textarea', { id: 'pn-' + e.id, rows: 2, maxlength: 600 }, e.pn || ''), h('button', { class: 'btn ghost xs', type: 'submit' }, e.pn ? 'Update note' : 'Save note'))))));
+    return wrap;
   }
 
   /* ─────────────── Lumi, the AI tutor (Claude API through a secure Netlify function) ─────────────── */
@@ -1201,8 +1483,8 @@
   async function loadSchool() {
     try { await Store.get('family'); } catch (e) { if (Store.provider === 'firebase') { S.screen = 'auth'; S.view = { mode: 'in' }; render(); toast('Could not load your school: ' + ((e && e.code) || 'error') + '. Check the Firestore rules, then sign in again.'); return; } Store.mode = 'local'; await Store.get('family'); }
     if (!fam()) { S.screen = 'setup'; S.view = { step: 1 }; render(); return; }
-    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
-    Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); });
+    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.get('lit-' + k.id).catch(() => null), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
+    Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); Store.watch('lit-' + k.id); });
     S.screen = kids().length ? 'picker' : 'setup'; S.view = kids().length ? {} : { step: 2 }; render();
   }
   window.addEventListener('pagehide', () => { Player.stop(); Timer.stop(); });
