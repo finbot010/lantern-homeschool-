@@ -572,6 +572,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .bf-note { color: var(--warn); }
 .bf-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 6px; }
 .family-shelf textarea { font-family: inherit; }
+.voice-card { display: grid; gap: 12px; } .voice-card .actions { align-items: center; } .speed-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; } .chip-btn.on { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
 .kindle-tip { background: var(--good-bg); border-radius: 12px; padding: 12px 16px; margin: 6px 0 4px; display: grid; gap: 6px; } .kindle-tip p { margin: 0; } .kindle-tip .btn { justify-self: start; }
 .kindle-help { margin: 4px 0 12px; } .kindle-help summary { cursor: pointer; font-weight: 700; } .kindle-help ol { margin: 8px 0; padding-left: 20px; display: grid; gap: 4px; }
 .shelf-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; max-height: 320px; overflow: auto; }
@@ -3914,6 +3915,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
       home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal
     }[S.screen] || viewPicker;
+    if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
     const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
@@ -4114,6 +4116,26 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const k = kidById(S.who);
     return topbar([h('span', { id: 'timer-chip', class: 'chip', hidden: Timer.on ? null : true }), h('span', { class: 'who' }, avatar(k, 'sm'), h('span', { class: 'who-name' }, k.name)), h('button', { class: 'btn ghost sm', onclick: () => { S.who = null; go('picker'); } }, 'Switch user')]);
   }
+  const ACCENT = { US: 'American', GB: 'British', AU: 'Australian', IN: 'Indian', CA: 'Canadian', IE: 'Irish', NZ: 'New Zealand', ZA: 'South African', NG: 'Nigerian', KE: 'Kenyan', PH: 'Filipino', SG: 'Singaporean', HK: 'Hong Kong', TZ: 'Tanzanian' };
+  const voiceLabel = (v) => { const cc = (v.lang.split(/[-_]/)[1] || '').toUpperCase(); const nm = v.name.replace(/^(Microsoft|Google|Apple)\s+/i, '').replace(/\s*Online \(Natural\)/i, ' (natural)').replace(/\s*-\s*English.*$/i, '').replace(/\s*\(.*English.*\)$/i, ''); return nm + (ACCENT[cc] ? ' · ' + ACCENT[cc] : ''); };
+  function voicePicker(k) {
+    const kd = kidDoc(k.id), pv = kd.voice || {}, vs = Player.englishVoices();
+    const save = (patch) => { kd.voice = Object.assign({}, kd.voice, patch); saveKid(k.id); Player.applyKid(k.id); };
+    const preview = () => say('Hi ' + k.name + '! This is the voice that will read your lessons and spelling words.', 1);
+    if (!Player.synth) return h('p', { class: 'muted small' }, 'This browser can\'t read aloud, so there are no voices to choose from.');
+    const sel = h('select', { id: 'vp-voice', onchange: (e) => { save({ name: e.target.value || null }); preview(); } },
+      h('option', { value: '' }, 'Automatic (best on this device)'),
+      vs.slice().sort((a, b) => voiceLabel(a).localeCompare(voiceLabel(b))).map((v) => h('option', { value: v.name, selected: pv.name === v.name ? true : null }, voiceLabel(v))));
+    const rate = pv.rate || Player.rate || 1;
+    return h('section', { class: 'card voice-card' },
+      h('div', { class: 'row2' },
+        h('div', null, h('label', { for: 'vp-voice' }, 'Voice'), vs.length ? sel : h('p', { class: 'small muted' }, 'Voices are still loading. Come back in a moment.'),
+          pv.name && !vs.some((v) => v.name === pv.name) && vs.length ? h('p', { class: 'small muted' }, 'Your saved voice isn\'t on this device, so the automatic voice is used here.') : null),
+        h('div', null, h('span', { class: 'label' }, 'Speed'), h('div', { class: 'speed-row', role: 'radiogroup', 'aria-label': 'Reading speed' },
+          [[0.8, 'Slower'], [1, 'Normal'], [1.2, 'Faster']].map(([r, n]) => h('button', { type: 'button', role: 'radio', 'aria-checked': rate === r ? 'true' : 'false', class: 'chip-btn' + (rate === r ? ' on' : ''), onclick: () => { save({ rate: r }); render(); setTimeout(preview, 50); } }, n))))),
+      h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn primary sm', onclick: preview }, icon('voice'), ' Hear my voice'),
+        h('span', { class: 'small muted' }, 'Used for video lessons, spelling words and "Hear it" buttons on this device.')));
+  }
   function viewKidHome() {
     const k = kidById(S.who); if (!k) return viewPicker();
     const g = S.view.grade || k.grade; const gs = gradeStats(k.id, g); const kd = kidDoc(k.id);
@@ -4152,6 +4174,8 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
         return h('li', null, h('button', { type: 'button', class: 'theme-card' + (cur === t.id ? ' on' : '') + (got ? '' : ' locked'), disabled: got ? null : true, 'aria-pressed': cur === t.id ? 'true' : 'false', onclick: () => { kd.theme = t.id; saveKid(k.id); render(); } },
           h('span', { class: 'sw th-' + t.id, 'aria-hidden': 'true' }), got ? null : h('span', { class: 'lock', 'aria-hidden': 'true', html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h6V7a3 3 0 0 0-6 0v3z"/></svg>' }),
           h('b', null, t.n), h('small', null, got ? t.d : 'Finish any ' + sn + ' course to unlock'))); })));
+    main.appendChild(h('h2', { class: 'sec' }, 'My reading voice'));
+    main.appendChild(voicePicker(k));
     main.appendChild(h('h2', { class: 'sec' }, 'Badges'));
     main.appendChild(h('ul', { class: 'badges' }, BADGES.map((b) => { const on = kd.badges && kd.badges[b.id]; return h('li', { class: 'badge' + (on ? ' on' : '') }, h('span', { class: 'medal', 'aria-hidden': 'true' }), h('b', null, b.n), h('small', null, on ? 'Earned ' + new Date(on).toLocaleDateString() : b.d)); })));
     return h('div', null, kidBar(), main);
@@ -4471,9 +4495,18 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       const vs = this.synth.getVoices().filter((v) => /^en[-_]/i.test(v.lang));
       for (const p of [/Samantha/, /Google US English/, /Natural/i, /Aria|Jenny|Ava|Allison/, /en[-_]US/i]) { const v = vs.find((x) => p.test(x.name) || p.test(x.lang)); if (v) { this.voice = v; return; } }
       this.voice = vs[0] || null;
+    },
+    // Each learner can pick a voice and speed. Voices differ by device, so an unknown name falls back to the automatic pick.
+    englishVoices() { return this.synth ? this.synth.getVoices().filter((v) => /^en[-_]/i.test(v.lang)) : []; },
+    applyKid(kidId) {
+      if (!this.synth) return;
+      if (!this.autoVoice) { this.pickVoice(); this.autoVoice = this.voice; }
+      const pv = (kidId && kidDoc(kidId).voice) || {};
+      this.voice = (pv.name && this.englishVoices().find((x) => x.name === pv.name)) || this.autoVoice;
+      this.rate = pv.rate || Pref.get('rate', 1);
     }
   };
-  if (Player.synth) { Player.pickVoice(); try { Player.synth.addEventListener('voiceschanged', () => Player.pickVoice()); } catch (e) { /* older browsers */ } }
+  if (Player.synth) { Player.pickVoice(); try { Player.synth.addEventListener('voiceschanged', () => { Player.autoVoice = null; Player.applyKid(S.who); if (S.screen === 'home') scheduleRender(); }); } catch (e) { /* older browsers */ } }
   const ICONS = {
     play: '<path d="M8 5v14l11-7z"/>', pause: '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>',
     prev: '<path d="M6 5h2v14H6zM20 5v14L9 12z"/>', next: '<path d="M16 5h2v14h-2zM4 5l11 7-11 7z"/>',
@@ -4515,7 +4548,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const prevBtn = h('button', { class: 'vbtn', type: 'button', 'aria-label': 'Previous part', onclick: () => jump(Player.idx - 1) }, icon('prev'));
     const nextBtn = h('button', { class: 'vbtn', type: 'button', 'aria-label': 'Next part', onclick: () => jump(Player.idx + 1) }, icon('next'));
     const voiceBtn = h('button', { class: 'vtoggle', type: 'button', onclick: () => { Player.voiceOn = !Player.voiceOn; Pref.set('voice', Player.voiceOn); if (Player.playing) speakScene(); else draw(); } });
-    const rateSel = h('select', { class: 'vrate', id: 'v-rate', 'aria-label': 'Reading speed', onchange: (e) => { Player.rate = Number(e.target.value); Pref.set('rate', Player.rate); if (Player.playing) speakScene(); } }, [0.8, 1, 1.2, 1.4].map((r) => h('option', { value: r, selected: Player.rate === r ? true : null }, r + '×')));
+    const rateSel = h('select', { class: 'vrate', id: 'v-rate', 'aria-label': 'Reading speed', onchange: (e) => { Player.rate = Number(e.target.value); Pref.set('rate', Player.rate); if (S.who) { const kd = kidDoc(S.who); kd.voice = Object.assign({}, kd.voice, { rate: Player.rate }); saveKid(S.who); } if (Player.playing) speakScene(); } }, [0.8, 1, 1.2, 1.4].map((r) => h('option', { value: r, selected: Player.rate === r ? true : null }, r + '×')));
     const fsBtn = document.fullscreenEnabled ? h('button', { class: 'vbtn', type: 'button', 'aria-label': 'Full screen', onclick: () => { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else if (wrap.requestFullscreen) wrap.requestFullscreen().catch(() => {}); } }, icon('full')) : null;
     const wrap = h('section', { class: 'vplayer ' + sm.c, tabindex: '0', 'aria-label': 'Video lesson: ' + u.t, onkeydown: (e) => {
       if (e.target !== wrap) return;
@@ -4723,7 +4756,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 
   function say(text, rate) {
     const sy = Player.synth; if (!sy) return false;
-    try { sy.cancel(); const u = new SpeechSynthesisUtterance(text); if (Player.voice) { u.voice = Player.voice; u.lang = Player.voice.lang; } else u.lang = 'en-US'; u.rate = rate || 0.9; sy.speak(u); return true; } catch (e) { return false; }
+    try { sy.cancel(); const u = new SpeechSynthesisUtterance(text); if (Player.voice) { u.voice = Player.voice; u.lang = Player.voice.lang; } else u.lang = 'en-US'; u.rate = Math.max(0.4, Math.min(2, (rate || 0.9) * (Player.rate || 1))); sy.speak(u); return true; } catch (e) { return false; }
   }
   const blankOut = (sentence, w) => sentence.replace(new RegExp('(^|[^A-Za-z])(' + w + ')(?=[^A-Za-z]|$)', 'gi'), (m, a) => a + '_____');
 
