@@ -9,7 +9,8 @@
     { k: 'math', n: 'Math', c: 'math' },
     { k: 'ela', n: 'English', c: 'ela' },
     { k: 'sci', n: 'Science', c: 'sci' },
-    { k: 'soc', n: 'Social Studies', c: 'soc' }
+    { k: 'soc', n: 'Social Studies', c: 'soc' },
+    { k: 'ai', n: 'AI & Me', c: 'ai' }
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
@@ -30,7 +31,7 @@
     { id: 'hours50', n: '50 hours', d: 'Logged 50 hours of learning' },
     { id: 'master5', n: 'Five down', d: 'Mastered 5 units' },
     { id: 'course', n: 'Course complete', d: 'Finished every unit in a course' },
-    { id: 'grade', n: 'Grade complete', d: 'Finished all four courses in a grade' },
+    { id: 'grade', n: 'Grade complete', d: 'Finished every course in a grade' },
     { id: 'watch10', n: 'Good listener', d: 'Watched 10 video lessons' }
   ];
 
@@ -256,7 +257,7 @@
   }
   document.addEventListener('focusout', () => { if (S.dirty) { S.dirty = false; setTimeout(scheduleRender, 50); } });
 
-  function go(screen, view) { Player.stop(); if (!['lesson', 'quiz'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
+  function go(screen, view) { lumiClose(); Player.stop(); if (!['lesson', 'quiz'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
 
   function render() {
     const root = $('#app'); root.innerHTML = '';
@@ -523,8 +524,10 @@
         h('h2', { class: 'mini' }, 'Watch'), videoPlayer(g, s, i, () => startQuiz(g, s, i)),
         h('h2', { class: 'mini' }, 'Read'), h('ul', { class: 'points' }, u.l.map((p) => h('li', null, p))),
         u.try ? h('div', { class: 'try' }, h('b', null, 'Try it'), h('p', null, u.try)) : null,
+        u.lab ? teachLab(u, id) : null,
         h('h2', { class: 'mini' }, 'Go deeper'), h('ul', { class: 'res-list' }, res.map((r) => h('li', null, extLink(r)))),
         h('div', { class: 'quiz-cta' }, h('div', null, h('b', null, 'Ready? Take the quiz.'), h('p', { class: 'muted small' }, (u.g ? '5 fresh problems each try' : u.q.length + ' questions') + ' · score ' + settings().passMark + '% or higher to master this unit')), h('button', { class: 'btn primary', onclick: () => startQuiz(g, s, i) }, 'Start quiz'))),
+      lumiFab({ kidId, g, s, i, unit: u.t, points: u.l, mode: 'lesson' }),
       h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: i - 1 }) }, '← Previous unit') : h('span'), i < c.u.length - 1 ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: i + 1 }) }, 'Next unit →') : h('span')));
     return h('div', null, kidBar(), main);
   }
@@ -556,7 +559,8 @@
     const next = answered ? h('button', { class: 'btn primary', onclick: () => { if (Q.at < Q.qs.length - 1) { Q.at++; Q.picked = null; render(); } else finishQuiz(); } }, Q.at < Q.qs.length - 1 ? 'Next question' : 'See my score') : null;
     const main = h('main', { class: 'wrap quiz' },
       h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow ' + sm.c }, u.t), h('div', { class: 'q-progress' }, 'Question ' + (Q.at + 1) + ' of ' + Q.qs.length), bar(Math.round((Q.at / Q.qs.length) * 100), sm.c)),
-      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)));
+      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)),
+      answered ? null : lumiFab({ kidId: S.who, g: Q.g, s: Q.s, i: Q.i, unit: u.t, points: u.l, mode: 'quiz', question: item.q, choices: item.choices }));
     setTimeout(() => { const b = answered ? $('.q-actions .primary') : $('.choice'); b && b.focus({ preventScroll: true }); }, 0);
     return h('div', null, kidBar(), main);
   }
@@ -589,10 +593,10 @@
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['curriculum', 'Curriculum'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
-    const body = { overview: pOverview, reports: pReports, hours: pHours, curriculum: pCurriculum, settings: pSettings }[S.ptab]();
+    const body = { overview: pOverview, reports: pReports, hours: pHours, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
@@ -652,7 +656,7 @@
     wrap.appendChild(h('article', { class: 'card transcript' },
       h('h2', null, 'High school transcript'),
       tr.rows.length ? [
-        h('p', { class: 'muted small' }, 'Each completed course earns 1.0 credit. GPA is unweighted (A = 4.0) and counts completed courses only.'),
+        h('p', { class: 'muted small' }, 'Each completed core course earns 1.0 credit; AI courses earn 0.5. GPA is unweighted (A = 4.0) and counts completed courses only.'),
         h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Grade', 'Course', 'Status', 'Letter', 'Credit'].map((t) => h('th', { scope: 'col' }, t)))), h('tbody', null, tr.rows.map((r) => h('tr', null, h('td', { class: 'num' }, r.g), h('td', null, r.title), h('td', null, r.done ? 'Completed' : 'In progress · ' + r.pct + '%'), h('td', { class: 'num grade-cell' }, r.letter), h('td', { class: 'num' }, r.credit.toFixed(1))))), h('tfoot', null, h('tr', null, h('td', { colspan: 3 }, 'Cumulative'), h('td', { class: 'num' }, tr.gpa ? 'GPA ' + tr.gpa : '—'), h('td', { class: 'num' }, tr.credits.toFixed(1)))))),
         h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: () => downloadTranscript(k) }, 'Download transcript'))
       ] : h('p', { class: 'muted' }, 'High school courses (grades 9–12) appear here once ' + k.name + ' starts one.')));
@@ -713,7 +717,7 @@
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Settings'));
     wrap.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
       e.preventDefault(); const name = $('#s-name').value.trim(); if (!name) return;
-      f.name = name; f.settings = { passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
+      f.name = name; f.settings = { ...((f.settings && f.settings.lumi) ? { lumi: f.settings.lumi } : {}), passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
       saveFamily(); toast('Settings saved.'); render();
     } }, h('h3', null, 'School'),
       h('div', { class: 'row2' }, h('div', null, h('label', { for: 's-name' }, 'School name'), h('input', { id: 's-name', value: f.name, maxlength: 48 })), h('div', null, h('label', { for: 's-year' }, 'School year starts'), h('input', { id: 's-year', type: 'date', value: st.yearStart }))),
@@ -910,13 +914,196 @@
   }
   function downloadTranscript(k) {
     const tr = transcript(k); const f = fam();
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} transcript</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Official homeschool transcript · ${esc(k.name)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th class="n">Grade</th><th>Course</th><th>Status</th><th class="n">Letter</th><th class="n">Credit</th></tr></thead><tbody>${tr.rows.map((r) => `<tr><td class="n">${r.g}</td><td>${esc(r.title)}</td><td>${r.done ? 'Completed' : 'In progress (' + r.pct + '%)'}</td><td class="n">${r.letter}</td><td class="n">${r.credit.toFixed(1)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Cumulative</td><td class="n">${tr.gpa ? 'GPA ' + tr.gpa : '—'}</td><td class="n">${tr.credits.toFixed(1)}</td></tr></tfoot></table><p class="m">GPA is unweighted on a 4.0 scale and includes completed courses only. Each completed course is 1.0 credit.</p><div class="sig"><div>Parent / administrator signature</div><div>Date</div></div></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} transcript</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Official homeschool transcript · ${esc(k.name)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th class="n">Grade</th><th>Course</th><th>Status</th><th class="n">Letter</th><th class="n">Credit</th></tr></thead><tbody>${tr.rows.map((r) => `<tr><td class="n">${r.g}</td><td>${esc(r.title)}</td><td>${r.done ? 'Completed' : 'In progress (' + r.pct + '%)'}</td><td class="n">${r.letter}</td><td class="n">${r.credit.toFixed(1)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Cumulative</td><td class="n">${tr.gpa ? 'GPA ' + tr.gpa : '—'}</td><td class="n">${tr.credits.toFixed(1)}</td></tr></tfoot></table><p class="m">GPA is unweighted on a 4.0 scale and includes completed courses only. Core courses earn 1.0 credit and AI courses 0.5 credit when completed.</p><div class="sig"><div>Parent / administrator signature</div><div>Date</div></div></body></html>`;
     offer(k.name.replace(/\W+/g, '-') + '-transcript.html', html);
   }
   function downloadCSV(k) {
     const q = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
     const lines = [['Date', 'Subject', 'Minutes', 'Hours', 'Note', 'Source'].join(',')].concat(logDoc(k.id).e.slice().sort((a, b) => (a.d < b.d ? -1 : 1)).map((e) => [e.d, q(SUBJ_NAME[e.s] || e.s), e.m, (e.m / 60).toFixed(2), q(e.n), e.auto ? 'Automatic' : 'Parent'].join(',')));
     offer(k.name.replace(/\W+/g, '-') + '-hours.csv', lines.join('\n'));
+  }
+
+  /* ─────────────── Teach the Machine (in-browser machine-learning lab) ─────────────── */
+  const GRID = 16;
+  function labState(key) { S.labs = S.labs || {}; return S.labs[key] || (S.labs[key] = { ex: { a: [], b: [] }, mode: 'a', right: 0, tested: 0, last: null }); }
+  // Turn a drawing into 256 numbers: crop to the ink, scale to a 16×16 grid, soften, normalize.
+  function vectorize(cv) {
+    const W = cv.width, H = cv.height, d = cv.getContext('2d').getImageData(0, 0, W, H).data;
+    let x0 = W, y0 = H, x1 = -1, y1 = -1;
+    for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) if (d[(y * W + x) * 4 + 3] > 40) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (x1 < 0) return null;
+    const side = Math.max(x1 - x0, y1 - y0) + 1, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, v = new Array(GRID * GRID).fill(0);
+    for (let y = y0; y <= y1; y += 2) for (let x = x0; x <= x1; x += 2) if (d[(y * W + x) * 4 + 3] > 40) {
+      const gx = Math.max(0, Math.min(GRID - 1, Math.floor(((x - cx) / side + 0.5) * GRID))), gy = Math.max(0, Math.min(GRID - 1, Math.floor(((y - cy) / side + 0.5) * GRID)));
+      v[gy * GRID + gx] += 1;
+    }
+    const b = v.map((_, i) => { const x = i % GRID, y = Math.floor(i / GRID); let s = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < GRID && Y < GRID) s += v[Y * GRID + X] * (dx || dy ? 0.5 : 1); } return s; });
+    const m = Math.sqrt(b.reduce((a, x) => a + x * x, 0)) || 1; return b.map((x) => Math.round((x / m) * 1000) / 1000);
+  }
+  // k-nearest neighbours: find the 3 most similar examples and let them vote (closer ones count more).
+  function knn(st, v) {
+    const all = []; ['a', 'b'].forEach((c) => st.ex[c].forEach((e) => all.push({ c, d: Math.sqrt(e.reduce((s, x, i) => s + (x - v[i]) * (x - v[i]), 0)) })));
+    all.sort((p, q) => p.d - q.d); const k = Math.min(3, all.length), w = { a: 0, b: 0 };
+    for (let i = 0; i < k; i++) w[all[i].c] += 1 / (all[i].d + 0.05);
+    const c = w.a >= w.b ? 'a' : 'b'; return { c, conf: Math.round((w[c] / (w.a + w.b)) * 100) };
+  }
+  function thumb(v) {
+    const cv = h('canvas', { width: GRID, height: GRID, class: 'lab-thumb', 'aria-hidden': 'true' }); const x = cv.getContext && cv.getContext('2d'); if (!x) return cv;
+    const mx = Math.max(...v) || 1; v.forEach((val, i) => { if (val > 0) { x.fillStyle = 'rgba(30,77,59,' + Math.min(1, (val / mx) * 1.4).toFixed(2) + ')'; x.fillRect(i % GRID, Math.floor(i / GRID), 1, 1); } }); return cv;
+  }
+  function teachLab(u, key) {
+    const L = u.lab, st = labState(key), box = h('section', { class: 'lab card', 'aria-label': 'Teach the Machine activity' });
+    const name = (c) => (c === 'a' ? L.a : L.b);
+    function paint() {
+      box.innerHTML = '';
+      const ready = st.ex.a.length > 0 && st.ex.b.length > 0;
+      if (st.mode === 'test' && !ready) st.mode = 'a';
+      box.appendChild(h('div', { class: 'lab-head' }, h('div', null, h('p', { class: 'eyebrow ai' }, 'Hands-on lab'), h('h3', null, 'Teach the Machine')), h('button', { class: 'btn ghost sm', type: 'button', onclick: () => { Object.assign(st, { ex: { a: [], b: [] }, mode: 'a', right: 0, tested: 0, last: null }); paint(); } }, 'Start over')));
+      box.appendChild(h('p', { class: 'muted small' }, L.tip));
+      box.appendChild(h('div', { class: 'lab-modes', role: 'group', 'aria-label': 'Lab step' },
+        h('button', { type: 'button', class: 'lab-mode' + (st.mode === 'a' ? ' on' : ''), 'aria-pressed': st.mode === 'a' ? 'true' : 'false', onclick: () => { st.mode = 'a'; st.last = null; paint(); } }, '1 · Teach "' + L.a + '"'),
+        h('button', { type: 'button', class: 'lab-mode' + (st.mode === 'b' ? ' on' : ''), 'aria-pressed': st.mode === 'b' ? 'true' : 'false', onclick: () => { st.mode = 'b'; st.last = null; paint(); } }, '2 · Teach "' + L.b + '"'),
+        h('button', { type: 'button', class: 'lab-mode' + (st.mode === 'test' ? ' on' : ''), disabled: ready ? null : true, 'aria-pressed': st.mode === 'test' ? 'true' : 'false', onclick: () => { st.mode = 'test'; st.last = null; paint(); } }, '3 · Test it')));
+      const pad = h('canvas', { class: 'lab-pad', width: 240, height: 240, 'aria-label': 'Drawing pad. Draw with your finger or mouse.' });
+      const ctx = pad.getContext && pad.getContext('2d');
+      let drawing = false, inked = false, lx = 0, ly = 0;
+      const pos = (e) => { const r = pad.getBoundingClientRect(); return [((e.clientX - r.left) / r.width) * pad.width, ((e.clientY - r.top) / r.height) * pad.height]; };
+      if (ctx) {
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 14; ctx.strokeStyle = '#1E4D3B';
+        pad.addEventListener('pointerdown', (e) => { e.preventDefault(); drawing = true; inked = true; [lx, ly] = pos(e); ctx.beginPath(); ctx.arc(lx, ly, 7, 0, Math.PI * 2); ctx.fillStyle = '#1E4D3B'; ctx.fill(); try { pad.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ } });
+        pad.addEventListener('pointermove', (e) => { if (!drawing) return; const [x, y] = pos(e); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(x, y); ctx.stroke(); lx = x; ly = y; });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => pad.addEventListener(ev, () => { drawing = false; }));
+      }
+      if (ctx && st.mode === 'test' && st.last && st.img) { const im = new Image(); im.onload = () => ctx.drawImage(im, 0, 0); im.src = st.img; }
+      const clear = () => { if (ctx) ctx.clearRect(0, 0, pad.width, pad.height); inked = false; };
+      const actions = h('div', { class: 'lab-actions' });
+      const result = h('div', { class: 'lab-result', role: 'status', 'aria-live': 'polite' });
+      if (st.mode === 'test') {
+        actions.appendChild(h('button', { type: 'button', class: 'btn primary sm', onclick: () => {
+          const v = inked ? vectorize(pad) : null; if (!v) { toast('Draw something first!'); return; }
+          st.last = knn(st, v); st.img = pad.toDataURL(); paint();
+        } }, 'Guess!'));
+      } else {
+        actions.appendChild(h('button', { type: 'button', class: 'btn primary sm', onclick: () => {
+          const v = inked ? vectorize(pad) : null; if (!v) { toast('Draw something first!'); return; }
+          st.ex[st.mode].push(v); if (st.ex[st.mode].length > 30) st.ex[st.mode].shift(); paint();
+        } }, 'Add as "' + name(st.mode) + '"'));
+      }
+      actions.appendChild(h('button', { type: 'button', class: 'btn ghost sm', onclick: clear }, 'Clear'));
+      if (st.mode === 'test' && st.last) {
+        const g = st.last; const unsure = g.conf < 65;
+        result.appendChild(lumi(unsure ? 'think' : 'cheer', (unsure ? 'Hmm… maybe "' : 'I think it\'s "') + name(g.c) + '"! I\'m ' + g.conf + '% sure.'));
+        result.appendChild(h('div', { class: 'lab-check' }, h('span', null, 'Was the machine right?'),
+          h('button', { type: 'button', class: 'btn ghost sm', onclick: () => { st.tested++; st.right++; st.last = null; paint(); } }, 'Yes'),
+          h('button', { type: 'button', class: 'btn ghost sm', onclick: () => { st.tested++; st.last = null; paint(); } }, 'No')));
+      } else if (st.mode !== 'test') {
+        const n = st.ex[st.mode].length;
+        result.appendChild(h('p', { class: 'small muted' }, n === 0 ? 'Draw a "' + name(st.mode) + '" in the box, then press Add.' : n < 4 ? 'Nice! Machines learn better with more examples. Try ' + (4 - n) + ' more.' : 'Great teaching! ' + (ready ? 'Ready to test.' : 'Now teach the other one.')));
+      } else result.appendChild(h('p', { class: 'small muted' }, 'Draw a brand-new picture the machine has never seen, then press Guess.'));
+      box.appendChild(h('div', { class: 'lab-body' }, h('div', { class: 'lab-padwrap' }, pad, actions), h('div', { class: 'lab-side' }, result,
+        st.tested ? h('p', { class: 'lab-acc' }, 'Accuracy: ', h('b', null, st.right + ' of ' + st.tested + ' (' + Math.round((st.right / st.tested) * 100) + '%)')) : null,
+        ['a', 'b'].map((c) => h('div', { class: 'lab-set' }, h('p', { class: 'small' }, h('b', null, name(c)), ' · ' + st.ex[c].length + ' example' + (st.ex[c].length === 1 ? '' : 's')), h('div', { class: 'lab-thumbs' }, st.ex[c].slice(-12).map(thumb)))))));
+      box.appendChild(h('p', { class: 'hint' }, 'How it works: your drawing becomes 256 numbers. The machine compares a new drawing with the examples you taught it and picks the closest ones. This is called "nearest neighbors."'));
+    }
+    paint();
+    return box;
+  }
+
+  /* ─────────────── Lumi, the AI tutor (Claude API through a secure Netlify function) ─────────────── */
+  const LUMI_URL = /(\.web\.app|\.firebaseapp\.com)$/.test(location.hostname) ? 'https://lantern-homeschool.netlify.app/api/lumi' : '/api/lumi';
+  const lumiCfg = () => Object.assign({ on: false, perDay: 15, kids: {} }, settings().lumi || {});
+  const lumiDoc = (id) => Store.cache['lumi-' + id] || (Store.cache['lumi-' + id] = { e: [] });
+  const lumiToday = (id) => lumiDoc(id).e.filter((x) => x.d === todayStr()).length;
+  const lumiReady = (kidId) => Store.provider === 'firebase' && lumiCfg().on && lumiCfg().kids[kidId] !== false;
+  const LP = { open: false, ctx: null, msgs: [], key: null, busy: false, el: null };
+  function lumiContext(ctx) {
+    const key = [ctx.mode, ctx.g, ctx.s, ctx.i, ctx.question || ''].join('|');
+    if (LP.key !== key) { LP.key = key; LP.msgs = []; }
+    LP.ctx = ctx; if (LP.open) drawLumi();
+  }
+  function lumiFab(ctx) {
+    if (!lumiReady(ctx.kidId)) return null;
+    lumiContext(ctx);
+    const b = h('button', { class: 'lumi-fab', type: 'button', 'aria-label': 'Ask Lumi, your AI learning helper', onclick: () => { LP.open = true; drawLumi(); setTimeout(() => { const t = $('#lumi-in'); t && t.focus(); }, 30); } });
+    const m = h('span', { class: 'lumi-wrap sm' }); m.innerHTML = window.LH_MASCOT ? window.LH_MASCOT('happy') : ''; b.appendChild(m); b.appendChild(h('span', null, ctx.mode === 'quiz' ? 'Need a hint?' : 'Ask Lumi'));
+    return b;
+  }
+  function lumiClose() { LP.open = false; if (LP.el) { LP.el.remove(); LP.el = null; } }
+  function drawLumi() {
+    if (!LP.open || !LP.ctx) return lumiClose();
+    const c = LP.ctx, left = Math.max(0, lumiCfg().perDay - lumiToday(c.kidId));
+    if (!LP.el) { LP.el = h('div', { class: 'lumi-panel', role: 'dialog', 'aria-modal': 'false', 'aria-label': 'Lumi, AI learning helper' }); document.body.appendChild(LP.el); }
+    const el = LP.el; el.innerHTML = '';
+    const head = h('div', { class: 'lp-head' }); const m = h('span', { class: 'lumi-wrap sm' }); m.innerHTML = window.LH_MASCOT ? window.LH_MASCOT(LP.busy ? 'think' : 'happy') : '';
+    head.appendChild(m); head.appendChild(h('div', null, h('b', null, 'Lumi'), h('div', { class: 'small muted' }, 'AI learning helper · ' + c.unit)));
+    head.appendChild(h('button', { class: 'btn ghost sm', type: 'button', 'aria-label': 'Close Lumi', onclick: lumiClose }, '✕'));
+    el.appendChild(head);
+    const log = h('div', { class: 'lp-log', 'aria-live': 'polite' });
+    if (!LP.msgs.length) log.appendChild(h('p', { class: 'lp-msg bot' }, c.mode === 'quiz' ? 'Stuck? Tell me what you\'re thinking and I\'ll give you a hint. I won\'t give away the answer — you\'ve got this!' : 'Hi! I\'m Lumi. Ask me anything about "' + c.unit + '" and we\'ll figure it out together.'));
+    LP.msgs.forEach((x) => log.appendChild(h('p', { class: 'lp-msg ' + (x.role === 'user' ? 'me' : 'bot') + (x.err ? ' err' : '') }, x.content)));
+    if (LP.busy) log.appendChild(h('p', { class: 'lp-msg bot think' }, 'Lumi is thinking', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
+    el.appendChild(log);
+    const chips = c.mode === 'quiz' ? ['Give me a hint', 'Explain the idea behind this question', 'What does this word mean?'] : ['Explain it another way', 'Give me an example', 'Quiz me with one question', 'Why does this matter?'];
+    el.appendChild(h('div', { class: 'lp-chips' }, chips.map((t) => h('button', { type: 'button', class: 'chip-btn', disabled: LP.busy || !left ? true : null, onclick: () => lumiSend(t) }, t))));
+    const ta = h('textarea', { id: 'lumi-in', rows: 2, maxlength: 400, placeholder: left ? 'Type your question…' : 'No more questions today', disabled: left ? null : true, 'aria-label': 'Your question for Lumi' });
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); lumiSend(ta.value); } });
+    el.appendChild(h('form', { class: 'lp-form', onsubmit: (e) => { e.preventDefault(); lumiSend(ta.value); } }, ta, h('button', { class: 'btn primary sm', type: 'submit', disabled: LP.busy || !left ? true : null }, 'Send')));
+    el.appendChild(h('p', { class: 'lp-foot' }, left + ' question' + (left === 1 ? '' : 's') + ' left today · Lumi can make mistakes · Your grown-up can read these chats.'));
+    log.scrollTop = log.scrollHeight;
+  }
+  async function lumiSend(text) {
+    text = String(text || '').trim().slice(0, 400); const c = LP.ctx; if (!text || LP.busy || !c) return;
+    if (lumiToday(c.kidId) >= lumiCfg().perDay) { LP.msgs.push({ role: 'assistant', content: 'That\'s all my questions for today. Let\'s keep learning tomorrow!', err: true }); return drawLumi(); }
+    const mine = { role: 'user', content: text }; LP.msgs.push(mine); LP.busy = true; drawLumi();
+    try {
+      const u = window.firebase.auth().currentUser; if (!u) throw new Error('Please sign in again to talk with Lumi.');
+      const tok = await u.getIdToken();
+      const hist = LP.msgs.filter((x) => !x.err).slice(-10).map((x) => ({ role: x.role, content: x.content }));
+      const r = await fetch(LUMI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify({ grade: c.g, subject: SUBJ_NAME[c.s] || c.s, unit: c.unit, points: c.points, mode: c.mode, question: c.question || '', choices: c.choices || [], messages: hist }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.reply) throw new Error(j.error || (r.status === 404 ? 'Lumi isn\'t available on this site yet.' : 'Lumi is resting right now. Try again in a little while.'));
+      LP.msgs.push({ role: 'assistant', content: j.reply });
+      const d = lumiDoc(c.kidId); d.e.push({ at: Date.now(), d: todayStr(), g: c.g, s: c.s, u: c.unit, m: c.mode, q: text, a: j.reply }); if (d.e.length > 150) d.e = d.e.slice(-150); Store.set('lumi-' + c.kidId, d);
+    } catch (e) { mine.err = true; LP.msgs.push({ role: 'assistant', content: (e && e.message) || 'Something went wrong.', err: true }); }
+    LP.busy = false; drawLumi(); const t = $('#lumi-in'); if (t) { t.value = ''; t.focus(); }
+  }
+  function pTutor() {
+    const cfg = lumiCfg(), f = fam();
+    const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Lumi, the AI tutor'));
+    wrap.appendChild(h('article', { class: 'card note' }, h('h3', null, 'What Lumi does'),
+      h('ul', { class: 'points' },
+        h('li', null, 'Answers your learner\'s questions about the lesson they are on, at their grade level, using Claude by Anthropic.'),
+        h('li', null, 'Gives hints during quizzes but is told never to reveal answers.'),
+        h('li', null, 'Stays on school topics, won\'t ask for personal information, and tells children to talk to a trusted adult if they say they are hurt or unsafe.'),
+        h('li', null, 'Only the grade, lesson topic and the question typed are sent. Names, emails and progress are never sent.'),
+        h('li', null, 'Every question and answer is saved here for you to read.')),
+      h('p', { class: 'small muted' }, 'AI can make mistakes. Lumi is a study helper, not a replacement for you. Talk with your children about using it kindly and honestly.')));
+    if (Store.provider !== 'firebase') {
+      wrap.appendChild(h('div', { class: 'banner' }, 'Lumi works on the hosted site with a family account (sign in with email). This copy saves on ' + (Store.mode === 'cloud' ? 'your Claude account' : 'this device') + ', so the tutor is not available here.'));
+      return wrap;
+    }
+    wrap.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
+      e.preventDefault();
+      const kidsOn = {}; kids().forEach((k) => { kidsOn[k.id] = $('#lt-k-' + k.id).checked; });
+      f.settings = Object.assign({}, f.settings, { lumi: { on: $('#lt-on').checked, perDay: Number($('#lt-day').value), kids: kidsOn } });
+      saveFamily(); toast($('#lt-on').checked ? 'Lumi is on.' : 'Lumi is off.'); render();
+    } }, h('h3', null, 'Settings'),
+      h('label', { class: 'check' }, h('input', { id: 'lt-on', type: 'checkbox', checked: cfg.on ? true : null }), ' Turn on Lumi for my family (I am the parent or guardian and I agree to my children using an AI tutor)'),
+      h('div', { class: 'row2' }, h('div', null, h('label', { for: 'lt-day' }, 'Questions per learner per day'), h('select', { id: 'lt-day' }, [5, 10, 15, 25, 40].map((n) => h('option', { value: n, selected: cfg.perDay === n ? true : null }, n))))),
+      kids().length ? h('fieldset', { class: 'lt-kids' }, h('legend', { class: 'label' }, 'Which learners can use Lumi'), kids().map((k) => h('label', { class: 'check' }, h('input', { id: 'lt-k-' + k.id, type: 'checkbox', checked: cfg.kids[k.id] !== false ? true : null }), ' ' + k.name + ' · ' + GRADE_NAME(k.grade)))) : null,
+      h('button', { class: 'btn primary sm', type: 'submit' }, 'Save')));
+    wrap.appendChild(h('h2', { class: 'sec' }, 'Conversations'));
+    if (!kids().length) { wrap.appendChild(h('p', { class: 'muted' }, 'No learners yet.')); return wrap; }
+    const kid = kidById(S.lkid) || kids()[0]; S.lkid = kid.id;
+    wrap.appendChild(h('div', { class: 'row2' }, h('div', null, h('label', { for: 'lt-who' }, 'Learner'), h('select', { id: 'lt-who', onchange: (e) => { S.lkid = e.target.value; render(); } }, kids().map((k) => h('option', { value: k.id, selected: k.id === kid.id ? true : null }, k.name))))));
+    const es = lumiDoc(kid.id).e.slice().reverse().slice(0, 60);
+    if (!es.length) wrap.appendChild(h('p', { class: 'muted small' }, 'No questions yet.'));
+    else {
+      wrap.appendChild(h('ol', { class: 'lt-log' }, es.map((x) => h('li', { class: 'card' }, h('p', { class: 'small muted' }, fmtDate(x.d) + ' · ' + GRADE_NAME(x.g) + ' ' + (SUBJ_NAME[x.s] || '') + ' · ' + x.u + (x.m === 'quiz' ? ' (during quiz)' : '')), h('p', null, h('b', null, kid.name + ': '), x.q), h('p', null, h('b', null, 'Lumi: '), x.a)))));
+      wrap.appendChild(h('button', { class: 'btn ghost sm', onclick: () => { if (confirm('Delete all of ' + kid.name + '\'s Lumi conversations?')) { Store.set('lumi-' + kid.id, { e: [] }); render(); } } }, 'Clear ' + kid.name + '\'s history'));
+    }
+    return wrap;
   }
 
   /* ─────────────── boot ─────────────── */
@@ -936,7 +1123,7 @@
   async function loadSchool() {
     try { await Store.get('family'); } catch (e) { if (Store.provider === 'firebase') { S.screen = 'auth'; S.view = { mode: 'in' }; render(); toast('Could not load your school: ' + ((e && e.code) || 'error') + '. Check the Firestore rules, then sign in again.'); return; } Store.mode = 'local'; await Store.get('family'); }
     if (!fam()) { S.screen = 'setup'; S.view = { step: 1 }; render(); return; }
-    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id)])));
+    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
     Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); });
     S.screen = kids().length ? 'picker' : 'setup'; S.view = kids().length ? {} : { step: 2 }; render();
   }

@@ -1,8 +1,15 @@
 [build]
-  publish = "."
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [build.environment]
+  NODE_VERSION = "22"
   # firebase-config.js holds the Firebase *web* API key. It is public by design
   # (Firestore security rules protect the data), so Netlify's secret scan must not block it.
+  # The Claude API key (ANTHROPIC_API_KEY) is NOT in this repo; it lives only in Netlify's environment variables.
   SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
-  SECRETS_SCAN_OMIT_PATHS = "firebase-config.js,index.html"
+  SECRETS_SCAN_OMIT_PATHS = "firebase-config.js,index.html,dist/firebase-config.js,dist/index.html"

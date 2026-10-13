@@ -17,7 +17,7 @@
 :root {
   --paper: #F5F7F2; --sheet: #FFFFFF; --rule: #DDE3DC; --ink: #17241E; --ink-2: #4E5C55; --ink-3: #7A867F;
   --pine: #1E4D3B; --pine-ink: #FFFFFF; --lamp: #F2B21B; --lamp-soft: #FFF2CC;
-  --math: #3461C1; --ela: #C2453A; --sci: #2F8A57; --soc: #7B4FA6; --other: #8A7A55;
+  --math: #3461C1; --ela: #C2453A; --sci: #2F8A57; --soc: #7B4FA6; --ai: #0E7C86; --other: #8A7A55;
   --good: #2F8A57; --warn: #B7791F; --bad: #C2453A; --good-bg: #E3F2E8; --bad-bg: #FBE6E3;
   --shadow: 0 1px 2px rgba(23,36,30,.06), 0 6px 20px rgba(23,36,30,.06);
   --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -27,13 +27,13 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --paper: #111814; --sheet: #18221D; --rule: #2B3A33; --ink: #E7EEE9; --ink-2: #AEBBB4; --ink-3: #82918A;
   --pine: #8FD3B0; --pine-ink: #0E1A14; --lamp: #F5C14A; --lamp-soft: #3A3018;
-  --math: #7FA3F0; --ela: #F08A7E; --sci: #6CCB95; --soc: #B796E0; --other: #C9B98E;
+  --math: #7FA3F0; --ela: #F08A7E; --sci: #6CCB95; --soc: #B796E0; --ai: #5CCFD6; --other: #C9B98E;
   --good: #6CCB95; --warn: #E8B45A; --bad: #F08A7E; --good-bg: #183A28; --bad-bg: #44201C;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark; } }
 :root[data-theme="dark"] {
   --paper: #111814; --sheet: #18221D; --rule: #2B3A33; --ink: #E7EEE9; --ink-2: #AEBBB4; --ink-3: #82918A;
   --pine: #8FD3B0; --pine-ink: #0E1A14; --lamp: #F5C14A; --lamp-soft: #3A3018;
-  --math: #7FA3F0; --ela: #F08A7E; --sci: #6CCB95; --soc: #B796E0; --other: #C9B98E;
+  --math: #7FA3F0; --ela: #F08A7E; --sci: #6CCB95; --soc: #B796E0; --ai: #5CCFD6; --other: #C9B98E;
   --good: #6CCB95; --warn: #E8B45A; --bad: #F08A7E; --good-bg: #183A28; --bad-bg: #44201C;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark; }
 
@@ -412,6 +412,48 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
 @keyframes lumiTilt { 0%, 100% { transform: rotate(0); } 35% { transform: rotate(-8deg); } 70% { transform: rotate(5deg); } }
 @keyframes starPop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .lumi-cheer, .lumi-oops, .lumi-think, .stars .sfull { animation: none; } }
+
+/* ── AI & Me subject ── */
+.eyebrow.ai { color: var(--ai); } .bar.ai i { background: var(--ai); } .dot.ai { background: var(--ai); } .subj.ai { --c: var(--ai); } .vplayer.ai { --c: #7FDDE3; }
+/* ── Teach the Machine lab ── */
+.lab { margin: 18px 0; border: 2px dashed color-mix(in srgb, var(--ai) 45%, var(--rule)); }
+.lab-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; } .lab-head h3 { margin: 4px 0 0; }
+.lab-modes { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.lab-mode { font: inherit; font-weight: 700; font-size: .9rem; padding: 8px 12px; border-radius: 99px; border: 1.5px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; min-height: 40px; }
+.lab-mode.on { background: var(--ai); border-color: var(--ai); color: #fff; } .lab-mode:disabled { opacity: .45; cursor: not-allowed; }
+.lab-body { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; }
+@media (max-width: 620px) { .lab-body { grid-template-columns: 1fr; } }
+.lab-pad { width: min(240px, 100%); aspect-ratio: 1; display: block; background: #FFFFFF; border: 2px solid var(--rule); border-radius: 14px; touch-action: none; cursor: crosshair;
+  background-image: linear-gradient(var(--rule) 1px, transparent 1px), linear-gradient(90deg, var(--rule) 1px, transparent 1px); background-size: 30px 30px; }
+.lab-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.lab-side { display: grid; gap: 12px; min-width: 0; }
+.lab-check { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-weight: 700; }
+.lab-acc { margin: 0; } .lab-set p { margin: 0 0 4px; }
+.lab-thumbs { display: flex; flex-wrap: wrap; gap: 4px; min-height: 34px; }
+.lab-thumb { width: 32px; height: 32px; image-rendering: pixelated; background: #FFFFFF; border: 1px solid var(--rule); border-radius: 6px; }
+/* ── Lumi tutor ── */
+.lumi-wrap.sm { width: 34px; height: 42px; }
+.lumi-fab { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; display: flex; align-items: center; gap: 8px; padding: 6px 16px 6px 8px;
+  border-radius: 99px; border: 0; background: var(--pine); color: var(--pine-ink); font: 700 1rem var(--f-body); box-shadow: 0 6px 20px rgba(0,0,0,.25); cursor: pointer; min-height: 52px; }
+.lumi-fab:hover { transform: translateY(-1px); }
+.lumi-panel { position: fixed; right: 16px; bottom: 16px; z-index: 60; width: min(400px, calc(100vw - 32px)); max-height: min(620px, calc(100vh - 32px)); display: flex; flex-direction: column;
+  background: var(--sheet); color: var(--ink); border: 1px solid var(--rule); border-radius: 18px; box-shadow: 0 18px 50px rgba(0,0,0,.3); overflow: hidden; }
+.lp-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--rule); background: var(--lamp-soft); } .lp-head > div { flex: 1; min-width: 0; }
+.lp-head .small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lp-log { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 160px; }
+.lp-msg { margin: 0; padding: 9px 12px; border-radius: 14px; max-width: 88%; white-space: pre-wrap; line-height: 1.45; }
+.lp-msg.bot { background: var(--paper); border: 1px solid var(--rule); align-self: flex-start; border-bottom-left-radius: 4px; }
+.lp-msg.me { background: var(--pine); color: var(--pine-ink); align-self: flex-end; border-bottom-right-radius: 4px; }
+.lp-msg.err { background: var(--bad-bg); color: var(--bad); border-color: transparent; } .lp-msg.think { --c: var(--ink-3); color: var(--ink-3); }
+.lp-chips { display: flex; gap: 6px; padding: 0 12px 8px; overflow-x: auto; }
+.chip-btn { flex: none; font: inherit; font-size: .82rem; padding: 6px 10px; border-radius: 99px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; }
+.chip-btn:disabled { opacity: .5; cursor: not-allowed; }
+.lp-form { display: flex; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--rule); align-items: end; }
+.lp-form textarea { flex: 1; resize: none; font: inherit; padding: 8px 10px; border: 1.5px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--ink); }
+.lp-foot { margin: 0; padding: 0 12px 10px; font-size: .75rem; color: var(--ink-3); }
+.lt-log { list-style: none; padding: 0; display: grid; gap: 10px; } .lt-log li p { margin: 4px 0; } .lt-kids { border: 0; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+@media (max-width: 520px) { .lumi-panel { right: 8px; left: 8px; bottom: 8px; width: auto; max-height: calc(100vh - 16px); } }
+#app:has(.lumi-fab) main { padding-bottom: 96px; }
 </style>
 </head>
 <body>
@@ -1988,6 +2030,232 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
   ]);
 })();
 
+/* Lantern Homeschool — "AI & Me": a grades 1–12 artificial-intelligence course.
+   Built around AI4K12's Five Big Ideas (perception, representation & reasoning, learning, natural interaction, societal impact),
+   spiraling from "what is a smart machine?" in 1st grade to building and evaluating AI in 12th.
+   Units with `lab` open the in-browser "Teach the Machine" activity (draw examples, train, test). */
+(function () {
+  const C = window.LH_COURSES;
+  const R = {
+    oceans: ['Code.org · AI for Oceans', 'https://studio.code.org/s/oceans'],
+    codeai: ['Code.org · AI lessons', 'https://code.org/ai'],
+    tm: ['Teachable Machine (Google)', 'https://teachablemachine.withgoogle.com/'],
+    qd: ['Quick, Draw! (Google)', 'https://quickdraw.withgoogle.com/'],
+    dayofai: ['Day of AI · MIT RAISE', 'https://www.dayofai.org/'],
+    ai4k12: ['AI4K12 · Five Big Ideas', 'https://ai4k12.org/'],
+    eoa: ['Elements of AI (free course)', 'https://www.elementsofai.com/'],
+    xai: ['Experience AI · Raspberry Pi Foundation', 'https://experience-ai.org/'],
+    mlk: ['Machine Learning for Kids', 'https://machinelearningforkids.co.uk/'],
+    cs: ['Common Sense · AI literacy lessons', 'https://www.commonsense.org/education/collections/ai-literacy-lessons-for-grades-6-12']
+  };
+  const D = (d, mark) => ({ t: 'd', d, mark });
+  const course = (g, t, r, u, credit) => { C[g + '-ai'] = credit ? { t, credit, r, u } : { t, r, u }; };
+
+  /* ───────── GRADE 1 ───────── */
+  course(1, 'AI & Me: Smart Machines', [R.dayofai, R.qd], [
+    { t: 'What is a computer?', l: ['A computer is a machine that follows instructions.', 'We give it information (input), it does its work, and it shows us an answer (output).', 'Tablets, phones and game consoles are all computers.'], try: 'Find three computers in your home. What is one input and one output for each?',
+      q: [['A computer is a machine that…', 'Follows instructions', 'Eats food', 'Grows like a plant', 'Sleeps at night'], ['Pressing a key on a keyboard is an…', 'Input', 'Output', 'Animal', 'Song'], ['Sound coming out of a speaker is an…', 'Output', 'Input', 'Instruction', 'Battery'], ['Which one is a computer?', 'A tablet', 'A spoon', 'A pillow', 'A rock']] },
+    { t: 'Robots around us', l: ['A robot is a machine that can sense, think and act.', 'Robots sense with cameras and sensors, think with a computer, and act with motors.', 'A robot vacuum senses walls, decides where to go, and moves to clean.'], try: 'Act like a robot: a grown-up gives you one-step commands and you follow them exactly.',
+      q: [['Robots sense the world with…', 'Cameras and sensors', 'Feathers', 'Leaves', 'Paint'], ['The part that lets a robot move is a…', 'Motor', 'Pillow', 'Crayon', 'Cloud'], ['What does a robot vacuum do when it bumps a wall?', 'Turns and goes another way', 'Cries', 'Falls asleep', 'Eats the wall'], ['Sense, think and…', 'Act', 'Sing', 'Nap', 'Hide']] },
+    { t: 'Patterns everywhere', l: ['A pattern is something that repeats or follows a rule: red, blue, red, blue.', 'We can sort things into groups by color, shape or size.', 'Smart machines look for patterns too!'], try: 'Sort your socks or toys into groups. What rule did you use?',
+      q: [['What comes next? red, blue, red, blue, …', 'red', 'green', 'yellow', 'purple'], ['Sorting toys by color means grouping them by…', 'Color', 'Smell', 'Sound', 'Age'], ['What comes next? ●, ▲, ●, ▲, …', '●', '■', '★', '♥'], ['Smart machines look for…', 'Patterns', 'Snacks', 'Shoes', 'Puddles']] },
+    { t: 'Teaching a machine with examples', lab: { a: 'Circle', b: 'Line', tip: 'Draw 3 circles and 3 lines. Then draw a new one and see if the machine can tell!' },
+      l: ['Some machines learn by looking at examples, just like you do.', 'If we show a machine many pictures of circles and lines, it can learn to tell them apart.', 'More examples help the machine learn better.'], try: 'Use the Teach the Machine game below. Teach it circles and lines, then test it.',
+      q: [['How do some machines learn?', 'From examples', 'From eating', 'From sleeping', 'From running'], ['To teach a machine what a circle is, show it…', 'Pictures of circles', 'Only squares', 'Nothing', 'A song'], ['More examples usually help a machine…', 'Learn better', 'Forget everything', 'Turn off', 'Get hungry'], ['Who teaches a machine?', 'People', 'Rocks', 'The moon', 'Nobody ever']] },
+    { t: 'Talking to devices', l: ['Some devices can listen and talk, like smart speakers.', 'They listen for a special word, then try to understand what you ask.', 'They are helpful tools, but they are not people and don\'t have feelings.'], try: 'With a grown-up, ask a smart speaker or phone the weather. What did it get right?',
+      q: [['A smart speaker is a…', 'Machine', 'Person', 'Pet', 'Plant'], ['Smart speakers listen for a special…', 'Word', 'Color', 'Smell', 'Toy'], ['Do talking devices have feelings like people?', 'No', 'Yes', 'Only on Mondays', 'Only when it rains'], ['A good way to ask a device a question is to…', 'Speak clearly', 'Whisper very quietly', 'Shout and run away', 'Hum a song']] },
+    { t: 'Smart and safe with technology', l: ['Always ask a grown-up before using a new app or website.', 'Never share your full name, address or school with a machine or a stranger online.', 'If something online makes you feel worried, tell a grown-up right away.'], try: 'Make a family tech-rules poster with three rules.',
+      q: [['Before using a new app, you should…', 'Ask a grown-up', 'Share your address', 'Hide it', 'Delete it'], ['Is it safe to tell an app your home address?', 'No', 'Yes', 'Only on weekends', 'Only if it asks nicely'], ['If something online worries you, you should…', 'Tell a grown-up', 'Keep it a secret', 'Ignore everyone', 'Give your password'], ['Which is private information?', 'Your home address', 'Your favorite color', 'The weather', 'A dog\'s bark']] }
+  ]);
+
+  /* ───────── GRADE 2 ───────── */
+  course(2, 'AI & Me: Machines That See and Hear', [R.dayofai, R.qd], [
+    { t: 'How machines sense', l: ['People sense with eyes, ears and skin. Machines sense with cameras, microphones and sensors.', 'A camera is a machine\'s "eyes." A microphone is its "ears."', 'Sensing the world is called perception.'], try: 'List your five senses. Next to each, write a machine part that does something similar.',
+      q: [['A camera is like a machine\'s…', 'Eyes', 'Ears', 'Nose', 'Feet'], ['A microphone is like a machine\'s…', 'Ears', 'Eyes', 'Hands', 'Hair'], ['Sensing the world is called…', 'Perception', 'Painting', 'Running', 'Sleeping'], ['A door that opens when you walk up uses a…', 'Sensor', 'Paintbrush', 'Ladder', 'Spoon']] },
+    { t: 'Steps and instructions', l: ['An algorithm is a list of steps to solve a problem, like a recipe.', 'Computers follow steps in order, exactly as written.', 'If a step is missing or out of order, things go wrong!'], try: 'Write the steps for making a sandwich. Have a grown-up follow them exactly.',
+      q: [['A list of steps to solve a problem is an…', 'Algorithm', 'Animal', 'Alphabet', 'Album'], ['A recipe is like an algorithm because it…', 'Gives steps in order', 'Is always red', 'Can fly', 'Sings'], ['If steps are out of order, the result may be…', 'Wrong', 'Always perfect', 'Purple', 'Invisible'], ['Computers follow instructions…', 'Exactly as written', 'Only when they want', 'Backwards always', 'Never']] },
+    { t: 'Machines learn from examples', lab: { a: 'Happy', b: 'Sad', tip: 'Draw happy faces (smile curves up) and sad faces (curves down). Then test the machine!' },
+      l: ['Machine learning means a computer learns patterns from examples.', 'We give it examples with labels, like "happy face" or "sad face."', 'Then it guesses the label for a new example it has never seen.'], try: 'Play Teach the Machine below with happy and sad faces.',
+      q: [['Machine learning means computers learn from…', 'Examples', 'Naps', 'Snacks', 'Dancing'], ['A name we give an example, like "cat," is a…', 'Label', 'Sticker only', 'Song', 'Rule of the road'], ['After learning, the machine tries to…', 'Guess labels for new examples', 'Eat the examples', 'Forget all labels', 'Turn into a robot']] },
+    { t: 'When machines make mistakes', l: ['Machines can make wrong guesses, just like people.', 'Mistakes often happen when the machine didn\'t see enough examples, or the examples were all the same.', 'We fix it by giving better and more varied examples.'], try: 'In Teach the Machine, give only 1 example of each. Then give 5. Which works better?',
+      q: [['Can AI machines make mistakes?', 'Yes', 'No, never', 'Only robots', 'Only at night'], ['A machine that saw only red apples might think a green apple is…', 'Not an apple', 'A car', 'A banana song', 'The sky'], ['One way to help a machine make fewer mistakes is to…', 'Give more and different examples', 'Give no examples', 'Yell at it', 'Paint it']] },
+    { t: 'Helpful AI', l: ['AI helps maps find the fastest way home.', 'AI can translate words into other languages.', 'AI tools help doctors look at X-rays and help scientists study animals.'], try: 'Ask a grown-up to show you a map app finding a route. How did it choose?',
+      q: [['Which is a way AI helps people?', 'Finding the fastest route', 'Eating lunch', 'Growing hair', 'Painting the sun'], ['AI translation changes words into…', 'Another language', 'Food', 'Music notes only', 'Numbers only'], ['Who can AI help?', 'Doctors and scientists', 'Nobody', 'Only cats', 'Only robots']] },
+    { t: 'People are in charge', l: ['People design, build and test AI.', 'People decide how AI should be used and check its work.', 'Being kind and honest online is important, even when talking to machines.'], try: 'Draw a picture of a helpful robot you would invent. What rules would it follow?',
+      q: [['Who builds and tests AI?', 'People', 'Trees', 'Clouds', 'Dogs'], ['Should people check AI\'s work?', 'Yes', 'No', 'Only robots check', 'Never'], ['Online, we should be…', 'Kind and honest', 'Mean', 'Sneaky', 'Rude']] }
+  ]);
+
+  /* ───────── GRADE 3 ───────── */
+  course(3, 'AI & Me: How Machines Learn', [R.oceans, R.qd, R.dayofai], [
+    { t: 'What is artificial intelligence?', l: ['Artificial intelligence (AI) is when computers do tasks that usually need human thinking, like recognizing pictures or understanding speech.', 'Most AI today is narrow: it is good at one kind of task.', 'AI does not think or feel like a person. It finds patterns.'], try: 'Make a T-chart: "Things AI can do" and "Things only people can do."',
+      q: [['AI stands for…', 'Artificial intelligence', 'Animal intelligence', 'Always interesting', 'Art and ink'], ['Most AI today is good at…', 'One kind of task', 'Everything a person can do', 'Feeling sad', 'Eating'], ['AI works mainly by finding…', 'Patterns', 'Treasure', 'Feelings', 'Friends'], ['Which is a task AI can do?', 'Recognize faces in photos', 'Love its family', 'Smell flowers', 'Get tired']] },
+    { t: 'Data: the food of AI', l: ['Data is information: numbers, words, pictures and sounds.', 'AI learns from data, so good data matters a lot.', 'Collecting data means gathering examples carefully.'], try: 'Collect data: count the colors of 20 cars that drive by. Make a tally chart.',
+      q: [['Information like numbers, words and pictures is called…', 'Data', 'Dirt', 'Dust', 'Dinner'], ['AI learns from…', 'Data', 'Magic', 'Wishes', 'Sleep'], ['Which is an example of data?', 'A photo of a dog', 'A feeling of joy', 'A dream', 'Silence'], ['Bad data can make AI…', 'Make mistakes', 'Perfect', 'Grow taller', 'Fly']] },
+    { t: 'Training and testing', lab: { a: 'Zigzag', b: 'Wave', tip: 'Train with zigzags (sharp corners) and waves (smooth curves). Test with new drawings!' },
+      l: ['Training means showing AI labeled examples so it can learn.', 'Testing means checking it with NEW examples it hasn\'t seen.', 'If it fails the test, we add better examples and train again.'], try: 'Train the machine below, then test it with 5 new drawings. How many did it get right?',
+      q: [['Showing AI labeled examples is called…', 'Training', 'Testing', 'Painting', 'Sleeping'], ['Testing AI should use…', 'New examples it hasn\'t seen', 'The same exact examples', 'No examples', 'Only one color'], ['If AI fails a test, we should…', 'Add better examples and train again', 'Give up', 'Unplug the internet', 'Hide the results']] },
+    { t: 'How AI sees pictures', l: ['Digital pictures are made of tiny squares called pixels.', 'Each pixel is stored as numbers for its color.', 'AI looks at patterns in pixels, like edges and shapes, to recognize things.'], try: 'Play Quick, Draw! with a grown-up. Notice how the AI guesses as you draw.',
+      q: [['Tiny squares that make up a digital picture are…', 'Pixels', 'Pebbles', 'Puzzles', 'Petals'], ['A computer stores each pixel\'s color as…', 'Numbers', 'Paint', 'Glue', 'Sounds'], ['To recognize a cat, AI looks for patterns like…', 'Edges and shapes', 'Smells', 'Tastes', 'Feelings']] },
+    { t: 'Speech and language', l: ['Speech recognition turns spoken words into text.', 'AI learned to do this from thousands of hours of recorded speech.', 'Accents, noise and mumbling can make it harder.'], try: 'Use voice typing on a device. Say a sentence clearly, then mumble it. Compare.',
+      q: [['Turning spoken words into text is…', 'Speech recognition', 'Painting', 'Gardening', 'Juggling'], ['What can make speech recognition harder?', 'Background noise', 'Speaking clearly', 'A quiet room', 'Good microphone'], ['Speech AI learned from lots of…', 'Recorded speech', 'Rocks', 'Candy', 'Paintings']] },
+    { t: 'Fair AI for everyone', l: ['AI should work well for all kinds of people.', 'If training examples only show some people, AI may work badly for others.', 'Including many different examples helps make AI fair.'], try: 'Imagine an AI that recognizes shoes. List 10 kinds of shoes it should see in training.',
+      q: [['Fair AI should work well for…', 'Everyone', 'Only a few people', 'Only robots', 'Nobody'], ['AI may be unfair if its examples…', 'Only show some kinds of people', 'Show many kinds of people', 'Are carefully checked', 'Are labeled well'], ['To make AI fairer, use…', 'Many different examples', 'Fewer examples', 'No labels', 'Only one example']] }
+  ]);
+
+  /* ───────── GRADE 4 ───────── */
+  course(4, 'AI & Me: Patterns, Predictions & Decisions', [R.oceans, R.mlk, R.dayofai], [
+    { t: 'Decision trees', l: ['A decision tree asks yes/no questions to reach an answer.', 'Example: Does it have feathers? Yes → bird. No → Does it have fur? …', 'Computers can learn the best questions to ask from data.'], try: 'Build a decision tree that sorts 6 animals using yes/no questions.',
+      q: [['A decision tree asks…', 'Yes/no questions', 'No questions', 'Only math problems', 'For snacks'], ['"Does it have feathers?" helps identify a…', 'Bird', 'Fish', 'Rock', 'Car'], ['Computers can learn good questions from…', 'Data', 'Dreams', 'Guessing randomly', 'Nothing']] },
+    { t: 'Classify or predict?', l: ['Classifying means putting something in a group: spam or not spam.', 'Predicting means estimating what will happen: tomorrow\'s temperature.', 'Both use patterns learned from past data.'], try: 'Track the temperature for 5 days and predict day 6. How close were you?',
+      q: [['Sorting emails into "spam" or "not spam" is…', 'Classifying', 'Predicting the weather', 'Drawing', 'Measuring'], ['Guessing tomorrow\'s temperature is…', 'Predicting', 'Classifying', 'Spelling', 'Counting'], ['Both classifying and predicting use…', 'Patterns from past data', 'Magic', 'Random guesses only', 'No information']] },
+    { t: 'Good data, bad data', lab: { a: 'Triangle', b: 'Square', tip: 'First draw only BIG shapes. Then test with a tiny one. Did it fail? Add small examples and try again!' },
+      l: ['Biased data means the examples are lopsided or missing important kinds.', 'An AI trained only on big triangles may not recognize small ones.', 'Checking and balancing data helps AI work for more situations.'], try: 'In the lab, train with only big shapes, then test small ones. Fix it with better data.',
+      q: [['Data that is lopsided or missing kinds of examples is…', 'Biased', 'Perfect', 'Colorful', 'Musical'], ['AI trained only on big triangles may struggle with…', 'Small triangles', 'Big triangles', 'All triangles equally well', 'Sounds'], ['To fix biased data, we should…', 'Add the missing kinds of examples', 'Delete all data', 'Use one example', 'Ignore the problem']] },
+    { t: 'Recommendation systems', l: ['Apps suggest videos, songs and books using AI called recommendation systems.', 'They look at what you watched and what similar people liked.', 'Suggestions are designed to keep you watching, so you choose when to stop.'], try: 'Write down 3 suggestions an app gives you. Why do you think it picked them?',
+      q: [['AI that suggests videos is a…', 'Recommendation system', 'Calculator', 'Thermometer', 'Ruler'], ['Recommendations are based on…', 'What you and similar people watched', 'The weather only', 'Your shoe size', 'Random letters'], ['Who should decide when to stop watching?', 'You', 'The app', 'The video', 'The internet']] },
+    { t: 'Robots and self-driving cars', l: ['Self-driving cars use cameras, radar and other sensors to see the road.', 'AI decides what the car should do: slow down, stop or turn.', 'They must be tested very carefully because safety matters.'], try: 'Draw a self-driving car and label three sensors and what each one notices.',
+      q: [['Self-driving cars see the road with…', 'Cameras and sensors', 'Mirrors only', 'A map only', 'Headlights only'], ['The car\'s AI decides when to…', 'Stop, slow down or turn', 'Sing', 'Change color', 'Fly'], ['Why must self-driving cars be tested carefully?', 'Safety matters', 'They are toys', 'They never break', 'Testing is fun only']] },
+    { t: 'Your digital footprint', l: ['Your digital footprint is the trail of information you leave online.', 'Apps and AI can collect data about what you click and search.', 'Think before you post, and keep personal information private.'], try: 'With a grown-up, check the privacy settings on one app or game you use.',
+      q: [['The trail of information you leave online is your…', 'Digital footprint', 'Shoe print', 'Fingerprint only', 'Shadow'], ['Before posting online, you should…', 'Think carefully', 'Share your address', 'Post your password', 'Post everything'], ['Who should help you check privacy settings?', 'A parent or trusted adult', 'A stranger online', 'A pop-up ad', 'Nobody']] }
+  ]);
+
+  /* ───────── GRADE 5 ───────── */
+  course(5, 'AI & Me: Inside Smart Technology', [R.oceans, R.mlk, R.tm], [
+    { t: 'Turning the world into numbers', l: ['Computers represent things as numbers called features.', 'A fruit might be described by features like color, weight and roundness.', 'Choosing good features helps AI tell things apart.'], try: 'Pick 4 fruits. Make a table of 3 features for each.',
+      q: [['Measurable details that describe something are called…', 'Features', 'Feathers', 'Fables', 'Fractions'], ['Which is a good feature to tell apples from bananas?', 'Shape', 'The day of the week', 'Your name', 'The weather'], ['Computers store features as…', 'Numbers', 'Smells', 'Feelings', 'Shadows']] },
+    { t: 'Machine learning in three steps', lab: { a: 'Star', b: 'Heart', tip: 'Collect at least 4 stars and 4 hearts, train, then test with 5 new drawings and count how many are right.' },
+      l: ['Step 1: Collect and label data.', 'Step 2: Train a model on the data.', 'Step 3: Test the model on new data and improve it.'], try: 'Run all three steps in the lab and record your accuracy (right ÷ total).',
+      q: [['What is the first step of machine learning?', 'Collect and label data', 'Test the model', 'Sell the model', 'Delete data'], ['What is shown at the "?"', 'Model', 'Data', 'Prediction', 'Training', D('mlflow', 'model')], ['If 4 of 5 test guesses are right, accuracy is…', '80%', '45%', '20%', '100%'], ['What is shown at the "?"', 'Prediction', 'Data', 'Model', 'Training', D('mlflow', 'prediction')]] },
+    { t: 'Neural networks', l: ['A neural network is a kind of AI loosely inspired by how brain cells connect.', 'It has layers: an input layer, hidden layers, and an output layer.', 'During training, the connections get stronger or weaker to make better guesses.'], try: 'Draw a network: 3 input circles, 2 hidden, 1 output. Connect every circle to the next layer.',
+      q: [['Neural networks are loosely inspired by…', 'The brain', 'Rivers', 'Volcanoes', 'Clocks'], ['Which layer is marked "?"', 'Hidden layer', 'Input layer', 'Output layer', 'Data layer', D('nn', 'hidden')], ['Which layer is marked "?" (where data comes in)?', 'Input layer', 'Output layer', 'Hidden layer', 'Answer layer', D('nn', 'input')], ['During training, connections get…', 'Stronger or weaker', 'Painted', 'Removed forever', 'Louder']] },
+    { t: 'How chatbots talk', l: ['Chatbots are AI programs that write replies to your messages.', 'They learned language patterns from huge amounts of text, and predict what words should come next.', 'They can sound confident even when they are wrong, so always check important facts.'], try: 'Play "next word": a grown-up says "Once upon a…" — what word comes next? That\'s what chatbots do!',
+      q: [['Chatbots write replies by predicting…', 'The next words', 'The weather', 'Your age', 'Lottery numbers'], ['Chatbots learned language from…', 'Huge amounts of text', 'Only one book', 'Watching TV', 'Dreams'], ['If a chatbot sounds confident, it is…', 'Still sometimes wrong', 'Always right', 'A person', 'Magic']] },
+    { t: 'Real or AI-made?', l: ['AI can create pictures, voices and videos that look real.', 'Fake videos of real people are called deepfakes.', 'Check the source, look for odd details, and ask an adult before believing or sharing.'], try: 'Look at a photo online with a grown-up. Who made it? Where did it come from?',
+      q: [['Fake videos made with AI of real people are…', 'Deepfakes', 'Cartoons', 'Documentaries', 'Live news'], ['Before sharing a surprising picture, you should…', 'Check where it came from', 'Share it fast', 'Change it more', 'Believe it'], ['AI can create pictures, voices and videos that…', 'Look real but are fake', 'Are always labeled', 'Can\'t fool anyone', 'Are only cartoons']] },
+    { t: 'AI helping people', l: ['AI helps doctors spot diseases in scans.', 'AI helps scientists predict weather and study animals.', 'AI can help people with disabilities, like reading text out loud or describing images.'], try: 'Interview a family member: does AI help them at work? How?',
+      q: [['AI can help doctors by…', 'Spotting diseases in scans', 'Replacing all hospitals', 'Cooking meals', 'Painting walls'], ['Reading text aloud can help people who…', 'Have trouble seeing', 'Like music', 'Are hungry', 'Are tall'], ['AI helps scientists…', 'Predict weather and study animals', 'Stop the rain', 'Build volcanoes', 'Skip experiments']] }
+  ]);
+
+  /* ───────── GRADE 6 ───────── */
+  course(6, 'AI Literacy: How AI Works', [R.ai4k12, R.xai, R.tm], [
+    { t: 'The five big ideas of AI', l: ['Perception: computers sense the world with sensors.', 'Representation & reasoning: they store knowledge and use it to make decisions. Learning: they learn from data.', 'Natural interaction: they talk with people. Societal impact: AI affects society in good and bad ways.'], try: 'Find one real AI example for each big idea.',
+      q: [['Computers sensing the world is the big idea of…', 'Perception', 'Learning', 'Societal impact', 'Reasoning'], ['AI changing jobs and communities is…', 'Societal impact', 'Perception', 'Representation', 'Natural interaction'], ['A voice assistant talking with you shows…', 'Natural interaction', 'Perception only', 'Learning only', 'Reasoning only'], ['Getting better from data is…', 'Learning', 'Perception', 'Interaction', 'Impact']] },
+    { t: 'Three ways machines learn', l: ['Supervised learning: learn from labeled examples (cat/dog photos).', 'Unsupervised learning: find groups in unlabeled data (sorting customers by habits).', 'Reinforcement learning: learn by trial and error with rewards (game-playing AI).'], try: 'Train a dog (or a sibling!) with treats. Which type of learning is that?',
+      q: [['Learning from labeled examples is…', 'Supervised learning', 'Unsupervised learning', 'Reinforcement learning', 'No learning'], ['Learning by trial and error with rewards is…', 'Reinforcement learning', 'Supervised learning', 'Unsupervised learning', 'Memorizing'], ['Finding groups in unlabeled data is…', 'Unsupervised learning', 'Supervised learning', 'Reinforcement learning', 'Labeling']] },
+    { t: 'Features and labels', lab: { a: 'Letter A', b: 'Letter B', tip: 'Teach the machine to read handwriting! Draw several A\'s and B\'s in different styles.' },
+      l: ['Features are the inputs: what the model looks at.', 'Labels are the answers we want it to learn.', 'In handwriting recognition, the pixels are features and the letter is the label.'], try: 'Teach the machine A and B. Try messy handwriting — when does it fail?',
+      q: [['In handwriting AI, the letter (A or B) is the…', 'Label', 'Feature', 'Pixel', 'Screen'], ['The inputs a model looks at are…', 'Features', 'Labels', 'Rewards', 'Outputs'], ['Messy handwriting may cause…', 'More errors', 'Perfect accuracy', 'Faster computers', 'No change ever']] },
+    { t: 'Accuracy and errors', l: ['Accuracy = correct predictions ÷ total predictions.', 'A false positive says "yes" when the answer is no. A false negative says "no" when it is yes.', 'Which error matters more depends on the job (e.g. a medical test).'], try: 'Test your lab model 10 times and calculate accuracy.',
+      q: [['If a model is right 45 out of 50 times, accuracy is…', '90%', '45%', '95%', '50%'], ['A spam filter marks a real email as spam. That is a…', 'False positive', 'False negative', 'True negative', 'Correct guess'], ['A test misses a sick person. That is a…', 'False negative', 'False positive', 'True positive', 'Perfect result']] },
+    { t: 'What is generative AI?', l: ['Generative AI creates new content: text, images, music or code.', 'It learns patterns from huge datasets and produces something similar but new.', 'It can be creative and useful, but it can also make errors or copy styles unfairly.'], try: 'Compare a story you write with one a chatbot writes (with a parent). What\'s different?',
+      q: [['AI that creates new text or images is…', 'Generative AI', 'A calculator', 'A sensor', 'A spreadsheet'], ['Generative AI learns from…', 'Patterns in large datasets', 'Nothing', 'Only one picture', 'Your thoughts'], ['Generative AI\'s answers should be…', 'Checked for errors', 'Trusted completely', 'Never read', 'Copied without credit']] },
+    { t: 'Using AI honestly for schoolwork', l: ['AI can help you brainstorm, explain ideas and check your work.', 'Turning in AI\'s work as your own is cheating.', 'Say when you used AI and how, and make sure you still do the thinking.'], try: 'Write family "AI for school" rules: what\'s OK and what\'s not.',
+      q: [['Turning in AI-written work as your own is…', 'Cheating', 'Fine always', 'Research', 'Citing'], ['A good use of AI for school is to…', 'Explain a confusing idea', 'Write your whole essay', 'Take your test', 'Copy answers'], ['When you use AI for help, you should…', 'Say how you used it', 'Hide it', 'Delete your work', 'Use it for every word']] }
+  ]);
+
+  /* ───────── GRADE 7 ───────── */
+  course(7, 'AI Literacy: Language, Images & Bias', [R.xai, R.cs, R.tm], [
+    { t: 'How language models work', l: ['Large language models (LLMs) are trained on huge amounts of text.', 'Text is broken into tokens (words or word pieces). The model predicts the next token, again and again.', 'They don\'t look things up by default; they generate likely-sounding text.'], try: 'Write the first half of a sentence and list 3 likely next words with a family member.',
+      q: [['LLM stands for…', 'Large language model', 'Little logic machine', 'Long list memory', 'Language learning mouse'], ['Pieces of text a model works with are…', 'Tokens', 'Coins', 'Pixels', 'Atoms'], ['An LLM writes by predicting…', 'The next token', 'The weather', 'Your password', 'Prices'], ['By default, LLM answers are…', 'Generated likely-sounding text', 'Always looked up facts', 'Copied from one book', 'Random letters']] },
+    { t: 'Prompting basics', l: ['A prompt is what you ask an AI.', 'Good prompts are clear and specific: give context, the task, and the format you want.', 'Example: "Explain photosynthesis to a 7th grader in 3 bullet points."'], try: 'Rewrite a vague prompt ("tell me about dogs") into a clear, specific one.',
+      q: [['What you type to ask an AI is a…', 'Prompt', 'Pixel', 'Password', 'Program crash'], ['Which prompt is clearer?', 'Explain fractions to a 4th grader in 3 steps', 'fractions', 'tell me stuff', 'math?'], ['A good prompt includes…', 'Context, task and format', 'Only one word', 'Your home address', 'Nothing specific']] },
+    { t: 'When AI makes things up', l: ['AI chatbots can produce false information that sounds true. This is called a hallucination.', 'They may even invent sources or quotes.', 'Verify important facts with trusted sources before using them.'], try: 'Ask an AI (with a parent) about a topic you know well. Find one mistake.',
+      q: [['When AI makes up false information, it is called a…', 'Hallucination', 'Prediction', 'Download', 'Backup'], ['AI may invent…', 'Sources and quotes', 'Nothing ever', 'Only numbers', 'Only correct facts'], ['To check an AI answer, you should…', 'Verify with trusted sources', 'Ask the same AI again only', 'Assume it\'s right', 'Share it first']] },
+    { t: 'Computer vision', lab: { a: 'Sun', b: 'Moon', tip: 'Draw suns (circle with rays) and moons (crescents). Can the machine see the difference?' },
+      l: ['Computer vision is AI that understands images and video.', 'It finds low-level features (edges), then shapes, then whole objects.', 'Uses include face unlock, reading license plates, and sorting recycling.'], try: 'Train the lab on suns and moons. Then try Teachable Machine with your webcam (with a parent).',
+      q: [['AI that understands images is…', 'Computer vision', 'Speech recognition', 'A spreadsheet', 'A search engine'], ['Computer vision first detects simple features like…', 'Edges', 'Smells', 'Emotions', 'Prices'], ['Which uses computer vision?', 'Face unlock on a phone', 'A light switch', 'A pencil', 'A paper map']] },
+    { t: 'Algorithmic bias', l: ['Bias happens when AI treats groups unfairly, often because of unbalanced training data.', 'A 2018 MIT study (Gender Shades) found some face-analysis systems made far more errors on darker-skinned women.', 'Fixes: diverse data, testing on many groups, and human review.'], try: 'Design a test plan: what groups would you test a face-unlock feature on?',
+      q: [['AI that treats groups unfairly shows…', 'Bias', 'Accuracy', 'Fairness', 'Speed'], ['A common cause of bias is…', 'Unbalanced training data', 'Too many tests', 'Fast computers', 'Bright screens'], ['One way to reduce bias is to…', 'Test on many different groups', 'Test on one group', 'Use less data', 'Skip testing']] },
+    { t: 'Privacy and your data', l: ['AI apps may store what you type or upload.', 'Never put passwords, addresses or private photos into an AI tool.', 'Read privacy settings and ask a parent before using new AI apps.'], try: 'Read the privacy summary of one app with a parent. What data does it collect?',
+      q: [['Should you type your password into a chatbot?', 'No', 'Yes', 'Only if it asks', 'Only on weekends'], ['AI apps may…', 'Store what you type', 'Never keep anything', 'Read your mind', 'Delete the internet'], ['Before trying a new AI app, you should…', 'Ask a parent and check privacy settings', 'Upload private photos', 'Share your address', 'Ignore the rules']] }
+  ]);
+
+  /* ───────── GRADE 8 ───────── */
+  course(8, 'AI Literacy: Building and Testing Models', [R.xai, R.cs, R.mlk], [
+    { t: 'Training, validation and test sets', lab: { a: 'Arrow', b: 'Cross', tip: 'Make 6 examples each. Keep 2 drawings of each "secret" for testing only — draw them after training.' },
+      l: ['Data is split into a training set (to learn), a validation set (to tune), and a test set (final check).', 'The test set must stay hidden during training, or the score is misleading.', 'A typical split is about 70% / 15% / 15%.'], try: 'In the lab, train with some drawings and test only with brand-new ones. Record accuracy.',
+      q: [['The data used for the final check is the…', 'Test set', 'Training set', 'Prompt', 'Label'], ['Why keep test data hidden during training?', 'So the score is honest', 'To save space', 'It is too colorful', 'No reason'], ['The model learns from the…', 'Training set', 'Test set', 'Output layer', 'Screen']] },
+    { t: 'Overfitting', l: ['Overfitting is when a model memorizes training examples instead of learning general patterns.', 'It scores great on training data but poorly on new data.', 'More varied data and simpler models help prevent it.'], try: 'Train the lab with 1 drawing each, then test with different styles. Is that overfitting?',
+      q: [['Memorizing training data instead of learning patterns is…', 'Overfitting', 'Underfitting', 'Testing', 'Labeling'], ['An overfit model does poorly on…', 'New data', 'Training data', 'Nothing', 'Its own examples'], ['A way to reduce overfitting is…', 'More varied data', 'Fewer examples', 'Never testing', 'Memorizing more']] },
+    { t: 'Inside a neural network', l: ['Each connection has a weight: a number showing how much it matters.', 'Neurons add up weighted inputs and pass a signal forward.', 'Training adjusts the weights to reduce errors, many thousands of times.'], try: 'Use a spreadsheet: inputs 2 and 3, weights 0.5 and 1. Compute the weighted sum.',
+      q: [['A number showing how much a connection matters is a…', 'Weight', 'Label', 'Pixel', 'Token'], ['Which layer is marked "?" (gives the answer)?', 'Output layer', 'Input layer', 'Hidden layer', 'Data layer', D('nn', 'output')], ['Inputs 2 and 3 with weights 0.5 and 1 give a weighted sum of…', '4', '5', '3.5', '6'], ['Training changes the…', 'Weights', 'Screen size', 'Keyboard', 'Labels on the test set']] },
+    { t: 'Reinforcement learning', l: ['An agent takes actions in an environment and gets rewards or penalties.', 'Over many tries, it learns actions that earn the most reward.', 'DeepMind\'s AlphaGo used this approach and beat a world champion at Go in 2016.'], try: 'Play a guessing game where you only say "warmer" or "colder." That\'s reinforcement!',
+      q: [['In reinforcement learning, the agent learns from…', 'Rewards and penalties', 'Labeled photos only', 'Nothing', 'Copying answers'], ['Which AI beat a Go world champion in 2016?', 'AlphaGo', 'Siri', 'Deep Blue', 'Pac-Man'], ['The thing that takes actions is called the…', 'Agent', 'Dataset', 'Pixel', 'Label']] },
+    { t: 'Misinformation and deepfakes', l: ['AI makes it easy to create fake images, audio and articles.', 'Lateral reading: open new tabs and check what other trusted sources say about a claim.', 'Look for the original source, date and evidence before sharing.'], try: 'Pick a viral claim and fact-check it with lateral reading. Write what you found.',
+      q: [['Checking what other sources say about a claim is…', 'Lateral reading', 'Speed reading', 'Skimming', 'Copying'], ['A fake but realistic AI video of a real person is a…', 'Deepfake', 'Documentary', 'Livestream', 'Meme only'], ['Before sharing a shocking post, find the…', 'Original source and evidence', 'Number of likes only', 'Font', 'Emoji count']] },
+    { t: 'AI ethics', l: ['Fairness: AI should not discriminate.', 'Transparency: people should know when and how AI is used. Accountability: humans are responsible for AI\'s decisions.', 'Privacy and safety must be protected.'], try: 'Debate with family: should AI grade student essays? Use the ethics ideas.',
+      q: [['People knowing when AI is used is…', 'Transparency', 'Overfitting', 'Bias', 'Training'], ['Who is responsible for AI decisions?', 'Humans', 'Nobody', 'The AI alone', 'The computer screen'], ['AI that does not discriminate is…', 'Fair', 'Fast', 'Hidden', 'Expensive']] }
+  ]);
+
+  /* ───────── GRADE 9 ───────── */
+  course(9, 'AI Foundations', [R.eoa, R.xai, R.cs], [
+    { t: 'A short history of AI', l: ['1950: Alan Turing asked "Can machines think?" and proposed the imitation game (Turing test).', '1956: the Dartmouth workshop named the field "artificial intelligence." 1997: IBM\'s Deep Blue beat chess champion Garry Kasparov.', '2012: deep learning broke records in image recognition; the late 2010s–2020s brought powerful language models and chatbots.'], try: 'Make an illustrated AI timeline with 6 events.',
+      q: [['Who proposed the imitation game in 1950?', 'Alan Turing', 'Thomas Edison', 'Ada Lovelace', 'Bill Gates'], ['The field was named "artificial intelligence" at…', 'The Dartmouth workshop (1956)', 'The 1969 Moon landing', 'The 2012 Olympics', 'A 1997 chess match'], ['Deep Blue beat Garry Kasparov at…', 'Chess', 'Go', 'Checkers', 'Poker'], ['Deep learning broke image-recognition records around…', '2012', '1950', '1890', '1975']] },
+    { t: 'Search and reasoning', l: ['Early AI used rules and logic: IF condition THEN action.', 'Search explores possible moves or paths to find the best one (like GPS routing or chess).', 'Expert systems stored human knowledge as many rules.'], try: 'Write 5 IF–THEN rules for a thermostat.',
+      q: [['"IF it is raining THEN bring an umbrella" is a…', 'Rule', 'Neural network', 'Pixel', 'Token'], ['GPS finding the shortest route uses…', 'Search', 'Painting', 'Speech only', 'Random guessing'], ['Systems built from many human rules are…', 'Expert systems', 'Deepfakes', 'Chatbots only', 'Sensors']] },
+    { t: 'Probability and prediction', l: ['AI rarely knows for sure; it estimates probabilities.', 'A model might say "85% chance this is a cat."', 'Thresholds decide action: e.g., flag as spam if probability > 90%.'], try: 'Check the lab\'s confidence scores. When is it unsure?',
+      q: [['"85% chance this is a cat" is a…', 'Probability', 'Certainty', 'Label', 'Prompt'], ['If the spam threshold is 90%, an email with 70% spam probability is…', 'Not flagged', 'Flagged', 'Deleted', 'Printed'], ['AI predictions are usually…', 'Estimates with uncertainty', 'Always certain', 'Random', 'Never wrong']] },
+    { t: 'How neural networks learn', lab: { a: 'Spiral', b: 'Box', tip: 'Watch the confidence bar as you add examples. More good examples usually raise confidence.' },
+      l: ['A loss function measures how wrong the model\'s predictions are.', 'Gradient descent adjusts weights a little at a time to make the loss smaller — like walking downhill in fog.', 'An epoch is one full pass through the training data.'], try: 'Draw a "hill" and show how small steps downhill find the lowest point.',
+      q: [['A function measuring how wrong predictions are is the…', 'Loss function', 'Prompt', 'Token', 'Label'], ['Gradient descent changes weights to make the loss…', 'Smaller', 'Bigger', 'Random', 'Zero instantly'], ['One full pass through the training data is an…', 'Epoch', 'Error', 'Emoji', 'Engine']] },
+    { t: 'Prompt engineering', l: ['Strong prompts give a role, the task, context, constraints and the output format.', 'Showing examples (few-shot prompting) helps the AI match what you want.', 'Iterate: read the result, then refine the prompt.'], try: 'Ask Lumi to quiz you on a topic. Improve your prompt twice and compare results.',
+      q: [['Giving the AI a few examples of what you want is…', 'Few-shot prompting', 'Overfitting', 'Hallucinating', 'Encrypting'], ['Which belongs in a strong prompt?', 'The output format you want', 'Your password', 'Random emojis', 'Nothing specific'], ['After a weak answer, you should…', 'Refine the prompt', 'Give up', 'Assume it\'s right', 'Restart your computer']] },
+    { t: 'Responsible AI use', l: ['Follow your school\'s or family\'s AI rules and disclose when you use AI.', 'Use AI to learn, not to skip learning.', 'Protect others: never use AI to impersonate, bully or create fake images of people.'], try: 'Write an "AI use statement" you could add to an assignment.',
+      q: [['Using AI to make fake images of a classmate is…', 'Harmful and wrong', 'A good joke', 'Research', 'Required'], ['When you use AI on an assignment, you should…', 'Disclose how you used it', 'Hide it', 'Copy without reading', 'Use it for the test'], ['The best way to use AI for school is to…', 'Learn, not skip learning', 'Avoid all thinking', 'Copy friends', 'Finish tests for you']] }
+  ], 0.5);
+
+  /* ───────── GRADE 10 ───────── */
+  course(10, 'AI in Society', [R.eoa, R.cs, R.dayofai], [
+    { t: 'AI in healthcare', l: ['AI helps read medical images, predict risks and speed up drug discovery.', 'DeepMind\'s AlphaFold predicted the 3D shapes of proteins, a major science breakthrough.', 'Doctors stay responsible: AI supports decisions, it should not make them alone.'], try: 'Research one medical AI tool and list one benefit and one risk.',
+      q: [['AlphaFold predicts the shapes of…', 'Proteins', 'Planets', 'Clouds', 'Cars'], ['In medicine, final decisions should be made by…', 'Doctors, supported by AI', 'AI alone', 'Patients\' phones', 'Nobody'], ['One benefit of medical AI is…', 'Spotting patterns in scans quickly', 'Never needing doctors', 'Removing all costs', 'Guaranteed cures']] },
+    { t: 'AI, jobs and the economy', l: ['Automation can replace some tasks but also creates new jobs.', 'Jobs often change: workers use AI tools to do more.', 'Skills like creativity, communication and judgment stay valuable; lifelong learning matters.'], try: 'Interview an adult about how technology changed their job.',
+      q: [['Using machines to do tasks automatically is…', 'Automation', 'Hallucination', 'Encryption', 'Inflation'], ['Which skill stays especially valuable as AI grows?', 'Communication and judgment', 'Memorizing phone numbers', 'Copying text', 'Typing slowly'], ['AI usually changes jobs by…', 'Changing some tasks and creating new roles', 'Ending all work', 'Doing nothing', 'Making work illegal']] },
+    { t: 'Bias and fairness case studies', l: ['Hiring tools trained on past decisions can repeat old unfairness.', 'Face-analysis systems have shown different error rates across groups.', 'Audits, diverse teams and impact assessments help catch problems early.'], try: 'Write a one-page "fairness checklist" for a company building a hiring AI.',
+      q: [['A hiring AI trained on biased past decisions may…', 'Repeat the unfairness', 'Become perfectly fair', 'Stop working', 'Hire everyone'], ['An independent review of an AI system is an…', 'Audit', 'Epoch', 'Emoji', 'Upload'], ['Diverse teams help AI because they…', 'Notice problems others miss', 'Type faster', 'Use less data', 'Avoid testing']] },
+    { t: 'Creativity and copyright', l: ['Generative AI learns from existing art, music and writing.', 'This raises questions: who owns AI-made work, and is training on artists\' work fair?', 'Courts and lawmakers are still deciding many of these questions.'], try: 'Debate: should AI-made art win art contests? Write both sides.',
+      q: [['Legal rights over creative works are called…', 'Copyright', 'Copy-paste', 'Algorithms', 'Pixels'], ['Is the law about AI-made art fully settled?', 'No, it is still being decided', 'Yes, completely', 'AI art is always illegal', 'Only robots decide'], ['Generative AI learns from…', 'Existing art, music and writing', 'Nothing', 'Only its own ideas', 'The weather']] },
+    { t: 'Surveillance and privacy', l: ['AI can analyze cameras, phones and online activity at huge scale.', 'This can improve safety, but it can also threaten privacy and freedom.', 'Laws, consent and limits on data collection protect people\'s rights.'], try: 'List places in your community with cameras. Who might use that data?',
+      q: [['Watching people at large scale using technology is…', 'Surveillance', 'Translation', 'Animation', 'Recycling'], ['Asking permission before collecting data is getting…', 'Consent', 'A virus', 'Feedback', 'Lucky'], ['Privacy laws help to…', 'Protect people\'s rights', 'Stop all technology', 'Collect more data', 'Hide crimes']] },
+    { t: 'Design an AI helper', lab: { a: 'Recycle', b: 'Trash', tip: 'Prototype a sorting helper: draw bottle/can shapes for Recycle and wrapper/scribble shapes for Trash.' },
+      l: ['Start with a real problem and real users.', 'Decide the data you need, how to test it, and what could go wrong.', 'Plan safeguards: who checks errors, and how users can report problems.'], try: 'Prototype a recycling sorter in the lab, then write a 1-page design plan.',
+      q: [['A good AI project starts with…', 'A real problem and real users', 'The coolest algorithm', 'No plan', 'A logo'], ['Safeguards include…', 'Human review and a way to report errors', 'Hiding mistakes', 'No testing', 'Deleting feedback'], ['Before building, you should decide how to…', 'Test the AI', 'Hide its errors', 'Skip users', 'Avoid data']] }
+  ], 0.5);
+
+  /* ───────── GRADE 11 ───────── */
+  course(11, 'Machine Learning Concepts', [R.eoa, R.tm, R.mlk], [
+    { t: 'Data pipelines and cleaning', l: ['A pipeline moves data from collection to cleaning to training.', 'Cleaning fixes missing values, duplicates, errors and inconsistent formats.', '"Garbage in, garbage out": poor data makes poor models.'], try: 'Clean a messy list of 20 names and dates by hand. What problems did you find?',
+      q: [['"Garbage in, garbage out" means…', 'Poor data makes poor models', 'Recycle your computer', 'AI eats garbage', 'Delete old files'], ['Removing duplicates and fixing errors is data…', 'Cleaning', 'Painting', 'Encrypting', 'Hallucinating'], ['A pipeline moves data from…', 'Collection to training', 'Training to trash', 'Screens to keyboards', 'Nowhere']] },
+    { t: 'Regression and classification', l: ['Regression predicts a number (house price, temperature).', 'Classification predicts a category (spam / not spam).', 'Linear regression fits a best-fit line: y = mx + b.'], try: 'Plot height vs. shoe size for your family and sketch a best-fit line.',
+      q: [['Predicting a house price is…', 'Regression', 'Classification', 'Clustering', 'Prompting'], ['Predicting "cat" or "dog" is…', 'Classification', 'Regression', 'Encryption', 'Sorting by size'], ['Linear regression fits a…', 'Best-fit line', 'Circle', 'Random point', 'Decision tree only']] },
+    { t: 'Precision and recall', l: ['Precision: of everything the model flagged, how many were truly positive?', 'Recall: of all true positives, how many did the model find?', 'Example: 8 true positives, 2 false positives, 4 missed → precision 8/10 = 80%, recall 8/12 ≈ 67%.'], try: 'Calculate precision and recall for your lab tests.',
+      q: [['8 true positives and 2 false positives give precision of…', '80%', '67%', '20%', '100%'], ['Recall measures how many real positives the model…', 'Found', 'Ignored', 'Created', 'Deleted'], ['For a cancer screening test, which usually matters most?', 'High recall (miss few cases)', 'Low recall', 'Low precision only', 'Neither']] },
+    { t: 'Transformers and attention', l: ['Transformers (introduced in 2017 in "Attention Is All You Need") power modern language models.', 'Attention lets the model weigh which earlier words matter most for the next word.', 'They train on huge text datasets using powerful computer chips.'], try: 'In "The trophy didn\'t fit in the suitcase because it was too big," what does "it" refer to? That\'s attention!',
+      q: [['Modern language models are mostly built on…', 'Transformers', 'Decision trees', 'Spreadsheets', 'Calculators'], ['Attention helps a model decide…', 'Which words matter most', 'Screen brightness', 'Battery life', 'Font size'], ['Transformers were introduced in…', '2017', '1950', '1997', '2024']] },
+    { t: 'Embeddings: meaning as numbers', lab: { a: 'Smile', b: 'Frown', tip: 'Your drawings become lists of numbers. Similar drawings end up "close" — that\'s the idea behind embeddings!' },
+      l: ['An embedding turns words, images or sounds into lists of numbers (vectors).', 'Things with similar meanings end up close together in this number space.', 'Search engines and recommendation systems use embeddings to find similar items.'], try: 'Rate 6 animals on "size" and "danger" (1–10). Plot them. Which are close?',
+      q: [['An embedding represents meaning as…', 'A list of numbers', 'A color', 'A sound', 'A password'], ['Words with similar meanings have embeddings that are…', 'Close together', 'Far apart', 'Identical always', 'Random'], ['Embeddings help search engines find…', 'Similar items', 'Your address', 'Viruses', 'Batteries']] },
+    { t: 'AI safety and alignment', l: ['Alignment means making AI systems do what people intend, safely and honestly.', 'Problems include harmful outputs, misuse and systems pursuing goals in unexpected ways.', 'Safety work includes testing (red-teaming), guidelines, and human oversight.'], try: 'Write 5 rules you\'d give an AI tutor for kids. How would you test them?',
+      q: [['Making AI do what people intend, safely, is…', 'Alignment', 'Overfitting', 'Compression', 'Rendering'], ['Deliberately trying to find an AI\'s weaknesses is…', 'Red-teaming', 'Green-lighting', 'Pixelating', 'Tokenizing'], ['Human oversight means…', 'People monitor and can correct AI', 'AI runs with no checks', 'AI watches humans', 'No one is responsible']] }
+  ], 0.5);
+
+  /* ───────── GRADE 12 ───────── */
+  course(12, 'AI Capstone: Build with AI', [R.eoa, R.codeai, R.xai], [
+    { t: 'AI agents and tools', l: ['An AI agent can plan steps and use tools (search, calculators, code) to finish a task.', 'Agents need clear goals, limits and permission checks.', 'Humans should approve important actions like spending money or sending messages.'], try: 'Write a step-by-step plan an AI agent would follow to plan a family trip. Mark where a human must approve.',
+      q: [['An AI that plans steps and uses tools is an…', 'Agent', 'Embedding', 'Epoch', 'Pixel'], ['Important actions like spending money should be…', 'Approved by a human', 'Done automatically always', 'Hidden', 'Random'], ['Agents work best with…', 'Clear goals and limits', 'No instructions', 'Unlimited access to everything', 'Secret goals']] },
+    { t: 'Building with an AI API', l: ['An API lets your program send a request to an AI model and get a response.', 'Requests include a model name, messages, and a max length. Usage is measured in tokens.', 'API keys are secret passwords: keep them on a server, never in website code.'], try: 'Sketch the flow: app → your server (holds key) → AI API → back to app. Why does the key stay on the server?',
+      q: [['A way for programs to talk to an AI service is an…', 'API', 'LLM', 'GPU', 'URL only'], ['AI API usage is usually measured in…', 'Tokens', 'Pixels', 'Minutes of video', 'Pages'], ['Where should an API key be kept?', 'On a secure server', 'In public website code', 'In a social media post', 'In the app\'s title']] },
+    { t: 'Evaluating AI outputs', l: ['Evaluation checks whether AI answers are accurate, safe and helpful.', 'Use test cases with known answers and a rubric for quality.', 'Re-test after every change to prompts or models.'], try: 'Write 10 test questions with answers for Lumi on a topic you know. Score the results.',
+      q: [['A scoring guide for answer quality is a…', 'Rubric', 'Token', 'Pixel', 'Filter'], ['Test cases should have…', 'Known correct answers', 'No answers', 'Only opinions', 'Random answers'], ['After changing a prompt, you should…', 'Re-test', 'Never test again', 'Delete the tests', 'Guess the results']] },
+    { t: 'AI laws and governance', l: ['Governments are creating AI rules. The European Union\'s AI Act, adopted in 2024, sorts AI uses by risk level.', 'High-risk uses (like hiring or credit) face stricter requirements.', 'Companies also write their own policies, and the rules keep changing.'], try: 'Research one AI rule in your country or state and summarize it in 5 sentences.',
+      q: [['The EU AI Act sorts AI uses by…', 'Risk level', 'Color', 'Price', 'Size'], ['Which use is likely "high-risk"?', 'Deciding who gets hired', 'Suggesting a song', 'Spell-checking', 'Adding emojis'], ['AI laws are…', 'Still changing', 'Finished forever', 'The same everywhere', 'Not needed']] },
+    { t: 'Careers in AI', l: ['AI careers include machine learning engineer, data scientist, AI ethicist, researcher and product designer.', 'Many fields use AI: medicine, law, art, farming, finance and education.', 'Math, coding, writing and ethics are all useful preparation.'], try: 'Pick one AI career, research its training path, and interview someone in a related job.',
+      q: [['Someone who studies the right and wrong of AI use is an…', 'AI ethicist', 'Electrician only', 'Astronaut', 'Chef'], ['Which subjects help prepare for AI careers?', 'Math, coding, writing and ethics', 'Only gym', 'None', 'Only art history'], ['AI is used in…', 'Many fields like medicine and farming', 'Only video games', 'No real jobs', 'Only space']] },
+    { t: 'Capstone: pitch your AI project', lab: { a: 'Yes', b: 'No', tip: 'Prototype a gesture reader: draw a check mark for Yes and an X for No. Could this help someone?' },
+      l: ['Define the problem, users and success measure.', 'Plan data, model choice, evaluation and safeguards.', 'Pitch it: problem, solution, demo, risks, and next steps.'], try: 'Create a 5-slide pitch for your AI project and present it to your family.',
+      q: [['A strong pitch starts with the…', 'Problem and users', 'Price tag', 'Logo', 'Font'], ['Which is a good success measure?', 'Accuracy on a fair test set', 'Number of colors used', 'How long the name is', 'Random guess'], ['A responsible plan includes…', 'Risks and safeguards', 'Only benefits', 'No testing', 'Secret data use']] }
+  ], 0.5);
+})();
+
 /* Lantern Homeschool — quiz problem generators.
    Each generator returns { q: question, a: correct answer (string), w: [three wrong answers] }. */
 (function () {
@@ -2669,6 +2937,20 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
       B.forEach(([n, who, key, c], i) => { const x = 20 + i * 96; o += `<rect x="${x}" y="54" width="88" height="22" class="vm2 vk2"/><rect x="${x + 30}" y="76" width="28" height="70" class="vface vk2"/><rect x="${x}" y="146" width="88" height="40" rx="6" class="${c} vk2"/>` + (key === mark ? Q(x + 44, 166) : T(x + 44, 160, n, 12, 'vt') + T(x + 44, 176, who, 10, 'vm')); });
       return svg(320, 194, o, 'Three branches of government');
     },
+    nn(mark) {
+      const L = [[60, [40, 90, 140]], [160, [30, 75, 120, 165]], [260, [65, 115]]]; let o = '';
+      for (let i = 0; i < 2; i++) L[i][1].forEach((y1) => L[i + 1][1].forEach((y2) => { o += `<path d="M${L[i][0]} ${y1}L${L[i + 1][0]} ${y2}" class="vgrid" stroke-width="1.5"/>`; }));
+      const cls = ['vd', 'vb', 'vc'];
+      L.forEach(([x, ys], i) => ys.forEach((y) => { o += `<circle cx="${x}" cy="${y}" r="13" class="${cls[i]} vk2"/>`; }));
+      o += lab(60, 190, 'input', 'input', mark) + lab(160, 196, 'hidden', 'hidden', mark) + lab(260, 160, 'output', 'output', mark);
+      return svg(320, 210, o, 'A neural network');
+    },
+    mlflow(mark) {
+      const S = [['data', 'vd2'], ['training', 'vb2'], ['model', 'vc2'], ['prediction', 'va2']]; let o = ARROW;
+      S.forEach(([nm, c], i) => { const x = 14 + i * 98; o += `<rect x="${x}" y="40" width="80" height="56" rx="12" class="${c} vk2"/>` + lab(x + 40, 68, nm, nm, mark); if (i < 3) o += `<path d="M${x + 82} 68H${x + 96}" class="vhop" stroke-width="2.5" marker-end="url(#arr)"/>`; });
+      o += T(54, 118, 'labeled examples', 10, 'vm') + T(250, 118, 'what it learned', 10, 'vm') + T(348, 118, 'its guess', 10, 'vm');
+      return svg(408, 132, o, 'How machine learning works');
+    },
     supply(mark) {
       const o = `<path d="M40 20V180H300" class="vk" fill="none" stroke-width="2"/><path d="M60 170L280 40" class="vline" stroke-width="3"/><path d="M60 40L280 170" class="vline2" stroke-width="3"/><circle cx="170" cy="105" r="7" class="vb vk2"/>` +
         T(14, 100, 'price', 12, 'vm') + T(170, 196, 'quantity', 12, 'vm') + lab(286, 30, 'supply', 'supply', mark, 'end') + lab(286, 160, 'demand', 'demand', mark, 'end') + lab(200, 105, 'equilibrium', 'equilibrium', mark, 'start');
@@ -2709,7 +2991,8 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     { k: 'math', n: 'Math', c: 'math' },
     { k: 'ela', n: 'English', c: 'ela' },
     { k: 'sci', n: 'Science', c: 'sci' },
-    { k: 'soc', n: 'Social Studies', c: 'soc' }
+    { k: 'soc', n: 'Social Studies', c: 'soc' },
+    { k: 'ai', n: 'AI & Me', c: 'ai' }
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
@@ -2730,7 +3013,7 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     { id: 'hours50', n: '50 hours', d: 'Logged 50 hours of learning' },
     { id: 'master5', n: 'Five down', d: 'Mastered 5 units' },
     { id: 'course', n: 'Course complete', d: 'Finished every unit in a course' },
-    { id: 'grade', n: 'Grade complete', d: 'Finished all four courses in a grade' },
+    { id: 'grade', n: 'Grade complete', d: 'Finished every course in a grade' },
     { id: 'watch10', n: 'Good listener', d: 'Watched 10 video lessons' }
   ];
 
@@ -2956,7 +3239,7 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
   }
   document.addEventListener('focusout', () => { if (S.dirty) { S.dirty = false; setTimeout(scheduleRender, 50); } });
 
-  function go(screen, view) { Player.stop(); if (!['lesson', 'quiz'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
+  function go(screen, view) { lumiClose(); Player.stop(); if (!['lesson', 'quiz'].includes(screen)) Timer.stop(); S.screen = screen; S.view = view || {}; render(); window.scrollTo(0, 0); }
 
   function render() {
     const root = $('#app'); root.innerHTML = '';
@@ -3223,8 +3506,10 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
         h('h2', { class: 'mini' }, 'Watch'), videoPlayer(g, s, i, () => startQuiz(g, s, i)),
         h('h2', { class: 'mini' }, 'Read'), h('ul', { class: 'points' }, u.l.map((p) => h('li', null, p))),
         u.try ? h('div', { class: 'try' }, h('b', null, 'Try it'), h('p', null, u.try)) : null,
+        u.lab ? teachLab(u, id) : null,
         h('h2', { class: 'mini' }, 'Go deeper'), h('ul', { class: 'res-list' }, res.map((r) => h('li', null, extLink(r)))),
         h('div', { class: 'quiz-cta' }, h('div', null, h('b', null, 'Ready? Take the quiz.'), h('p', { class: 'muted small' }, (u.g ? '5 fresh problems each try' : u.q.length + ' questions') + ' · score ' + settings().passMark + '% or higher to master this unit')), h('button', { class: 'btn primary', onclick: () => startQuiz(g, s, i) }, 'Start quiz'))),
+      lumiFab({ kidId, g, s, i, unit: u.t, points: u.l, mode: 'lesson' }),
       h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: i - 1 }) }, '← Previous unit') : h('span'), i < c.u.length - 1 ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: i + 1 }) }, 'Next unit →') : h('span')));
     return h('div', null, kidBar(), main);
   }
@@ -3256,7 +3541,8 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     const next = answered ? h('button', { class: 'btn primary', onclick: () => { if (Q.at < Q.qs.length - 1) { Q.at++; Q.picked = null; render(); } else finishQuiz(); } }, Q.at < Q.qs.length - 1 ? 'Next question' : 'See my score') : null;
     const main = h('main', { class: 'wrap quiz' },
       h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow ' + sm.c }, u.t), h('div', { class: 'q-progress' }, 'Question ' + (Q.at + 1) + ' of ' + Q.qs.length), bar(Math.round((Q.at / Q.qs.length) * 100), sm.c)),
-      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)));
+      h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices, fb, h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.quiz = null; go('lesson', { g: Q.g, s: Q.s, i: Q.i }); } }, 'Leave quiz'), next)),
+      answered ? null : lumiFab({ kidId: S.who, g: Q.g, s: Q.s, i: Q.i, unit: u.t, points: u.l, mode: 'quiz', question: item.q, choices: item.choices }));
     setTimeout(() => { const b = answered ? $('.q-actions .primary') : $('.choice'); b && b.focus({ preventScroll: true }); }, 0);
     return h('div', null, kidBar(), main);
   }
@@ -3289,10 +3575,10 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['curriculum', 'Curriculum'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
-    const body = { overview: pOverview, reports: pReports, hours: pHours, curriculum: pCurriculum, settings: pSettings }[S.ptab]();
+    const body = { overview: pOverview, reports: pReports, hours: pHours, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
@@ -3352,7 +3638,7 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     wrap.appendChild(h('article', { class: 'card transcript' },
       h('h2', null, 'High school transcript'),
       tr.rows.length ? [
-        h('p', { class: 'muted small' }, 'Each completed course earns 1.0 credit. GPA is unweighted (A = 4.0) and counts completed courses only.'),
+        h('p', { class: 'muted small' }, 'Each completed core course earns 1.0 credit; AI courses earn 0.5. GPA is unweighted (A = 4.0) and counts completed courses only.'),
         h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Grade', 'Course', 'Status', 'Letter', 'Credit'].map((t) => h('th', { scope: 'col' }, t)))), h('tbody', null, tr.rows.map((r) => h('tr', null, h('td', { class: 'num' }, r.g), h('td', null, r.title), h('td', null, r.done ? 'Completed' : 'In progress · ' + r.pct + '%'), h('td', { class: 'num grade-cell' }, r.letter), h('td', { class: 'num' }, r.credit.toFixed(1))))), h('tfoot', null, h('tr', null, h('td', { colspan: 3 }, 'Cumulative'), h('td', { class: 'num' }, tr.gpa ? 'GPA ' + tr.gpa : '—'), h('td', { class: 'num' }, tr.credits.toFixed(1)))))),
         h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: () => downloadTranscript(k) }, 'Download transcript'))
       ] : h('p', { class: 'muted' }, 'High school courses (grades 9–12) appear here once ' + k.name + ' starts one.')));
@@ -3413,7 +3699,7 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Settings'));
     wrap.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
       e.preventDefault(); const name = $('#s-name').value.trim(); if (!name) return;
-      f.name = name; f.settings = { passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
+      f.name = name; f.settings = { ...((f.settings && f.settings.lumi) ? { lumi: f.settings.lumi } : {}), passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
       saveFamily(); toast('Settings saved.'); render();
     } }, h('h3', null, 'School'),
       h('div', { class: 'row2' }, h('div', null, h('label', { for: 's-name' }, 'School name'), h('input', { id: 's-name', value: f.name, maxlength: 48 })), h('div', null, h('label', { for: 's-year' }, 'School year starts'), h('input', { id: 's-year', type: 'date', value: st.yearStart }))),
@@ -3610,13 +3896,196 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
   }
   function downloadTranscript(k) {
     const tr = transcript(k); const f = fam();
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} transcript</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Official homeschool transcript · ${esc(k.name)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th class="n">Grade</th><th>Course</th><th>Status</th><th class="n">Letter</th><th class="n">Credit</th></tr></thead><tbody>${tr.rows.map((r) => `<tr><td class="n">${r.g}</td><td>${esc(r.title)}</td><td>${r.done ? 'Completed' : 'In progress (' + r.pct + '%)'}</td><td class="n">${r.letter}</td><td class="n">${r.credit.toFixed(1)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Cumulative</td><td class="n">${tr.gpa ? 'GPA ' + tr.gpa : '—'}</td><td class="n">${tr.credits.toFixed(1)}</td></tr></tfoot></table><p class="m">GPA is unweighted on a 4.0 scale and includes completed courses only. Each completed course is 1.0 credit.</p><div class="sig"><div>Parent / administrator signature</div><div>Date</div></div></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} transcript</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Official homeschool transcript · ${esc(k.name)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th class="n">Grade</th><th>Course</th><th>Status</th><th class="n">Letter</th><th class="n">Credit</th></tr></thead><tbody>${tr.rows.map((r) => `<tr><td class="n">${r.g}</td><td>${esc(r.title)}</td><td>${r.done ? 'Completed' : 'In progress (' + r.pct + '%)'}</td><td class="n">${r.letter}</td><td class="n">${r.credit.toFixed(1)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Cumulative</td><td class="n">${tr.gpa ? 'GPA ' + tr.gpa : '—'}</td><td class="n">${tr.credits.toFixed(1)}</td></tr></tfoot></table><p class="m">GPA is unweighted on a 4.0 scale and includes completed courses only. Core courses earn 1.0 credit and AI courses 0.5 credit when completed.</p><div class="sig"><div>Parent / administrator signature</div><div>Date</div></div></body></html>`;
     offer(k.name.replace(/\W+/g, '-') + '-transcript.html', html);
   }
   function downloadCSV(k) {
     const q = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
     const lines = [['Date', 'Subject', 'Minutes', 'Hours', 'Note', 'Source'].join(',')].concat(logDoc(k.id).e.slice().sort((a, b) => (a.d < b.d ? -1 : 1)).map((e) => [e.d, q(SUBJ_NAME[e.s] || e.s), e.m, (e.m / 60).toFixed(2), q(e.n), e.auto ? 'Automatic' : 'Parent'].join(',')));
     offer(k.name.replace(/\W+/g, '-') + '-hours.csv', lines.join('\n'));
+  }
+
+  /* ─────────────── Teach the Machine (in-browser machine-learning lab) ─────────────── */
+  const GRID = 16;
+  function labState(key) { S.labs = S.labs || {}; return S.labs[key] || (S.labs[key] = { ex: { a: [], b: [] }, mode: 'a', right: 0, tested: 0, last: null }); }
+  // Turn a drawing into 256 numbers: crop to the ink, scale to a 16×16 grid, soften, normalize.
+  function vectorize(cv) {
+    const W = cv.width, H = cv.height, d = cv.getContext('2d').getImageData(0, 0, W, H).data;
+    let x0 = W, y0 = H, x1 = -1, y1 = -1;
+    for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) if (d[(y * W + x) * 4 + 3] > 40) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (x1 < 0) return null;
+    const side = Math.max(x1 - x0, y1 - y0) + 1, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, v = new Array(GRID * GRID).fill(0);
+    for (let y = y0; y <= y1; y += 2) for (let x = x0; x <= x1; x += 2) if (d[(y * W + x) * 4 + 3] > 40) {
+      const gx = Math.max(0, Math.min(GRID - 1, Math.floor(((x - cx) / side + 0.5) * GRID))), gy = Math.max(0, Math.min(GRID - 1, Math.floor(((y - cy) / side + 0.5) * GRID)));
+      v[gy * GRID + gx] += 1;
+    }
+    const b = v.map((_, i) => { const x = i % GRID, y = Math.floor(i / GRID); let s = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < GRID && Y < GRID) s += v[Y * GRID + X] * (dx || dy ? 0.5 : 1); } return s; });
+    const m = Math.sqrt(b.reduce((a, x) => a + x * x, 0)) || 1; return b.map((x) => Math.round((x / m) * 1000) / 1000);
+  }
+  // k-nearest neighbours: find the 3 most similar examples and let them vote (closer ones count more).
+  function knn(st, v) {
+    const all = []; ['a', 'b'].forEach((c) => st.ex[c].forEach((e) => all.push({ c, d: Math.sqrt(e.reduce((s, x, i) => s + (x - v[i]) * (x - v[i]), 0)) })));
+    all.sort((p, q) => p.d - q.d); const k = Math.min(3, all.length), w = { a: 0, b: 0 };
+    for (let i = 0; i < k; i++) w[all[i].c] += 1 / (all[i].d + 0.05);
+    const c = w.a >= w.b ? 'a' : 'b'; return { c, conf: Math.round((w[c] / (w.a + w.b)) * 100) };
+  }
+  function thumb(v) {
+    const cv = h('canvas', { width: GRID, height: GRID, class: 'lab-thumb', 'aria-hidden': 'true' }); const x = cv.getContext && cv.getContext('2d'); if (!x) return cv;
+    const mx = Math.max(...v) || 1; v.forEach((val, i) => { if (val > 0) { x.fillStyle = 'rgba(30,77,59,' + Math.min(1, (val / mx) * 1.4).toFixed(2) + ')'; x.fillRect(i % GRID, Math.floor(i / GRID), 1, 1); } }); return cv;
+  }
+  function teachLab(u, key) {
+    const L = u.lab, st = labState(key), box = h('section', { class: 'lab card', 'aria-label': 'Teach the Machine activity' });
+    const name = (c) => (c === 'a' ? L.a : L.b);
+    function paint() {
+      box.innerHTML = '';
+      const ready = st.ex.a.length > 0 && st.ex.b.length > 0;
+      if (st.mode === 'test' && !ready) st.mode = 'a';
+      box.appendChild(h('div', { class: 'lab-head' }, h('div', null, h('p', { class: 'eyebrow ai' }, 'Hands-on lab'), h('h3', null, 'Teach the Machine')), h('button', { class: 'btn ghost sm', type: 'button', onclick: () => { Object.assign(st, { ex: { a: [], b: [] }, mode: 'a', right: 0, tested: 0, last: null }); paint(); } }, 'Start over')));
+      box.appendChild(h('p', { class: 'muted small' }, L.tip));
+      box.appendChild(h('div', { class: 'lab-modes', role: 'group', 'aria-label': 'Lab step' },
+        h('button', { type: 'button', class: 'lab-mode' + (st.mode === 'a' ? ' on' : ''), 'aria-pressed': st.mode === 'a' ? 'true' : 'false', onclick: () => { st.mode = 'a'; st.last = null; paint(); } }, '1 · Teach "' + L.a + '"'),
+        h('button', { type: 'button', class: 'lab-mode' + (st.mode === 'b' ? ' on' : ''), 'aria-pressed': st.mode === 'b' ? 'true' : 'false', onclick: () => { st.mode = 'b'; st.last = null; paint(); } }, '2 · Teach "' + L.b + '"'),
+        h('button', { type: 'button', class: 'lab-mode' + (st.mode === 'test' ? ' on' : ''), disabled: ready ? null : true, 'aria-pressed': st.mode === 'test' ? 'true' : 'false', onclick: () => { st.mode = 'test'; st.last = null; paint(); } }, '3 · Test it')));
+      const pad = h('canvas', { class: 'lab-pad', width: 240, height: 240, 'aria-label': 'Drawing pad. Draw with your finger or mouse.' });
+      const ctx = pad.getContext && pad.getContext('2d');
+      let drawing = false, inked = false, lx = 0, ly = 0;
+      const pos = (e) => { const r = pad.getBoundingClientRect(); return [((e.clientX - r.left) / r.width) * pad.width, ((e.clientY - r.top) / r.height) * pad.height]; };
+      if (ctx) {
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 14; ctx.strokeStyle = '#1E4D3B';
+        pad.addEventListener('pointerdown', (e) => { e.preventDefault(); drawing = true; inked = true; [lx, ly] = pos(e); ctx.beginPath(); ctx.arc(lx, ly, 7, 0, Math.PI * 2); ctx.fillStyle = '#1E4D3B'; ctx.fill(); try { pad.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ } });
+        pad.addEventListener('pointermove', (e) => { if (!drawing) return; const [x, y] = pos(e); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(x, y); ctx.stroke(); lx = x; ly = y; });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => pad.addEventListener(ev, () => { drawing = false; }));
+      }
+      if (ctx && st.mode === 'test' && st.last && st.img) { const im = new Image(); im.onload = () => ctx.drawImage(im, 0, 0); im.src = st.img; }
+      const clear = () => { if (ctx) ctx.clearRect(0, 0, pad.width, pad.height); inked = false; };
+      const actions = h('div', { class: 'lab-actions' });
+      const result = h('div', { class: 'lab-result', role: 'status', 'aria-live': 'polite' });
+      if (st.mode === 'test') {
+        actions.appendChild(h('button', { type: 'button', class: 'btn primary sm', onclick: () => {
+          const v = inked ? vectorize(pad) : null; if (!v) { toast('Draw something first!'); return; }
+          st.last = knn(st, v); st.img = pad.toDataURL(); paint();
+        } }, 'Guess!'));
+      } else {
+        actions.appendChild(h('button', { type: 'button', class: 'btn primary sm', onclick: () => {
+          const v = inked ? vectorize(pad) : null; if (!v) { toast('Draw something first!'); return; }
+          st.ex[st.mode].push(v); if (st.ex[st.mode].length > 30) st.ex[st.mode].shift(); paint();
+        } }, 'Add as "' + name(st.mode) + '"'));
+      }
+      actions.appendChild(h('button', { type: 'button', class: 'btn ghost sm', onclick: clear }, 'Clear'));
+      if (st.mode === 'test' && st.last) {
+        const g = st.last; const unsure = g.conf < 65;
+        result.appendChild(lumi(unsure ? 'think' : 'cheer', (unsure ? 'Hmm… maybe "' : 'I think it\'s "') + name(g.c) + '"! I\'m ' + g.conf + '% sure.'));
+        result.appendChild(h('div', { class: 'lab-check' }, h('span', null, 'Was the machine right?'),
+          h('button', { type: 'button', class: 'btn ghost sm', onclick: () => { st.tested++; st.right++; st.last = null; paint(); } }, 'Yes'),
+          h('button', { type: 'button', class: 'btn ghost sm', onclick: () => { st.tested++; st.last = null; paint(); } }, 'No')));
+      } else if (st.mode !== 'test') {
+        const n = st.ex[st.mode].length;
+        result.appendChild(h('p', { class: 'small muted' }, n === 0 ? 'Draw a "' + name(st.mode) + '" in the box, then press Add.' : n < 4 ? 'Nice! Machines learn better with more examples. Try ' + (4 - n) + ' more.' : 'Great teaching! ' + (ready ? 'Ready to test.' : 'Now teach the other one.')));
+      } else result.appendChild(h('p', { class: 'small muted' }, 'Draw a brand-new picture the machine has never seen, then press Guess.'));
+      box.appendChild(h('div', { class: 'lab-body' }, h('div', { class: 'lab-padwrap' }, pad, actions), h('div', { class: 'lab-side' }, result,
+        st.tested ? h('p', { class: 'lab-acc' }, 'Accuracy: ', h('b', null, st.right + ' of ' + st.tested + ' (' + Math.round((st.right / st.tested) * 100) + '%)')) : null,
+        ['a', 'b'].map((c) => h('div', { class: 'lab-set' }, h('p', { class: 'small' }, h('b', null, name(c)), ' · ' + st.ex[c].length + ' example' + (st.ex[c].length === 1 ? '' : 's')), h('div', { class: 'lab-thumbs' }, st.ex[c].slice(-12).map(thumb)))))));
+      box.appendChild(h('p', { class: 'hint' }, 'How it works: your drawing becomes 256 numbers. The machine compares a new drawing with the examples you taught it and picks the closest ones. This is called "nearest neighbors."'));
+    }
+    paint();
+    return box;
+  }
+
+  /* ─────────────── Lumi, the AI tutor (Claude API through a secure Netlify function) ─────────────── */
+  const LUMI_URL = /(\.web\.app|\.firebaseapp\.com)$/.test(location.hostname) ? 'https://lantern-homeschool.netlify.app/api/lumi' : '/api/lumi';
+  const lumiCfg = () => Object.assign({ on: false, perDay: 15, kids: {} }, settings().lumi || {});
+  const lumiDoc = (id) => Store.cache['lumi-' + id] || (Store.cache['lumi-' + id] = { e: [] });
+  const lumiToday = (id) => lumiDoc(id).e.filter((x) => x.d === todayStr()).length;
+  const lumiReady = (kidId) => Store.provider === 'firebase' && lumiCfg().on && lumiCfg().kids[kidId] !== false;
+  const LP = { open: false, ctx: null, msgs: [], key: null, busy: false, el: null };
+  function lumiContext(ctx) {
+    const key = [ctx.mode, ctx.g, ctx.s, ctx.i, ctx.question || ''].join('|');
+    if (LP.key !== key) { LP.key = key; LP.msgs = []; }
+    LP.ctx = ctx; if (LP.open) drawLumi();
+  }
+  function lumiFab(ctx) {
+    if (!lumiReady(ctx.kidId)) return null;
+    lumiContext(ctx);
+    const b = h('button', { class: 'lumi-fab', type: 'button', 'aria-label': 'Ask Lumi, your AI learning helper', onclick: () => { LP.open = true; drawLumi(); setTimeout(() => { const t = $('#lumi-in'); t && t.focus(); }, 30); } });
+    const m = h('span', { class: 'lumi-wrap sm' }); m.innerHTML = window.LH_MASCOT ? window.LH_MASCOT('happy') : ''; b.appendChild(m); b.appendChild(h('span', null, ctx.mode === 'quiz' ? 'Need a hint?' : 'Ask Lumi'));
+    return b;
+  }
+  function lumiClose() { LP.open = false; if (LP.el) { LP.el.remove(); LP.el = null; } }
+  function drawLumi() {
+    if (!LP.open || !LP.ctx) return lumiClose();
+    const c = LP.ctx, left = Math.max(0, lumiCfg().perDay - lumiToday(c.kidId));
+    if (!LP.el) { LP.el = h('div', { class: 'lumi-panel', role: 'dialog', 'aria-modal': 'false', 'aria-label': 'Lumi, AI learning helper' }); document.body.appendChild(LP.el); }
+    const el = LP.el; el.innerHTML = '';
+    const head = h('div', { class: 'lp-head' }); const m = h('span', { class: 'lumi-wrap sm' }); m.innerHTML = window.LH_MASCOT ? window.LH_MASCOT(LP.busy ? 'think' : 'happy') : '';
+    head.appendChild(m); head.appendChild(h('div', null, h('b', null, 'Lumi'), h('div', { class: 'small muted' }, 'AI learning helper · ' + c.unit)));
+    head.appendChild(h('button', { class: 'btn ghost sm', type: 'button', 'aria-label': 'Close Lumi', onclick: lumiClose }, '✕'));
+    el.appendChild(head);
+    const log = h('div', { class: 'lp-log', 'aria-live': 'polite' });
+    if (!LP.msgs.length) log.appendChild(h('p', { class: 'lp-msg bot' }, c.mode === 'quiz' ? 'Stuck? Tell me what you\'re thinking and I\'ll give you a hint. I won\'t give away the answer — you\'ve got this!' : 'Hi! I\'m Lumi. Ask me anything about "' + c.unit + '" and we\'ll figure it out together.'));
+    LP.msgs.forEach((x) => log.appendChild(h('p', { class: 'lp-msg ' + (x.role === 'user' ? 'me' : 'bot') + (x.err ? ' err' : '') }, x.content)));
+    if (LP.busy) log.appendChild(h('p', { class: 'lp-msg bot think' }, 'Lumi is thinking', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
+    el.appendChild(log);
+    const chips = c.mode === 'quiz' ? ['Give me a hint', 'Explain the idea behind this question', 'What does this word mean?'] : ['Explain it another way', 'Give me an example', 'Quiz me with one question', 'Why does this matter?'];
+    el.appendChild(h('div', { class: 'lp-chips' }, chips.map((t) => h('button', { type: 'button', class: 'chip-btn', disabled: LP.busy || !left ? true : null, onclick: () => lumiSend(t) }, t))));
+    const ta = h('textarea', { id: 'lumi-in', rows: 2, maxlength: 400, placeholder: left ? 'Type your question…' : 'No more questions today', disabled: left ? null : true, 'aria-label': 'Your question for Lumi' });
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); lumiSend(ta.value); } });
+    el.appendChild(h('form', { class: 'lp-form', onsubmit: (e) => { e.preventDefault(); lumiSend(ta.value); } }, ta, h('button', { class: 'btn primary sm', type: 'submit', disabled: LP.busy || !left ? true : null }, 'Send')));
+    el.appendChild(h('p', { class: 'lp-foot' }, left + ' question' + (left === 1 ? '' : 's') + ' left today · Lumi can make mistakes · Your grown-up can read these chats.'));
+    log.scrollTop = log.scrollHeight;
+  }
+  async function lumiSend(text) {
+    text = String(text || '').trim().slice(0, 400); const c = LP.ctx; if (!text || LP.busy || !c) return;
+    if (lumiToday(c.kidId) >= lumiCfg().perDay) { LP.msgs.push({ role: 'assistant', content: 'That\'s all my questions for today. Let\'s keep learning tomorrow!', err: true }); return drawLumi(); }
+    const mine = { role: 'user', content: text }; LP.msgs.push(mine); LP.busy = true; drawLumi();
+    try {
+      const u = window.firebase.auth().currentUser; if (!u) throw new Error('Please sign in again to talk with Lumi.');
+      const tok = await u.getIdToken();
+      const hist = LP.msgs.filter((x) => !x.err).slice(-10).map((x) => ({ role: x.role, content: x.content }));
+      const r = await fetch(LUMI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify({ grade: c.g, subject: SUBJ_NAME[c.s] || c.s, unit: c.unit, points: c.points, mode: c.mode, question: c.question || '', choices: c.choices || [], messages: hist }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.reply) throw new Error(j.error || (r.status === 404 ? 'Lumi isn\'t available on this site yet.' : 'Lumi is resting right now. Try again in a little while.'));
+      LP.msgs.push({ role: 'assistant', content: j.reply });
+      const d = lumiDoc(c.kidId); d.e.push({ at: Date.now(), d: todayStr(), g: c.g, s: c.s, u: c.unit, m: c.mode, q: text, a: j.reply }); if (d.e.length > 150) d.e = d.e.slice(-150); Store.set('lumi-' + c.kidId, d);
+    } catch (e) { mine.err = true; LP.msgs.push({ role: 'assistant', content: (e && e.message) || 'Something went wrong.', err: true }); }
+    LP.busy = false; drawLumi(); const t = $('#lumi-in'); if (t) { t.value = ''; t.focus(); }
+  }
+  function pTutor() {
+    const cfg = lumiCfg(), f = fam();
+    const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Lumi, the AI tutor'));
+    wrap.appendChild(h('article', { class: 'card note' }, h('h3', null, 'What Lumi does'),
+      h('ul', { class: 'points' },
+        h('li', null, 'Answers your learner\'s questions about the lesson they are on, at their grade level, using Claude by Anthropic.'),
+        h('li', null, 'Gives hints during quizzes but is told never to reveal answers.'),
+        h('li', null, 'Stays on school topics, won\'t ask for personal information, and tells children to talk to a trusted adult if they say they are hurt or unsafe.'),
+        h('li', null, 'Only the grade, lesson topic and the question typed are sent. Names, emails and progress are never sent.'),
+        h('li', null, 'Every question and answer is saved here for you to read.')),
+      h('p', { class: 'small muted' }, 'AI can make mistakes. Lumi is a study helper, not a replacement for you. Talk with your children about using it kindly and honestly.')));
+    if (Store.provider !== 'firebase') {
+      wrap.appendChild(h('div', { class: 'banner' }, 'Lumi works on the hosted site with a family account (sign in with email). This copy saves on ' + (Store.mode === 'cloud' ? 'your Claude account' : 'this device') + ', so the tutor is not available here.'));
+      return wrap;
+    }
+    wrap.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
+      e.preventDefault();
+      const kidsOn = {}; kids().forEach((k) => { kidsOn[k.id] = $('#lt-k-' + k.id).checked; });
+      f.settings = Object.assign({}, f.settings, { lumi: { on: $('#lt-on').checked, perDay: Number($('#lt-day').value), kids: kidsOn } });
+      saveFamily(); toast($('#lt-on').checked ? 'Lumi is on.' : 'Lumi is off.'); render();
+    } }, h('h3', null, 'Settings'),
+      h('label', { class: 'check' }, h('input', { id: 'lt-on', type: 'checkbox', checked: cfg.on ? true : null }), ' Turn on Lumi for my family (I am the parent or guardian and I agree to my children using an AI tutor)'),
+      h('div', { class: 'row2' }, h('div', null, h('label', { for: 'lt-day' }, 'Questions per learner per day'), h('select', { id: 'lt-day' }, [5, 10, 15, 25, 40].map((n) => h('option', { value: n, selected: cfg.perDay === n ? true : null }, n))))),
+      kids().length ? h('fieldset', { class: 'lt-kids' }, h('legend', { class: 'label' }, 'Which learners can use Lumi'), kids().map((k) => h('label', { class: 'check' }, h('input', { id: 'lt-k-' + k.id, type: 'checkbox', checked: cfg.kids[k.id] !== false ? true : null }), ' ' + k.name + ' · ' + GRADE_NAME(k.grade)))) : null,
+      h('button', { class: 'btn primary sm', type: 'submit' }, 'Save')));
+    wrap.appendChild(h('h2', { class: 'sec' }, 'Conversations'));
+    if (!kids().length) { wrap.appendChild(h('p', { class: 'muted' }, 'No learners yet.')); return wrap; }
+    const kid = kidById(S.lkid) || kids()[0]; S.lkid = kid.id;
+    wrap.appendChild(h('div', { class: 'row2' }, h('div', null, h('label', { for: 'lt-who' }, 'Learner'), h('select', { id: 'lt-who', onchange: (e) => { S.lkid = e.target.value; render(); } }, kids().map((k) => h('option', { value: k.id, selected: k.id === kid.id ? true : null }, k.name))))));
+    const es = lumiDoc(kid.id).e.slice().reverse().slice(0, 60);
+    if (!es.length) wrap.appendChild(h('p', { class: 'muted small' }, 'No questions yet.'));
+    else {
+      wrap.appendChild(h('ol', { class: 'lt-log' }, es.map((x) => h('li', { class: 'card' }, h('p', { class: 'small muted' }, fmtDate(x.d) + ' · ' + GRADE_NAME(x.g) + ' ' + (SUBJ_NAME[x.s] || '') + ' · ' + x.u + (x.m === 'quiz' ? ' (during quiz)' : '')), h('p', null, h('b', null, kid.name + ': '), x.q), h('p', null, h('b', null, 'Lumi: '), x.a)))));
+      wrap.appendChild(h('button', { class: 'btn ghost sm', onclick: () => { if (confirm('Delete all of ' + kid.name + '\'s Lumi conversations?')) { Store.set('lumi-' + kid.id, { e: [] }); render(); } } }, 'Clear ' + kid.name + '\'s history'));
+    }
+    return wrap;
   }
 
   /* ─────────────── boot ─────────────── */
@@ -3636,7 +4105,7 @@ table.report { width: 100%; border-collapse: collapse; font-size: .92rem; }
   async function loadSchool() {
     try { await Store.get('family'); } catch (e) { if (Store.provider === 'firebase') { S.screen = 'auth'; S.view = { mode: 'in' }; render(); toast('Could not load your school: ' + ((e && e.code) || 'error') + '. Check the Firestore rules, then sign in again.'); return; } Store.mode = 'local'; await Store.get('family'); }
     if (!fam()) { S.screen = 'setup'; S.view = { step: 1 }; render(); return; }
-    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id)])));
+    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
     Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); });
     S.screen = kids().length ? 'picker' : 'setup'; S.view = kids().length ? {} : { step: 2 }; render();
   }

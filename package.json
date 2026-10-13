@@ -1,0 +1,11 @@
+{
+  "name": "lantern-homeschool",
+  "private": true,
+  "description": "Lantern Homeschool site plus the Lumi tutor function.",
+  "scripts": {
+    "build": "rm -rf dist && mkdir dist && cp index.html firebase-config.js _headers dist/"
+  },
+  "dependencies": {
+    "@netlify/blobs": "11.0.3"
+  }
+}

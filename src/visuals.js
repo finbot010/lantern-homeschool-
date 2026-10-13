@@ -425,6 +425,20 @@
       B.forEach(([n, who, key, c], i) => { const x = 20 + i * 96; o += `<rect x="${x}" y="54" width="88" height="22" class="vm2 vk2"/><rect x="${x + 30}" y="76" width="28" height="70" class="vface vk2"/><rect x="${x}" y="146" width="88" height="40" rx="6" class="${c} vk2"/>` + (key === mark ? Q(x + 44, 166) : T(x + 44, 160, n, 12, 'vt') + T(x + 44, 176, who, 10, 'vm')); });
       return svg(320, 194, o, 'Three branches of government');
     },
+    nn(mark) {
+      const L = [[60, [40, 90, 140]], [160, [30, 75, 120, 165]], [260, [65, 115]]]; let o = '';
+      for (let i = 0; i < 2; i++) L[i][1].forEach((y1) => L[i + 1][1].forEach((y2) => { o += `<path d="M${L[i][0]} ${y1}L${L[i + 1][0]} ${y2}" class="vgrid" stroke-width="1.5"/>`; }));
+      const cls = ['vd', 'vb', 'vc'];
+      L.forEach(([x, ys], i) => ys.forEach((y) => { o += `<circle cx="${x}" cy="${y}" r="13" class="${cls[i]} vk2"/>`; }));
+      o += lab(60, 190, 'input', 'input', mark) + lab(160, 196, 'hidden', 'hidden', mark) + lab(260, 160, 'output', 'output', mark);
+      return svg(320, 210, o, 'A neural network');
+    },
+    mlflow(mark) {
+      const S = [['data', 'vd2'], ['training', 'vb2'], ['model', 'vc2'], ['prediction', 'va2']]; let o = ARROW;
+      S.forEach(([nm, c], i) => { const x = 14 + i * 98; o += `<rect x="${x}" y="40" width="80" height="56" rx="12" class="${c} vk2"/>` + lab(x + 40, 68, nm, nm, mark); if (i < 3) o += `<path d="M${x + 82} 68H${x + 96}" class="vhop" stroke-width="2.5" marker-end="url(#arr)"/>`; });
+      o += T(54, 118, 'labeled examples', 10, 'vm') + T(250, 118, 'what it learned', 10, 'vm') + T(348, 118, 'its guess', 10, 'vm');
+      return svg(408, 132, o, 'How machine learning works');
+    },
     supply(mark) {
       const o = `<path d="M40 20V180H300" class="vk" fill="none" stroke-width="2"/><path d="M60 170L280 40" class="vline" stroke-width="3"/><path d="M60 40L280 170" class="vline2" stroke-width="3"/><circle cx="170" cy="105" r="7" class="vb vk2"/>` +
         T(14, 100, 'price', 12, 'vm') + T(170, 196, 'quantity', 12, 'vm') + lab(286, 30, 'supply', 'supply', mark, 'end') + lab(286, 160, 'demand', 'demand', mark, 'end') + lab(200, 105, 'equilibrium', 'equilibrium', mark, 'start');
