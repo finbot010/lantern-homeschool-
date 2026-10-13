@@ -14,8 +14,11 @@ When adding lessons, add new units at the end of a course so saved progress stay
 
 `netlify/functions/lumi.mjs` is a small server function that passes learners' questions to the Claude API. The API key stays on Netlify and never reaches the browser.
 
+Out of the box, Netlify's AI Gateway supplies a Claude key automatically and usage is paid with Netlify credits.
+To bill your own Claude API account instead:
+
 1. In Netlify, open **Site configuration → Environment variables → Add a variable**.
-2. Key: `ANTHROPIC_API_KEY`. Value: your Claude API key. Scope: **Functions**. Mark it as a secret.
+2. Key: `LUMI_ANTHROPIC_KEY`. Value: your Claude API key. Scope: **Functions**. Mark it as a secret.
 3. Redeploy (Deploys → Trigger deploy → Deploy site).
 4. Parents turn Lumi on in **Parent portal → AI tutor**. It is off by default.
 

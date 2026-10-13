@@ -4,8 +4,11 @@
    - Each family has a daily message cap (Netlify Blobs), on top of the per-learner limit parents set in the app.
    - The tutor's safety rules live in the system prompt below and cannot be changed by the browser.
 
+   Which Claude account pays:
+     - If LUMI_ANTHROPIC_KEY is set (your own Claude API key), requests go straight to api.anthropic.com on your Anthropic bill.
+     - Otherwise Netlify's AI Gateway supplies ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL automatically and usage uses Netlify credits.
    Netlify environment variables (Site configuration → Environment variables):
-     ANTHROPIC_API_KEY        required — your Claude API key (scope: Functions)
+     LUMI_ANTHROPIC_KEY       recommended — your Claude API key (scope: Functions, mark as secret)
      LUMI_MODEL               optional — defaults to claude-haiku-5-5
      LUMI_FAMILY_DAILY_LIMIT  optional — messages per family per day, default 80
      FIREBASE_PROJECT_ID      optional — defaults to lantern-homeschool */
@@ -15,6 +18,8 @@ import { getStore } from '@netlify/blobs';
 const PROJECT = process.env.FIREBASE_PROJECT_ID || 'lantern-homeschool';
 const MODEL = process.env.LUMI_MODEL || 'claude-haiku-5-5';
 const FAMILY_DAILY = Number(process.env.LUMI_FAMILY_DAILY_LIMIT || 80);
+const API_KEY = () => process.env.LUMI_ANTHROPIC_KEY || process.env.ANTHROPIC_API_KEY;
+const API_URL = () => (process.env.LUMI_ANTHROPIC_KEY ? 'https://api.anthropic.com' : (process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com')).replace(/\/+$/, '') + '/v1/messages';
 const ORIGINS = ['https://lantern-homeschool.netlify.app', 'https://lantern-homeschool.web.app', 'https://lantern-homeschool.firebaseapp.com'];
 const GRADE = (g) => (g === 1 ? '1st' : g === 2 ? '2nd' : g === 3 ? '3rd' : g + 'th') + ' grade';
 
@@ -108,7 +113,7 @@ async function countToday(uid) {
 export default async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
   if (req.method !== 'POST') return reply(req, 405, { error: 'Use POST.' });
-  if (!process.env.ANTHROPIC_API_KEY) return reply(req, 503, { error: 'Lumi isn\'t set up yet. Ask your grown-up to finish the Lumi setup.' });
+  if (!API_KEY()) return reply(req, 503, { error: 'Lumi isn\'t set up yet. Ask your grown-up to finish the Lumi setup.' });
   const uid = await verifyFirebaseToken((req.headers.get('authorization') || '').replace(/^Bearer\s+/i, ''));
   if (!uid) return reply(req, 401, { error: 'Please sign in again to talk with Lumi.' });
   let b; try { b = await req.json(); } catch (e) { return reply(req, 400, { error: 'Something went wrong. Try again.' }); }
@@ -116,13 +121,13 @@ export default async (req) => {
   if (!messages.length) return reply(req, 400, { error: 'Type a question first.' });
   if ((await countToday(uid)).over) return reply(req, 429, { error: 'Lumi has answered lots of questions for your family today. Let\'s keep going tomorrow!' });
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch(API_URL(), {
       method: 'POST',
-      headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      headers: { 'x-api-key': API_KEY(), 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({ model: MODEL, max_tokens: 400, system: systemPrompt(b), messages, metadata: { user_id: crypto.createHash('sha256').update(uid).digest('hex').slice(0, 32) } })
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) { console.error('anthropic', r.status, j && j.error && j.error.type); return reply(req, r.status === 429 || r.status === 529 ? 503 : 502, { error: 'Lumi is resting right now. Try again in a little while.' }); }
+    if (!r.ok) { console.error('anthropic', r.status, j && j.error && j.error.type, j && j.error && j.error.message); return reply(req, r.status === 429 || r.status === 529 ? 503 : 502, { error: 'Lumi is resting right now. Try again in a little while.' }); }
     const text = (j.content || []).filter((c) => c.type === 'text').map((c) => c.text).join('\n').trim();
     return reply(req, 200, { reply: text || 'Hmm, I\'m not sure how to help with that. Can you ask about our lesson another way?' });
   } catch (e) {
