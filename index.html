@@ -183,6 +183,15 @@ input:focus, select:focus { border-color: var(--pine); outline: none; box-shadow
 .subj-actions .btn.primary { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; }
 .next-u { font-weight: 400; }
 .done-pill { font-size: .85rem; font-weight: 700; color: var(--good); }
+.subj-actions .btn.ghost { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; }
+.bonus-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--warn); border: 1px solid var(--warn); vertical-align: middle; }
+.subj-top .bonus-tag { margin-right: auto; margin-left: 8px; }
+.subj.is-bonus { border-style: dashed; }
+.sb.is-bonus { opacity: .75; }
+tr.is-bonus td { color: var(--ink-3); }
+.plan-card .check { display: block; margin: 8px 0; }
+#s-goal-row[hidden] { display: none; }
+.detail li .btn.xs { margin-left: 6px; }
 .badges { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .badge { display: grid; gap: 2px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 12px; border: 1px dashed var(--rule); color: var(--ink-3); }
 .badge .medal { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--rule); margin-bottom: 6px; }
@@ -1680,7 +1689,7 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
    Quiz rows: [question, correct, wrong1, wrong2, wrong3, picture?]  where picture is a visual spec for LH_VIS. */
 (function () {
   const C = window.LH_COURSES, KA = 'https://www.khanacademy.org/';
-  const add = (k, units) => { C[k].u.push(...units); };
+  const add = (k, units) => { if (C[k].core == null) C[k].core = C[k].u.length; C[k].u.push(...units); };
   const D = (d, mark) => ({ t: 'd', d, mark });
 
   /* ───────── GRADE 1 ───────── */
@@ -1875,7 +1884,7 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
    Quiz rows: [question, correct, wrong1, wrong2, wrong3, picture?] */
 (function () {
   const C = window.LH_COURSES, KA = 'https://www.khanacademy.org/';
-  const add = (k, units) => { C[k].u.push(...units); };
+  const add = (k, units) => { if (C[k].core == null) C[k].core = C[k].u.length; C[k].u.push(...units); };
   const D = (d, mark) => ({ t: 'd', d, mark });
 
   /* ───────── GRADE 7 ───────── */
@@ -3490,11 +3499,29 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
 
   /* ─────────────── progress maths ─────────────── */
   const course = (g, s) => COURSES[g + '-' + s];
+  /* Core vs bonus. A learner's grade completion counts the original units of Math, English, Science and
+     Social Studies. Units added later, AI & Me and Money Smart are bonus unless the parent counts them
+     (per learner, Report cards tab). Bonus work still earns badges, themes and transcript credit. */
+  const CORE_SUBJ = { math: 1, ela: 1, sci: 1, soc: 1 };
+  const kidPlan = (kidId) => Object.assign({ extra: false, ai: false, fin: false }, (kidById(kidId) || {}).plan || {});
+  function requiredUnits(kidId, g, s) {
+    const c = course(g, s); const p = kidPlan(kidId);
+    if (CORE_SUBJ[s]) return p.extra || c.core == null ? c.u.length : Math.min(c.core, c.u.length);
+    return p[s] ? c.u.length : 0;
+  }
+  function unitMastered(kidId, key) { const kd = kidDoc(kidId); const p = kd.prog[key]; return !!((p && p.best >= settings().passMark) || (kd.done && kd.done[key])); }
   function courseStats(kidId, g, s) {
-    const c = course(g, s); const prog = kidDoc(kidId).prog; const pass = settings().passMark;
-    let mastered = 0, sum = 0, tried = 0, next = -1;
-    c.u.forEach((u, i) => { const p = prog[g + '-' + s + '-' + i]; if (p) { tried++; sum += p.best; } if (p && p.best >= pass) mastered++; else if (next < 0) next = i; });
-    return { total: c.u.length, mastered, pct: Math.round((mastered / c.u.length) * 100), avg: tried ? Math.round(sum / tried) : null, tried, next };
+    const c = course(g, s); const prog = kidDoc(kidId).prog; const reqN = requiredUnits(kidId, g, s); const required = reqN > 0;
+    let all = 0, core = 0, sum = 0, tried = 0, next = -1, nextBonus = -1;
+    c.u.forEach((u, i) => {
+      const key = g + '-' + s + '-' + i; const p = prog[key]; if (p) { tried++; sum += p.best; }
+      if (unitMastered(kidId, key)) { all++; if (i < reqN) core++; }
+      else if (i < reqN) { if (next < 0) next = i; } else if (nextBonus < 0) nextBonus = i;
+    });
+    const total = required ? reqN : c.u.length, mastered = required ? core : all;
+    return { total, mastered, pct: Math.round((mastered / total) * 100), avg: tried ? Math.round(sum / tried) : null, tried,
+      next: next >= 0 ? next : nextBonus, required, reqN, bonusTotal: required ? c.u.length - reqN : 0, bonusMastered: required ? all - core : 0,
+      reqDone: required && core === reqN, allDone: all === c.u.length };
   }
   function unlockedThemes(kidId) {
     const out = {};
@@ -3504,11 +3531,17 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
   function kidTheme(kidId) { const t = kidDoc(kidId).theme; return t && unlockedThemes(kidId)[t] ? t : null; }
   function gradeStats(kidId, g) {
     const cs = SUBJ.map((s) => courseStats(kidId, g, s.k));
-    const pct = Math.round(cs.reduce((a, c) => a + c.pct, 0) / cs.length);
-    const tried = cs.reduce((a, c) => a + c.tried, 0);
-    const sum = SUBJ.reduce((a, s, i) => a + (cs[i].avg != null ? cs[i].avg * cs[i].tried : 0), 0);
-    return { pct, avg: tried ? Math.round(sum / tried) : null, courses: cs, mastered: cs.reduce((a, c) => a + c.mastered, 0), total: cs.reduce((a, c) => a + c.total, 0) };
+    const rq = cs.filter((c) => c.required);
+    const pct = rq.length ? Math.round(rq.reduce((a, c) => a + c.pct, 0) / rq.length) : 0;
+    const tried = rq.reduce((a, c) => a + c.tried, 0);
+    const sum = rq.reduce((a, c) => a + (c.avg != null ? c.avg * c.tried : 0), 0);
+    const bonus = cs.reduce((a, c) => { if (c.required) { a.m += c.bonusMastered; a.t += c.bonusTotal; } else { a.m += c.mastered; a.t += c.total; } return a; }, { m: 0, t: 0 });
+    return { pct, avg: tried ? Math.round(sum / tried) : null, courses: cs, mastered: rq.reduce((a, c) => a + c.mastered, 0), total: rq.reduce((a, c) => a + c.total, 0), bonusMastered: bonus.m, bonusTotal: bonus.t };
   }
+  // Weekly hours goal: by grade band (default) or one number for everyone.
+  const GOAL_BANDS = [[2, 12], [5, 15], [8, 18], [12, 22]];
+  const gradeGoal = (g) => GOAL_BANDS.find((b) => g <= b[0])[1];
+  const goalFor = (kidId) => { const st = settings(); const k = kidById(kidId); return st.goalAuto === false || !k ? st.weeklyGoal : gradeGoal(k.grade); };
   function minutes(kidId, filter) { return logDoc(kidId).e.filter(filter || (() => true)).reduce((a, e) => a + (e.m || 0), 0); }
   function weekStart() { const d = new Date(); const day = (d.getDay() + 6) % 7; d.setDate(d.getDate() - day); return todayStr(d); }
   const minutesWeek = (id) => minutes(id, (e) => e.d >= weekStart());
@@ -3797,19 +3830,21 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
       h('div', { class: 'hero-text' },
         h('p', { class: 'eyebrow' }, GRADE_NAME(g) + (g !== k.grade ? ' · exploring' : '')),
         h('h1', null, greeting() + ', ' + k.name + '.'),
-        h('p', { class: 'lede' }, gs.mastered + ' of ' + gs.total + ' units mastered' + (gs.avg != null ? ' · average quiz score ' + gs.avg + '%' : '')),
+        h('p', { class: 'lede' }, gs.mastered + ' of ' + gs.total + ' units mastered' + (gs.bonusMastered ? ' · ' + gs.bonusMastered + ' bonus' : '') + (gs.avg != null ? ' · average quiz score ' + gs.avg + '%' : '')),
         h('div', { class: 'stat-row' },
-          stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
+          stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
-      return h('article', { class: 'subj ' + s.c },
-        h('div', { class: 'subj-top' }, h('span', { class: 'subj-tag' }, s.n), h('span', { class: 'subj-pct' }, cs.pct + '%')),
+      const bonusNext = nextU && cs.reqDone;
+      return h('article', { class: 'subj ' + s.c + (cs.required ? '' : ' is-bonus') },
+        h('div', { class: 'subj-top' }, h('span', { class: 'subj-tag' }, s.n), cs.required ? null : h('span', { class: 'bonus-tag' }, 'Bonus'), h('span', { class: 'subj-pct' }, cs.pct + '%')),
         h('h3', null, c.t), bar(cs.pct, s.c),
-        h('p', { class: 'muted small' }, cs.mastered + '/' + cs.total + ' units' + (cs.avg != null ? ' · avg ' + cs.avg + '%' : '')),
+        h('p', { class: 'muted small' }, cs.mastered + '/' + cs.total + ' units' + (cs.bonusTotal ? ' · bonus ' + cs.bonusMastered + '/' + cs.bonusTotal : '') + (cs.avg != null ? ' · avg ' + cs.avg + '%' : '')),
         h('div', { class: 'subj-actions' },
-          nextU ? h('button', { class: 'btn primary sm', onclick: () => go('lesson', { g, s: s.k, i: cs.next }) }, cs.tried ? 'Continue' : 'Start', h('span', { class: 'next-u' }, ': ' + nextU.t)) : h('span', { class: 'done-pill' }, 'Course complete'),
+          cs.reqDone || (!nextU) ? h('span', { class: 'done-pill' }, 'Course complete') : null,
+          nextU ? h('button', { class: 'btn ' + (bonusNext ? 'ghost' : 'primary') + ' sm', onclick: () => go('lesson', { g, s: s.k, i: cs.next }) }, bonusNext ? 'Bonus' : cs.tried ? 'Continue' : 'Start', h('span', { class: 'next-u' }, ': ' + nextU.t)) : null,
           h('button', { class: 'btn ghost sm', onclick: () => go('course', { g, s: s.k }) }, 'All units')));
     })));
     const un = unlockedThemes(k.id), cur = kidTheme(k.id);
@@ -3828,7 +3863,8 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
   function greeting() { const hr = new Date().getHours(); return hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening'; }
 
   function unitStatus(kidId, g, s, i) {
-    const p = kidDoc(kidId).prog[g + '-' + s + '-' + i]; const pass = settings().passMark;
+    const kd = kidDoc(kidId), key = g + '-' + s + '-' + i; const p = kd.prog[key]; const pass = settings().passMark;
+    if (kd.done && kd.done[key] && !(p && p.best >= pass)) return { cls: 'mastered', t: 'Complete · marked by parent' };
     if (!p) return kidDoc(kidId).viewed[g + '-' + s + '-' + i] ? { cls: 'open', t: 'Started' } : { cls: 'new', t: 'Not started' };
     return p.best >= pass ? { cls: 'mastered', t: 'Mastered · ' + p.best + '%' } : { cls: 'trying', t: 'Best ' + p.best + '% · keep going' };
   }
@@ -3836,8 +3872,8 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
     const { g, s } = S.view; const c = course(g, s); const kidId = S.who; const cs = courseStats(kidId, g, s); const sm = SUBJ.find((x) => x.k === s);
     const main = h('main', { class: 'wrap' },
       h('button', { class: 'btn ghost sm back', onclick: () => go('home', { grade: g }) }, '← Dashboard'),
-      h('header', { class: 'course-head ' + sm.c }, h('p', { class: 'eyebrow' }, GRADE_NAME(g) + ' · ' + sm.n), h('h1', null, c.t), h('div', { class: 'course-meta' }, bar(cs.pct, sm.c), h('span', null, cs.pct + '% complete · ' + cs.mastered + ' of ' + cs.total + ' units mastered'))),
-      h('ol', { class: 'units' }, c.u.map((u, i) => { const st = unitStatus(kidId, g, s, i); const w = (kidDoc(kidId).watched || {})[g + '-' + s + '-' + i]; return h('li', { class: 'unit ' + st.cls }, h('button', { class: 'unit-btn', onclick: () => go('lesson', { g, s, i }) }, h('span', { class: 'unit-n' }, 'Unit ' + (i + 1)), h('span', { class: 'unit-t' }, u.t), h('span', { class: 'watched-tag' }, w ? 'Video watched' : ''), h('span', { class: 'pill ' + st.cls }, st.t))); })),
+      h('header', { class: 'course-head ' + sm.c }, h('p', { class: 'eyebrow' }, GRADE_NAME(g) + ' · ' + sm.n), h('h1', null, c.t), h('div', { class: 'course-meta' }, bar(cs.pct, sm.c), h('span', null, cs.pct + '% complete · ' + cs.mastered + ' of ' + cs.total + ' units mastered' + (cs.bonusTotal ? ' · bonus ' + cs.bonusMastered + ' of ' + cs.bonusTotal : '') + (cs.required ? '' : ' · bonus course')))),
+      h('ol', { class: 'units' }, c.u.map((u, i) => { const st = unitStatus(kidId, g, s, i); const w = (kidDoc(kidId).watched || {})[g + '-' + s + '-' + i]; const isB = cs.required && i >= cs.reqN; return h('li', { class: 'unit ' + st.cls }, h('button', { class: 'unit-btn', onclick: () => go('lesson', { g, s, i }) }, h('span', { class: 'unit-n' }, (isB ? 'Bonus · ' : '') + 'Unit ' + (i + 1)), h('span', { class: 'unit-t' }, u.t), h('span', { class: 'watched-tag' }, w ? 'Video watched' : ''), h('span', { class: 'pill ' + st.cls }, st.t))); })),
       h('section', { class: 'card resources' }, h('h3', null, 'Course resources'), h('ul', null, c.r.map((r) => h('li', null, extLink(r))))));
     return h('div', null, kidBar(), main);
   }
@@ -3936,15 +3972,14 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
   function pOverview() {
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'How everyone is doing'));
     if (!kids().length) { wrap.appendChild(h('div', { class: 'empty card' }, h('p', null, 'No learners yet. Add your first learner in Settings.'), h('button', { class: 'btn primary', onclick: () => { S.ptab = 'settings'; render(); } }, 'Add a learner'))); return wrap; }
-    const goal = settings().weeklyGoal * 60;
     wrap.appendChild(h('div', { class: 'overview' }, kids().map((k) => {
-      const gs = gradeStats(k.id, k.grade); const wk = minutesWeek(k.id), yr = minutesYear(k.id); const la = lastActive(k.id); const kd = kidDoc(k.id);
+      const goal = goalFor(k.id) * 60; const gs = gradeStats(k.id, k.grade); const wk = minutesWeek(k.id), yr = minutesYear(k.id); const la = lastActive(k.id); const kd = kidDoc(k.id);
       return h('article', { class: 'kid-card' },
         h('header', null, avatar(k), h('div', null, h('h2', null, k.name), h('p', { class: 'muted small' }, GRADE_NAME(k.grade) + ' · last active ' + (la ? fmtDate(la) : 'not yet'))), ring(gs.pct, 'grade', 'sm')),
-        h('div', { class: 'subj-bars' }, SUBJ.map((s, i) => { const c = gs.courses[i]; return h('div', { class: 'sb' }, h('span', { class: 'sb-n' }, s.n), bar(c.pct, s.c), h('span', { class: 'sb-v' }, c.pct + '%'), h('span', { class: 'sb-g' }, LETTER(c.avg))); })),
+        h('div', { class: 'subj-bars' }, SUBJ.map((s, i) => { const c = gs.courses[i]; return h('div', { class: 'sb' + (c.required ? '' : ' is-bonus') }, h('span', { class: 'sb-n' }, s.n + (c.required ? '' : ' (bonus)')), bar(c.pct, s.c), h('span', { class: 'sb-v' }, c.pct + '%'), h('span', { class: 'sb-g' }, LETTER(c.avg))); })),
         h('dl', { class: 'facts' },
           h('div', null, h('dt', null, 'Average score'), h('dd', null, gs.avg != null ? gs.avg + '% (' + LETTER(gs.avg) + ')' : '—')),
-          h('div', null, h('dt', null, 'This week'), h('dd', { class: wk >= goal ? 'good' : '' }, fmtHours(wk) + ' / ' + settings().weeklyGoal + ' h')),
+          h('div', null, h('dt', null, 'This week'), h('dd', { class: wk >= goal ? 'good' : '' }, fmtHours(wk) + ' / ' + goalFor(k.id) + ' h')),
           h('div', null, h('dt', null, 'School year'), h('dd', null, fmtHours(yr) + ' h')),
           h('div', null, h('dt', null, 'Streak · badges'), h('dd', null, streak(k.id) + ' d · ' + Object.keys(kd.badges || {}).length))),
         h('div', { class: 'kid-actions' },
@@ -3959,7 +3994,7 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
     return h('select', { id: 'p-kid', onchange: (e) => { S.pkid = e.target.value; S.rgrade = null; onchange && onchange(); render(); } }, kids().map((k) => h('option', { value: k.id, selected: k.id === S.pkid ? true : null }, k.name)));
   }
   function reportRows(k, g) {
-    return SUBJ.map((s) => { const c = course(g, s.k), st = courseStats(k.id, g, s.k); const min = minutes(k.id, (e) => e.s === s.k); return { subj: s, title: c.t, pct: st.pct, avg: st.avg, letter: LETTER(st.avg), mastered: st.mastered, total: st.total, hours: fmtHours(min), credit: c.credit }; });
+    return SUBJ.map((s) => { const c = course(g, s.k), st = courseStats(k.id, g, s.k); const min = minutes(k.id, (e) => e.s === s.k); return { subj: s, title: c.t, pct: st.pct, avg: st.avg, letter: LETTER(st.avg), mastered: st.mastered, total: st.total, hours: fmtHours(min), credit: c.credit, bonus: !st.required, bonusM: st.bonusMastered, bonusT: st.bonusTotal }; });
   }
   function transcript(k) {
     const rows = [];
@@ -3967,6 +4002,20 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
     const done = rows.filter((r) => r.done && r.letter !== '—');
     const gpa = done.length ? (done.reduce((a, r) => a + POINTS[r.letter], 0) / done.length).toFixed(2) : null;
     return { rows, gpa, credits: rows.reduce((a, r) => a + r.credit, 0) };
+  }
+  function setDone(kidId, keys, on) {
+    const kd = kidDoc(kidId); kd.done = kd.done || {};
+    keys.forEach((key) => { if (on) kd.done[key] = Date.now(); else delete kd.done[key]; });
+    saveKid(kidId); checkBadges(kidId); render();
+  }
+  function planCard(k) {
+    const p = kidPlan(k.id);
+    const opt = (key, label, hint) => h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: p[key] ? true : null, onchange: (e) => { k.plan = Object.assign(kidPlan(k.id), { [key]: e.target.checked }); saveFamily(); checkBadges(k.id); render(); } }), ' ' + label, h('span', { class: 'muted small' }, ' — ' + hint));
+    return h('article', { class: 'card plan-card' }, h('h3', null, 'What counts toward ' + k.name + '\'s grade'),
+      h('p', { class: 'hint' }, 'Math, English, Science and Social Studies always count. Anything left unchecked is bonus: ' + k.name + ' can still do it, earn badges, themes and transcript credit, but it never lowers grade completion.'),
+      opt('extra', 'New units in Math, English, Science and Social Studies', 'the 3 units added to the end of each course'),
+      opt('ai', 'AI & Me', 'the artificial-intelligence course'),
+      opt('fin', 'Money Smart', 'the financial-literacy course'));
   }
   function pReports() {
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Report cards'));
@@ -3976,14 +4025,22 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
       h('label', { for: 'p-kid' }, 'Learner'), kidSelect(),
       h('label', { for: 'r-grade' }, 'Grade'), h('select', { id: 'r-grade', onchange: (e) => { S.rgrade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1))))));
     const rows = reportRows(k, g); const gs = gradeStats(k.id, g);
+    wrap.appendChild(planCard(k));
     const tbl = h('div', { class: 'table-wrap' }, h('table', { class: 'report' },
       h('thead', null, h('tr', null, ['Subject', 'Course', 'Units mastered', 'Complete', 'Avg score', 'Grade', 'Hours'].map((t) => h('th', { scope: 'col' }, t)))),
-      h('tbody', null, rows.map((r) => h('tr', null, h('td', null, h('span', { class: 'dot ' + r.subj.c }), r.subj.n), h('td', null, r.title), h('td', { class: 'num' }, r.mastered + '/' + r.total), h('td', { class: 'num' }, r.pct + '%'), h('td', { class: 'num' }, r.avg != null ? r.avg + '%' : '—'), h('td', { class: 'num grade-cell' }, r.letter), h('td', { class: 'num' }, r.hours)))),
-      h('tfoot', null, h('tr', null, h('td', { colspan: 2 }, 'Overall'), h('td', { class: 'num' }, gs.mastered + '/' + gs.total), h('td', { class: 'num' }, gs.pct + '%'), h('td', { class: 'num' }, gs.avg != null ? gs.avg + '%' : '—'), h('td', { class: 'num grade-cell' }, LETTER(gs.avg)), h('td', { class: 'num' }, fmtHours(minutes(k.id)))))));
-    wrap.appendChild(h('article', { class: 'card report-card' }, h('header', { class: 'rc-head' }, avatar(k), h('div', null, h('h2', null, k.name + ' · ' + GRADE_NAME(g)), h('p', { class: 'muted small' }, 'Grades use each unit\'s best quiz score. A ≥ 90 · B ≥ 80 · C ≥ 70 · D ≥ 60. Hours are all logged time per subject.'))), tbl,
+      h('tbody', null, rows.map((r) => h('tr', { class: r.bonus ? 'is-bonus' : null }, h('td', null, h('span', { class: 'dot ' + r.subj.c }), r.subj.n, r.bonus ? h('span', { class: 'bonus-tag' }, 'Bonus') : null), h('td', null, r.title), h('td', { class: 'num' }, r.mastered + '/' + r.total + (r.bonusT ? ' (+' + r.bonusM + '/' + r.bonusT + ' bonus)' : '')), h('td', { class: 'num' }, r.pct + '%'), h('td', { class: 'num' }, r.avg != null ? r.avg + '%' : '—'), h('td', { class: 'num grade-cell' }, r.letter), h('td', { class: 'num' }, r.hours)))),
+      h('tfoot', null, h('tr', null, h('td', { colspan: 2 }, 'Overall (required work)'), h('td', { class: 'num' }, gs.mastered + '/' + gs.total), h('td', { class: 'num' }, gs.pct + '%'), h('td', { class: 'num' }, gs.avg != null ? gs.avg + '%' : '—'), h('td', { class: 'num grade-cell' }, LETTER(gs.avg)), h('td', { class: 'num' }, fmtHours(minutes(k.id)))))));
+    wrap.appendChild(h('article', { class: 'card report-card' }, h('header', { class: 'rc-head' }, avatar(k), h('div', null, h('h2', null, k.name + ' · ' + GRADE_NAME(g)), h('p', { class: 'muted small' }, 'Grades use each unit\'s best quiz score. A ≥ 90 · B ≥ 80 · C ≥ 70 · D ≥ 60. Hours are all logged time per subject. Overall counts required work only; bonus work is shown but never lowers it.'))), tbl,
       h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: () => downloadReport(k, g) }, 'Download report card'), h('button', { class: 'btn ghost sm', onclick: () => { S.detail = !S.detail; render(); } }, S.detail ? 'Hide unit detail' : 'Show unit detail'))));
     if (S.detail) {
-      wrap.appendChild(h('div', { class: 'detail-grid' }, SUBJ.map((s) => { const c = course(g, s.k); return h('section', { class: 'card detail' }, h('h3', null, h('span', { class: 'dot ' + s.c }), c.t), h('ol', null, c.u.map((u, i) => { const p = kidDoc(k.id).prog[g + '-' + s.k + '-' + i]; const st = unitStatus(k.id, g, s.k, i); const wv = (kidDoc(k.id).watched || {})[g + '-' + s.k + '-' + i]; return h('li', null, h('span', null, u.t), h('span', { class: 'pill ' + st.cls }, p ? (p.best >= settings().passMark ? 'Mastered ' : 'Best ') + p.best + '% · ' + p.tries + (p.tries === 1 ? ' try' : ' tries') : st.t), wv ? h('span', { class: 'watched-tag' }, ' · video watched') : null); }))); })));
+      wrap.appendChild(h('p', { class: 'hint' }, 'Use "Mark complete" for work done another way, such as a lesson taught at the kitchen table or covered last year. It counts toward completion but not toward quiz averages, and you can undo it.'));
+      wrap.appendChild(h('div', { class: 'detail-grid' }, SUBJ.map((s) => { const c = course(g, s.k); const cs = courseStats(k.id, g, s.k); const kd = kidDoc(k.id);
+        const keys = c.u.map((u, i) => g + '-' + s.k + '-' + i); const open = keys.filter((key) => !unitMastered(k.id, key));
+        return h('section', { class: 'card detail' }, h('h3', null, h('span', { class: 'dot ' + s.c }), c.t, cs.required ? null : h('span', { class: 'bonus-tag' }, 'Bonus')),
+          h('ol', null, c.u.map((u, i) => { const key = keys[i]; const p = kd.prog[key]; const st = unitStatus(k.id, g, s.k, i); const wv = (kd.watched || {})[key]; const manual = kd.done && kd.done[key]; const passed = p && p.best >= settings().passMark;
+            return h('li', null, h('span', null, (cs.required && i >= cs.reqN ? 'Bonus · ' : '') + u.t), h('span', { class: 'pill ' + st.cls }, p ? (passed ? 'Mastered ' : 'Best ') + p.best + '% · ' + p.tries + (p.tries === 1 ? ' try' : ' tries') + (manual && !passed ? ' · marked complete' : '') : st.t), wv ? h('span', { class: 'watched-tag' }, ' · video watched') : null,
+              passed ? null : h('button', { class: 'btn ghost xs', onclick: () => setDone(k.id, [key], !manual) }, manual ? 'Undo' : 'Mark complete')); })),
+          open.length > 1 ? h('button', { class: 'btn ghost xs', onclick: () => setDone(k.id, open, true) }, 'Mark all ' + open.length + ' remaining complete') : null); })));
     }
     const tr = transcript(k);
     wrap.appendChild(h('article', { class: 'card transcript' },
@@ -4003,7 +4060,7 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
     const bySubj = {}; log.e.filter((e) => e.d >= ys).forEach((e) => { bySubj[e.s] = (bySubj[e.s] || 0) + e.m; });
     const total = Object.values(bySubj).reduce((a, b) => a + b, 0); const maxV = Math.max(1, ...Object.values(bySubj));
     wrap.appendChild(h('div', { class: 'hours-top' },
-      h('article', { class: 'card' }, h('h3', null, 'Since ' + fmtDate(ys)), h('p', { class: 'big-num' }, fmtHours(total), h('small', null, ' hours')), h('p', { class: 'muted small' }, 'This week: ' + fmtHours(minutesWeek(k.id)) + ' of ' + settings().weeklyGoal + ' h goal')),
+      h('article', { class: 'card' }, h('h3', null, 'Since ' + fmtDate(ys)), h('p', { class: 'big-num' }, fmtHours(total), h('small', null, ' hours')), h('p', { class: 'muted small' }, 'This week: ' + fmtHours(minutesWeek(k.id)) + ' of ' + goalFor(k.id) + ' h goal')),
       h('article', { class: 'card' }, h('h3', null, 'By subject'), Object.keys(bySubj).length ? h('ul', { class: 'hbars' }, Object.entries(bySubj).sort((a, b) => b[1] - a[1]).map(([s, m]) => h('li', null, h('span', null, SUBJ_NAME[s] || s), h('div', { class: 'bar ' + (SUBJ.some((x) => x.k === s) ? s : 'other') }, h('i', { style: 'width:' + Math.round((m / maxV) * 100) + '%' })), h('span', { class: 'num' }, fmtHours(m) + ' h')))) : h('p', { class: 'muted small' }, 'No time logged yet. Lesson and quiz time is logged automatically.'))));
     const subjSel = h('select', { id: 'h-subj' }, [...SUBJ, ...EXTRA].map((s) => h('option', { value: s.k }, s.n)));
     wrap.appendChild(h('form', { class: 'card form inline-form', onsubmit: (e) => {
@@ -4050,13 +4107,15 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Settings'));
     wrap.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
       e.preventDefault(); const name = $('#s-name').value.trim(); if (!name) return;
-      f.name = name; f.settings = { ...((f.settings && f.settings.lumi) ? { lumi: f.settings.lumi } : {}), passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
+      f.name = name; f.settings = { ...(f.settings || {}), passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), goalAuto: $('#s-goalmode').value === 'auto', weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
       saveFamily(); toast('Settings saved.'); render();
     } }, h('h3', null, 'School'),
       h('div', { class: 'row2' }, h('div', null, h('label', { for: 's-name' }, 'School name'), h('input', { id: 's-name', value: f.name, maxlength: 48 })), h('div', null, h('label', { for: 's-year' }, 'School year starts'), h('input', { id: 's-year', type: 'date', value: st.yearStart }))),
       h('div', { class: 'row2' },
         h('div', null, h('label', { for: 's-pass' }, 'Score needed to master a unit'), h('select', { id: 's-pass' }, [70, 80, 90].map((p) => h('option', { value: p, selected: st.passMark === p ? true : null }, p + '%')))),
-        h('div', null, h('label', { for: 's-goal' }, 'Weekly hours goal'), h('input', { id: 's-goal', type: 'number', min: 1, max: 60, value: st.weeklyGoal }))),
+        h('div', null, h('label', { for: 's-goalmode' }, 'Weekly hours goal'), h('select', { id: 's-goalmode', onchange: (e) => { $('#s-goal-row').hidden = e.target.value === 'auto'; } }, h('option', { value: 'auto', selected: st.goalAuto !== false ? true : null }, 'By grade (recommended)'), h('option', { value: 'same', selected: st.goalAuto === false ? true : null }, 'Same goal for everyone')))),
+      h('div', { id: 's-goal-row', class: 'row2', hidden: st.goalAuto !== false ? true : null }, h('div', null, h('label', { for: 's-goal' }, 'Hours per week, every learner'), h('input', { id: 's-goal', type: 'number', min: 1, max: 60, value: st.weeklyGoal }))),
+      h('p', { class: 'hint' }, 'By grade: grades 1–2 · 12 h, 3–5 · 15 h, 6–8 · 18 h, 9–12 · 22 h a week. These follow common homeschool guidelines of about 2–4½ hours a day, 5 days a week. Check your state\'s rules, which may ask for more or fewer hours.'),
       h('label', { class: 'check' }, h('input', { id: 's-roam', type: 'checkbox', checked: st.freeRoam ? true : null }), ' Let learners open other grades (review or work ahead)'),
       h('button', { class: 'btn primary sm', type: 'submit' }, 'Save settings')));
     wrap.appendChild(h('h2', { class: 'sec' }, 'Learners'));
@@ -4242,7 +4301,7 @@ body[data-kidtheme] .banner { box-shadow: var(--shadow); }
   const docStyle = 'body{font:14px/1.5 Georgia,serif;color:#1b2420;max-width:760px;margin:40px auto;padding:0 24px}h1{font:600 26px/1.2 Helvetica,Arial,sans-serif;margin:0}h2{font:600 16px Helvetica,Arial,sans-serif;margin:28px 0 8px}p.m{color:#5a655f;margin:4px 0 0}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d6dbd7}th{font:600 12px Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#5a655f}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tfoot td{font-weight:700;border-top:2px solid #1b2420}.sig{margin-top:56px;display:flex;gap:48px}.sig div{flex:1;border-top:1px solid #1b2420;padding-top:6px;font-size:12px;color:#5a655f}';
   function downloadReport(k, g) {
     const rows = reportRows(k, g); const gs = gradeStats(k.id, g); const f = fam();
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} · ${GRADE_NAME(g)} report card</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Report card · ${esc(k.name)} · ${GRADE_NAME(g)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Subject</th><th>Course</th><th class="n">Mastered</th><th class="n">Complete</th><th class="n">Avg score</th><th class="n">Grade</th><th class="n">Hours</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${r.subj.n}</td><td>${esc(r.title)}</td><td class="n">${r.mastered}/${r.total}</td><td class="n">${r.pct}%</td><td class="n">${r.avg != null ? r.avg + '%' : '—'}</td><td class="n">${r.letter}</td><td class="n">${r.hours}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Overall</td><td class="n">${gs.mastered}/${gs.total}</td><td class="n">${gs.pct}%</td><td class="n">${gs.avg != null ? gs.avg + '%' : '—'}</td><td class="n">${LETTER(gs.avg)}</td><td class="n">${fmtHours(minutes(k.id))}</td></tr></tfoot></table><p class="m">Grading: A ≥ 90 · B ≥ 80 · C ≥ 70 · D ≥ 60, based on the best quiz score in each unit. A unit is mastered at ${settings().passMark}% or higher.</p><div class="sig"><div>Parent / teacher signature</div><div>Date</div></div></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(k.name)} · ${GRADE_NAME(g)} report card</title><style>${docStyle}</style></head><body><h1>${esc(f.name)}</h1><p class="m">Report card · ${esc(k.name)} · ${GRADE_NAME(g)} · issued ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Subject</th><th>Course</th><th class="n">Mastered</th><th class="n">Complete</th><th class="n">Avg score</th><th class="n">Grade</th><th class="n">Hours</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${r.subj.n}${r.bonus ? ' (bonus)' : ''}</td><td>${esc(r.title)}</td><td class="n">${r.mastered}/${r.total}${r.bonusT ? ' (+' + r.bonusM + '/' + r.bonusT + ' bonus)' : ''}</td><td class="n">${r.pct}%</td><td class="n">${r.avg != null ? r.avg + '%' : '—'}</td><td class="n">${r.letter}</td><td class="n">${r.hours}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Overall (required work)</td><td class="n">${gs.mastered}/${gs.total}</td><td class="n">${gs.pct}%</td><td class="n">${gs.avg != null ? gs.avg + '%' : '—'}</td><td class="n">${LETTER(gs.avg)}</td><td class="n">${fmtHours(minutes(k.id))}</td></tr></tfoot></table><p class="m">Grading: A ≥ 90 · B ≥ 80 · C ≥ 70 · D ≥ 60, based on the best quiz score in each unit. A unit is mastered at ${settings().passMark}% or higher. Bonus work is listed but not counted in the overall.</p><div class="sig"><div>Parent / teacher signature</div><div>Date</div></div></body></html>`;
     offer(k.name.replace(/\W+/g, '-') + '-grade-' + g + '-report-card.html', html);
   }
   function downloadTranscript(k) {

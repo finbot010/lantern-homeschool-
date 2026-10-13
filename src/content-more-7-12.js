@@ -2,7 +2,7 @@
    Quiz rows: [question, correct, wrong1, wrong2, wrong3, picture?] */
 (function () {
   const C = window.LH_COURSES, KA = 'https://www.khanacademy.org/';
-  const add = (k, units) => { C[k].u.push(...units); };
+  const add = (k, units) => { if (C[k].core == null) C[k].core = C[k].u.length; C[k].u.push(...units); };
   const D = (d, mark) => ({ t: 'd', d, mark });
 
   /* ───────── GRADE 7 ───────── */
