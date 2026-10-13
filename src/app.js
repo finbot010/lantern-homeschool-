@@ -46,7 +46,9 @@
     { id: 'speller', n: 'Spelling star', d: 'Mastered 5 spelling lists' },
     { id: 'bookworm', n: 'Bookworm', d: 'Finished 5 books' },
     { id: 'author', n: 'Young author', d: 'Wrote 5 journal entries' },
-    { id: 'hola', n: '¡Hola!', d: 'Mastered 4 Spanish lessons' }
+    { id: 'hola', n: '¡Hola!', d: 'Mastered 4 Spanish lessons' },
+    { id: 'planner', n: 'Plan finisher', d: 'Finished 5 daily plans' },
+    { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -229,7 +231,7 @@
     return { pct, avg: tried ? Math.round(sum / tried) : null, courses: cs, mastered: rq.reduce((a, c) => a + c.mastered, 0), total: rq.reduce((a, c) => a + c.total, 0), bonusMastered: bonus.m, bonusTotal: bonus.t };
   }
   // Weekly hours goal: by grade band (default) or one number for everyone.
-  const GOAL_BANDS = [[2, 12], [5, 15], [8, 18], [12, 22]];
+  const GOAL_BANDS = [[2, 8], [5, 10], [8, 12], [12, 15]];
   const gradeGoal = (g) => GOAL_BANDS.find((b) => g <= b[0])[1];
   const goalFor = (kidId) => { const st = settings(); const k = kidById(kidId); return st.goalAuto === false || !k ? st.weeklyGoal : gradeGoal(k.grade); };
   function minutes(kidId, filter) { return logDoc(kidId).e.filter(filter || (() => true)).reduce((a, e) => a + (e.m || 0), 0); }
@@ -262,6 +264,7 @@
     earn('speller', Object.values(lit.spell || {}).filter((x) => x.best >= pass).length >= 5);
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
+    const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
 
@@ -311,11 +314,11 @@
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -549,6 +552,7 @@
         h('div', { class: 'stat-row' },
           stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
+    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(weekCard(k)); }
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
@@ -585,6 +589,10 @@
     const kd = kidDoc(kidId), key = g + '-' + s + '-' + i; const p = kd.prog[key]; const pass = settings().passMark;
     if (kd.done && kd.done[key] && !(p && p.best >= pass)) return { cls: 'mastered', t: 'Complete · marked by parent' };
     if (!p) return kidDoc(kidId).viewed[g + '-' + s + '-' + i] ? { cls: 'open', t: 'Started' } : { cls: 'new', t: 'Not started' };
+    if (p.best >= pass) { const ck = checkState(kidId, key), tg = (dayDoc(kidId).taught || {})[key];
+      if (tg) return { cls: 'mastered', t: 'Teacher ★ · ' + p.best + '%' };
+      if (ck && ck.strong) return { cls: 'mastered', t: 'Strong ✓✓ · ' + p.best + '%' };
+      if (ck && ck.weak) return { cls: 'trying', t: 'Review needed · best ' + p.best + '%' }; }
     return p.best >= pass ? { cls: 'mastered', t: 'Mastered · ' + p.best + '%' } : { cls: 'trying', t: 'Best ' + p.best + '% · keep going' };
   }
   function viewCourse() {
@@ -655,7 +663,7 @@
     const kd = kidDoc(kidId); const prev = kd.prog[id]; const pass = settings().passMark;
     const wasMastered = prev && prev.best >= pass; const themesBefore = unlockedThemes(kidId);
     kd.prog[id] = { best: Math.max(score, prev ? prev.best : 0), last: score, tries: (prev ? prev.tries : 0) + 1, at: Date.now(), first: prev ? prev.first : Date.now() };
-    saveKid(kidId); Timer.accrue(); Timer.flush(); checkBadges(kidId);
+    saveKid(kidId); if (!wasMastered && score >= pass) scheduleCheck(kidId, id); Timer.accrue(); Timer.flush(); checkBadges(kidId);
     const newTheme = THEMES.find((t) => !themesBefore[t.id] && unlockedThemes(kidId)[t.id]);
     S.quiz.result = { score, pass: score >= pass, newly: !wasMastered && score >= pass, theme: newTheme ? newTheme.id : null };
     go('result', { g: Q.g, s: Q.s, i: Q.i });
@@ -670,6 +678,9 @@
         lumi(r.pass ? 'cheer' : 'think', r.pass ? (r.score >= 100 ? 'A perfect score! You\'re a superstar!' : 'You did it! I\'m so proud of you.') : 'Let\'s review together and try again. You can do it!'),
         h('h1', null, r.pass ? (r.newly ? 'Unit mastered!' : 'Great work!') : 'Almost there'),
         r.theme ? (() => { const t = THEMES.find((x) => x.id === r.theme); const on = kidTheme(S.who) === t.id; return h('div', { class: 'unlock-card', role: 'status' }, h('p', { class: 'eyebrow' }, 'Course complete · new theme unlocked'), h('span', { class: 'sw th-' + t.id, 'aria-hidden': 'true' }), h('b', null, t.n + ': ' + t.d), on ? h('span', { class: 'small muted' }, 'It\'s on now!') : h('button', { class: 'btn primary sm', onclick: () => { kidDoc(S.who).theme = t.id; saveKid(S.who); confetti(); render(); } }, 'Use my new theme')); })() : null,
+        r.pass ? (() => { const key = Q.g + '-' + Q.s + '-' + Q.i, d = dayDoc(S.who); d.explain = d.explain || {}; const ta = h('textarea', { id: 'xp-in', rows: 2, maxlength: 400, placeholder: 'In my own words…' }, d.explain[key] || '');
+          return h('form', { class: 'explain-box', onsubmit: (e) => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; d.explain[key] = t; saveDay(S.who); toast('Saved! Explaining it is how you really learn it.'); render(); } },
+            h('label', { for: 'xp-in' }, 'Teach it back: explain the big idea in your own words (1–2 sentences)'), ta, h('button', { class: 'btn ghost sm', type: 'submit' }, d.explain[key] ? 'Update' : 'Save my explanation')); })() : null,
         h('p', { class: 'lede' }, r.pass ? 'You scored ' + r.score + '% on ' + c.u[Q.i].t + '.' : 'You need ' + settings().passMark + '% to master this unit. Review the lesson and try again — every try gets fresh questions.'),
         h('div', { class: 'actions' },
           r.pass && nextI != null ? h('button', { class: 'btn primary', onclick: () => go('lesson', { g: Q.g, s: Q.s, i: nextI }) }, 'Next unit: ' + c.u[nextI].t) : null,
@@ -681,10 +692,10 @@
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
-    const body = { overview: pOverview, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
+    const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
@@ -759,8 +770,10 @@
         const keys = c.u.map((u, i) => g + '-' + s.k + '-' + i); const open = keys.filter((key) => !unitMastered(k.id, key));
         return h('section', { class: 'card detail' }, h('h3', null, h('span', { class: 'dot ' + s.c }), c.t, cs.required ? null : h('span', { class: 'bonus-tag' }, 'Bonus')),
           h('ol', null, c.u.map((u, i) => { const key = keys[i]; const p = kd.prog[key]; const st = unitStatus(k.id, g, s.k, i); const wv = (kd.watched || {})[key]; const manual = kd.done && kd.done[key]; const passed = p && p.best >= settings().passMark;
-            return h('li', null, h('span', null, (cs.required && i >= cs.reqN ? 'Bonus · ' : '') + u.t), h('span', { class: 'pill ' + st.cls }, p ? (passed ? 'Mastered ' : 'Best ') + p.best + '% · ' + p.tries + (p.tries === 1 ? ' try' : ' tries') + (manual && !passed ? ' · marked complete' : '') : st.t), wv ? h('span', { class: 'watched-tag' }, ' · video watched') : null,
-              passed ? null : h('button', { class: 'btn ghost xs', onclick: () => setDone(k.id, [key], !manual) }, manual ? 'Undo' : 'Mark complete')); })),
+            return h('li', null, h('span', null, (cs.required && i >= cs.reqN ? 'Bonus · ' : '') + u.t), h('span', { class: 'pill ' + st.cls }, p ? (passed ? st.t.replace(/ · \d+%$/, '') + ' ' + p.best + '%' : 'Best ' + p.best + '%') + ' · ' + p.tries + (p.tries === 1 ? ' try' : ' tries') + (manual && !passed ? ' · marked complete' : '') : st.t), wv ? h('span', { class: 'watched-tag' }, ' · video watched') : null,
+              passed ? null : h('button', { class: 'btn ghost xs', onclick: () => setDone(k.id, [key], !manual) }, manual ? 'Undo' : 'Mark complete'),
+              (dayDoc(k.id).explain || {})[key] ? h('span', { class: 'small explain-q' }, '"' + dayDoc(k.id).explain[key] + '"') : null,
+              passed ? h('button', { class: 'btn ghost xs', title: 'Mark when they can teach this to you', onclick: () => { const d = dayDoc(k.id); d.taught = d.taught || {}; if (d.taught[key]) delete d.taught[key]; else d.taught[key] = Date.now(); saveDay(k.id); render(); } }, (dayDoc(k.id).taught || {})[key] ? 'Undo teacher ★' : 'They taught it to me ★') : null); })),
           open.length > 1 ? h('button', { class: 'btn ghost xs', onclick: () => setDone(k.id, open, true) }, 'Mark all ' + open.length + ' remaining complete') : null); })));
     }
     const tr = transcript(k);
@@ -836,13 +849,13 @@
         h('div', null, h('label', { for: 's-pass' }, 'Score needed to master a unit'), h('select', { id: 's-pass' }, [70, 80, 90].map((p) => h('option', { value: p, selected: st.passMark === p ? true : null }, p + '%')))),
         h('div', null, h('label', { for: 's-goalmode' }, 'Weekly hours goal'), h('select', { id: 's-goalmode', onchange: (e) => { $('#s-goal-row').hidden = e.target.value === 'auto'; } }, h('option', { value: 'auto', selected: st.goalAuto !== false ? true : null }, 'By grade (recommended)'), h('option', { value: 'same', selected: st.goalAuto === false ? true : null }, 'Same goal for everyone')))),
       h('div', { id: 's-goal-row', class: 'row2', hidden: st.goalAuto !== false ? true : null }, h('div', null, h('label', { for: 's-goal' }, 'Hours per week, every learner'), h('input', { id: 's-goal', type: 'number', min: 1, max: 60, value: st.weeklyGoal }))),
-      h('p', { class: 'hint' }, 'By grade: grades 1–2 · 12 h, 3–5 · 15 h, 6–8 · 18 h, 9–12 · 22 h a week. These follow common homeschool guidelines of about 2–4½ hours a day, 5 days a week. Check your state\'s rules, which may ask for more or fewer hours.'),
+      h('p', { class: 'hint' }, 'By grade: grades 1–2 · 8 h, 3–5 · 10 h, 6–8 · 12 h, 9–12 · 15 h a week (about 1½–3 focused hours a day). One-on-one learning covers more ground per hour than a classroom, so Lantern aims for mastery, not minutes. Check your state\'s rules, which may ask for a minimum number of hours or days.'),
       h('label', { class: 'check' }, h('input', { id: 's-roam', type: 'checkbox', checked: st.freeRoam ? true : null }), ' Let learners open other grades (review or work ahead)'),
       h('button', { class: 'btn primary sm', type: 'submit' }, 'Save settings')));
     wrap.appendChild(h('h2', { class: 'sec' }, 'Learners'));
     kids().forEach((k) => {
       wrap.appendChild(h('div', { class: 'kid-edit' }, kidForm(k, () => render()),
-        S.confirmKid === k.id ? h('div', { class: 'card danger-zone' }, h('p', null, 'Remove ' + k.name + ' and all of their progress and hours? This cannot be undone.'), h('div', { class: 'actions' }, h('button', { class: 'btn danger sm', onclick: async () => { f.kids = f.kids.filter((x) => x.id !== k.id); saveFamily(); await Store.remove('kid-' + k.id); await Store.remove('log-' + k.id); await Store.remove('lit-' + k.id); await Store.remove('lang-' + k.id); S.confirmKid = null; toast(k.name + ' was removed.'); render(); } }, 'Remove ' + k.name), h('button', { class: 'btn ghost sm', onclick: () => { S.confirmKid = null; render(); } }, 'Cancel')))
+        S.confirmKid === k.id ? h('div', { class: 'card danger-zone' }, h('p', null, 'Remove ' + k.name + ' and all of their progress and hours? This cannot be undone.'), h('div', { class: 'actions' }, h('button', { class: 'btn danger sm', onclick: async () => { f.kids = f.kids.filter((x) => x.id !== k.id); saveFamily(); await Store.remove('kid-' + k.id); await Store.remove('log-' + k.id); await Store.remove('lit-' + k.id); await Store.remove('lang-' + k.id); await Store.remove('day-' + k.id); S.confirmKid = null; toast(k.name + ' was removed.'); render(); } }, 'Remove ' + k.name), h('button', { class: 'btn ghost sm', onclick: () => { S.confirmKid = null; render(); } }, 'Cancel')))
           : h('button', { class: 'btn ghost sm remove-kid', onclick: () => { S.confirmKid = k.id; render(); } }, 'Remove ' + k.name)));
     });
     wrap.appendChild(kidForm(null, () => render()));
@@ -1212,7 +1225,7 @@
       else if (t && sp.review) { const box = t.box + 1; if (box >= BOX_DAYS.length) delete L.tricky[w]; else L.tricky[w] = Object.assign(t, { box, due: addDays(BOX_DAYS[box]) }); }
     });
     if (sp.id) { const prev = L.spell[sp.id]; L.spell[sp.id] = { best: Math.max(score, prev ? prev.best : 0), last: score, tries: (prev ? prev.tries : 0) + 1, at: Date.now() }; }
-    saveLit(kidId); Timer.accrue(); Timer.flush(); checkBadges(kidId);
+    saveLit(kidId); markAct(kidId, 'spell'); Timer.accrue(); Timer.flush(); checkBadges(kidId);
     sp.phase = 'done'; sp.score = score; sp.pass = score >= pass; if (sp.pass) setTimeout(confetti, 50); render();
   }
   function viewSpell() {
@@ -1357,7 +1370,7 @@
       if (!(m >= 1 && m <= 300)) return (err.textContent = 'How many minutes did you read? (1 to 300)');
       const d = todayStr();
       books.push({ id: uid(), d, t: t.slice(0, 80), a: a.slice(0, 60), m, p, fin, r: ratingSel.value || null, note: note.slice(0, 1000) }); L.books = books; saveLit(k.id);
-      const log = logDoc(k.id); log.e.push({ id: uid(), d, s: 'read', m, n: 'Reading: ' + t.slice(0, 60), auto: false, kid: true }); saveLog(k.id);
+      const log = logDoc(k.id); log.e.push({ id: uid(), d, s: 'read', m, n: 'Reading: ' + t.slice(0, 60), auto: false, kid: true }); saveLog(k.id); markAct(k.id, 'read');
       markActive(k.id); checkBadges(k.id); toast(fin ? 'You finished a book! Great reading!' : 'Reading logged: ' + m + ' minutes.'); if (fin) confetti(); render();
     } }, h('h3', null, 'What did you read today?'),
       open.length ? h('div', { class: 'chips-row' }, h('span', { class: 'small muted' }, 'Still reading: '), open.map((b) => h('button', { type: 'button', class: 'chip-btn', onclick: () => { $('#rd-title').value = b.t; $('#rd-auth').value = b.a || ''; $('#rd-min').focus(); } }, b.t))) : null,
@@ -1392,7 +1405,7 @@
     main.appendChild(h('form', { class: 'card form journal-form', onsubmit: (e) => {
       e.preventDefault(); const t = ta.value.trim(); const err = $('#jr-err');
       if (wordCount(t) < 3) return (err.textContent = 'Write a little more first.');
-      L.jr.unshift({ id: uid(), d: todayStr(), at: Date.now(), p: prompt, t }); S.jdraft = ''; saveLit(k.id); markActive(k.id); checkBadges(k.id);
+      L.jr.unshift({ id: uid(), d: todayStr(), at: Date.now(), p: prompt, t }); S.jdraft = ''; saveLit(k.id); markAct(k.id, 'write'); markActive(k.id); checkBadges(k.id);
       toast(wordCount(t) >= goal ? 'Saved! You reached your word goal!' : 'Saved to your journal.'); if (wordCount(t) >= goal) confetti(); render();
     } },
       h('div', { class: 'prompt-box' }, h('p', { class: 'eyebrow' }, 'Today\'s prompt'), h('p', { class: 'prompt' }, prompt),
@@ -1575,7 +1588,7 @@
     });
     if (s.uid) { const p = L.units[s.uid]; L.units[s.uid] = { best: Math.max(score, p ? p.best : 0), last: score, tries: (p ? p.tries : 0) + 1, at: Date.now() }; }
     if (!L.doneAt && esMastered(kidId) === ES.units.length) { L.doneAt = Date.now(); L.doneGrade = k ? k.grade : null; }
-    saveLang(kidId); Timer.accrue(); Timer.flush(); checkBadges(kidId);
+    saveLang(kidId); markAct(kidId, 'span'); Timer.accrue(); Timer.flush(); checkBadges(kidId);
     s.phase = 'done'; s.score = score; s.pass = score >= settings().passMark; if (s.pass) setTimeout(confetti, 50); render();
   }
   function esListen(s) {
@@ -1686,6 +1699,266 @@
       h('ul', { class: 'hbars' }, ES.units.map((u) => { const r = (L.units || {})[u.id]; return h('li', null, h('span', null, u.t + ' · ' + u.en), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'soc'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })),
       Object.keys(rv).length ? h('p', { class: 'small' }, 'Words to review: ' + Object.keys(rv).join(', ')) : null,
       h('p', { class: 'small muted' }, 'Time in Spanish is logged in the Hours log. High school learners who master all 8 lessons get Spanish 1: Beginner (0.5 credit) on their transcript. Speaking practice uses Chrome\'s built-in speech recognition, which may send the audio to Google to turn it into text; learners can skip it.'));
+  }
+
+  /* ─────────────── Today's plan · check-backs · daily challenge · focus sessions · weekly goals · conundrums ───────────────
+     Ideas drawn from modern schools: daily goals by mastery, not minutes (Alpha); mastery shown more than once and
+     "teach it back" (Khan Lab School); focus blocks with brain breaks; goal setting and weekly reflection (Acton, Khan advisory);
+     open-ended conundrums (Ad Astra / Astra Nova). All content and code here are original. */
+  // day-{kidId} = { days: {date: {plan, acts, ch, focus, celebrated}}, checks: {unitKey: {due, n, strong, weak}}, weeks: {weekStart: {goals, reflect, pnote}}, con: {id: {choice, why, at, talked}}, explain: {unitKey: text}, taught: {unitKey: ts} }
+  const CON = window.LH_CONUNDRUMS || [];
+  const dayDoc = (id) => Store.cache['day-' + id] || (Store.cache['day-' + id] = { days: {}, checks: {}, weeks: {}, con: {}, explain: {}, taught: {} });
+  function saveDay(id) { const d = dayDoc(id); d.days = d.days || {}; const ks = Object.keys(d.days).sort(); ks.slice(0, Math.max(0, ks.length - 60)).forEach((x) => delete d.days[x]); Store.set('day-' + id, d); }
+  const dayRec = (id, date) => { const d = dayDoc(id); d.days = d.days || {}; const t = date || todayStr(); return d.days[t] || (d.days[t] = { acts: {} }); };
+  function markAct(kidId, kind) { if (!kidId) return; const r = dayRec(kidId); r.acts = r.acts || {}; if (!r.acts[kind]) { r.acts[kind] = Date.now(); saveDay(kidId); } }
+  const planBand = (g) => (g <= 2 ? 0 : g <= 5 ? 1 : g <= 8 ? 2 : 3);
+  const FOCUS_MIN = [[15, 5], [20, 5], [25, 5], [25, 5]];
+  const unitOf = (key) => { const [g, s, i] = key.split('-'); const c = course(Number(g), s); return c ? { g: Number(g), s, i: Number(i), u: c.u[Number(i)] } : null; };
+
+  /* check-backs: a mastered unit comes back a week later for a quick 3-question check */
+  function scheduleCheck(kidId, key) { const d = dayDoc(kidId); d.checks = d.checks || {}; if (!d.checks[key]) { d.checks[key] = { due: addDays(7), n: 0 }; saveDay(kidId); } }
+  function dueChecks(kidId) {
+    const d = dayDoc(kidId); d.checks = d.checks || {}; const t = todayStr(), prog = kidDoc(kidId).prog, pass = settings().passMark;
+    // units mastered before check-backs existed get scheduled gradually (2 a day)
+    let added = 0; Object.keys(prog).forEach((key) => { if (added < 2 && !d.checks[key] && prog[key].best >= pass && Date.now() - (prog[key].at || 0) > 6 * 864e5 && unitOf(key)) { d.checks[key] = { due: t, n: 0 }; added++; } });
+    return Object.keys(d.checks).filter((key) => !d.checks[key].strong && d.checks[key].due <= t && unitOf(key));
+  }
+  const checkState = (kidId, key) => ((dayDoc(kidId).checks || {})[key]) || null;
+
+  /* today's plan: built once per day from where the learner is, sized to the grade band */
+  function buildPlan(k) {
+    const r = dayRec(k.id); if (r.plan) return r.plan;
+    const g = k.grade, pb = planBand(g), dow = new Date().getDay(), doy = Math.floor(Date.now() / 864e5);
+    const items = [];
+    if (dueChecks(k.id).length) items.push({ id: 'warm', kind: 'warm', t: 'Warm-up: quick check on past lessons', min: 5 });
+    const order = ['math', 'ela'].concat(doy % 2 ? ['sci', 'soc'] : ['soc', 'sci'], ['ai', 'fin']);
+    const want = [2, 2, 3, 3][pb]; let n = 0;
+    for (const s of order) {
+      if (n >= want) break; const c = course(g, s); if (!c) continue;
+      const cs = courseStats(k.id, g, s); if (cs.next < 0) continue;
+      const key = g + '-' + s + '-' + cs.next;
+      items.push({ id: 'u:' + key, kind: 'unit', key, t: SUBJ_NAME[s] + ': ' + c.u[cs.next].t, min: [20, 25, 25, 30][pb] }); n++;
+    }
+    items.push({ id: 'read', kind: 'read', t: 'Read a book', min: [15, 20, 25, 30][pb] });
+    if (pb < 3 || trickyDue(k.id).length) items.push({ id: 'spell', kind: 'spell', t: trickyDue(k.id).length ? 'Spelling: review tricky words' : 'Spelling practice', min: 10 });
+    const wk = weekStart(), cu = conundrumFor(k);
+    if (dow === 3 && cu && !(dayDoc(k.id).con || {})[cu.id]) items.push({ id: 'con', kind: 'con', t: 'Conundrum of the week: ' + cu.t, min: 15 });
+    else if (pb > 0 || [1, 3, 5].includes(dow)) items.push({ id: 'write', kind: 'write', t: 'Journal: write about today\'s prompt', min: [10, 10, 15, 15][pb] });
+    items.push({ id: 'span', kind: 'span', t: langDue(k.id).length ? 'Spanish: review words' : 'Spanish practice', min: 10 });
+    if (pb > 0) items.push({ id: 'fun', kind: 'fun', t: 'Fun pick: you choose!', min: [0, 10, 10, 20][pb] });
+    items.push({ id: 'chal', kind: 'chal', t: 'Daily challenge (5 questions)', min: 5 });
+    r.plan = items; r.wk = wk; saveDay(k.id);
+    return items;
+  }
+  function itemDone(k, it) {
+    const r = dayRec(k.id), a = r.acts || {};
+    if (it.kind === 'unit') return unitMastered(k.id, it.key);
+    if (it.kind === 'chal') return !!r.ch;
+    if (it.kind === 'con') { const c = conundrumFor(k); return !!(c && (dayDoc(k.id).con || {})[c.id]); }
+    return !!a[it.kind];
+  }
+  function startItem(k, it) {
+    if (it.kind === 'unit') { const x = unitOf(it.key); return go('lesson', { g: x.g, s: x.s, i: x.i }); }
+    if (it.kind === 'warm') return startMQ(k, 'warm');
+    if (it.kind === 'chal') return startMQ(k, 'chal');
+    if (it.kind === 'read') return go('reading');
+    if (it.kind === 'spell') { S.sp = null; return go('spell'); }
+    if (it.kind === 'write') return go('journal');
+    if (it.kind === 'span') { S.es = null; return go('spanish'); }
+    if (it.kind === 'con') return go('conundrum');
+  }
+  function todayCard(k) {
+    const items = buildPlan(k), r = dayRec(k.id); const done = items.filter((it) => itemDone(k, it));
+    const left = items.filter((it) => !itemDone(k, it)).reduce((a, it) => a + it.min, 0);
+    const all = done.length === items.length;
+    if (all && !r.celebrated) { r.celebrated = Date.now(); saveDay(k.id); checkBadges(k.id); setTimeout(confetti, 200); }
+    const pct = Math.round((done.length / items.length) * 100);
+    const card = h('section', { class: 'card plan-today' + (all ? ' all-done' : '') },
+      h('div', { class: 'card-head' }, h('div', null, h('p', { class: 'eyebrow' }, new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })), h('h2', null, all ? 'You\'re done for today! 🎉' : 'Today\'s plan')),
+        h('div', { class: 'plan-meta' }, h('b', null, done.length + '/' + items.length), h('small', null, all ? 'Great work. Go play, read for fun or build something!' : 'about ' + (left >= 60 ? Math.floor(left / 60) + ' h ' : '') + (left % 60) + ' min left'))),
+      bar(pct, 'sci'),
+      all ? null : h('p', { class: 'small muted' }, 'Do them in any order. Each lesson counts when you master it — not when the clock says so.'));
+    const ul = h('ul', { class: 'plan-list' });
+    items.forEach((it) => {
+      const ok = itemDone(k, it);
+      const li = h('li', { class: 'plan-item' + (ok ? ' done' : '') }, h('span', { class: 'tick', 'aria-hidden': 'true' }, ok ? '✓' : ''), h('span', { class: 'pi-t' }, it.t, h('small', null, ' · ' + it.min + ' min')));
+      if (it.kind === 'fun') {
+        li.appendChild(ok ? h('span', { class: 'small muted' }, 'Done') : h('span', { class: 'fun-picks' },
+          [['AI & Me', () => go('course', { g: k.grade, s: 'ai' })], ['Money Smart', () => go('course', { g: k.grade, s: 'fin' })], ['A book', () => go('reading')], ['More Spanish', () => { S.es = null; go('spanish'); }]].map(([n, f]) => h('button', { type: 'button', class: 'chip-btn', onclick: f }, n)),
+          h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { markAct(k.id, 'fun'); render(); } }, 'I did it ✓')));
+      } else if (!ok) li.appendChild(h('button', { type: 'button', class: 'btn primary xs', onclick: () => startItem(k, it) }, 'Start'));
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    const fm = FOCUS_MIN[planBand(k.grade)];
+    card.appendChild(h('div', { class: 'actions plan-foot' },
+      h('button', { type: 'button', class: 'btn ghost sm', onclick: () => Focus.start(k, fm[0], fm[1]) }, '⏱ Start a ' + fm[0] + '-minute focus session'),
+      h('span', { class: 'small muted' }, 'Then a ' + fm[1] + '-minute brain break. Focus first, then move!')));
+    return card;
+  }
+
+  /* focus sessions with brain breaks (a floating timer that survives screen changes) */
+  const BREAKS = ['Do 10 jumping jacks', 'Get a glass of water', 'Stretch up high, then touch your toes', 'Look out a window and find 3 different colors', 'Walk around the room twice', 'Take 5 slow, deep breaths', 'Dance to one song'];
+  const Focus = {
+    el: null, tick: null, end: 0, mode: null, kidId: null, mins: [20, 5],
+    start(k, f, b) { this.stop(); this.kidId = k.id; this.mins = [f, b]; this.mode = 'focus'; this.end = Date.now() + f * 60e3; this.idea = pick(BREAKS); this.mount(); this.tick = setInterval(() => this.update(), 1000); this.update(); },
+    stop() { clearInterval(this.tick); this.tick = null; this.mode = null; if (this.el) { this.el.remove(); this.el = null; } },
+    mount() { if (this.el) this.el.remove(); this.el = h('div', { class: 'focus-chip', role: 'timer', 'aria-live': 'off' }); document.body.appendChild(this.el); },
+    update() {
+      if (!this.el) return; const ms = Math.max(0, this.end - Date.now()), m = Math.floor(ms / 60e3), s = Math.floor((ms % 60e3) / 1000);
+      if (ms <= 0) {
+        if (this.mode === 'focus') { const r = dayRec(this.kidId); r.focus = (r.focus || 0) + 1; saveDay(this.kidId); this.mode = 'break'; this.end = Date.now() + this.mins[1] * 60e3; say('Great focus! Time for a brain break.', 1); }
+        else { this.mode = 'done'; clearInterval(this.tick); say('Break is over. Ready for another focus session?', 1); }
+      }
+      this.el.className = 'focus-chip ' + this.mode; this.el.innerHTML = '';
+      if (this.mode === 'done') { this.el.appendChild(h('b', null, 'Break over!')); this.el.appendChild(h('button', { type: 'button', class: 'btn primary xs', onclick: () => { const k = kidById(this.kidId); if (k) this.start(k, this.mins[0], this.mins[1]); } }, 'Focus again')); this.el.appendChild(h('button', { type: 'button', class: 'btn ghost xs', onclick: () => this.stop() }, 'Close')); return; }
+      this.el.appendChild(h('span', { class: 'fc-label' }, this.mode === 'focus' ? 'Focus' : 'Brain break: ' + this.idea));
+      this.el.appendChild(h('b', { class: 'fc-time' }, m + ':' + String(s).padStart(2, '0')));
+      this.el.appendChild(h('button', { type: 'button', class: 'btn ghost xs', 'aria-label': 'Stop timer', onclick: () => this.stop() }, '✕'));
+    }
+  };
+
+  /* mini quiz engine for warm-ups and the daily challenge */
+  function startMQ(k, kind) {
+    const qs = [];
+    if (kind === 'warm') {
+      dueChecks(k.id).slice(0, 2).forEach((key) => { const x = unitOf(key); buildQuestions(x.u).slice(0, 3).forEach((q) => qs.push(Object.assign(q, { key, from: SUBJ_NAME[x.s] + ' · ' + x.u.t }))); });
+    } else {
+      const prog = kidDoc(k.id).prog; let keys = Object.keys(prog).filter((key) => unitOf(key));
+      if (keys.length < 5) SUBJ.forEach((s) => { const c = course(k.grade, s.k); if (c) for (let i = 0; i <= Math.max(0, courseStats(k.id, k.grade, s.k).next); i++) keys.push(k.grade + '-' + s.k + '-' + i); });
+      keys = shuffle(Array.from(new Set(keys)));
+      for (const key of keys) { if (qs.length >= 5) break; const x = unitOf(key); if (!x || !x.u) continue; const q = buildQuestions(x.u)[0]; if (q) qs.push(Object.assign(q, { key, from: SUBJ_NAME[x.s] + ' · ' + x.u.t })); }
+    }
+    if (!qs.length) { toast('Nothing to review yet — great job!'); markAct(k.id, kind); return render(); }
+    S.mq = { kind, qs, at: 0, right: 0, picked: null, per: {} }; go('mq');
+  }
+  function challengeStreak(kidId) { const d = dayDoc(kidId).days || {}; let n = 0; const dt = new Date(); if (!(d[todayStr(dt)] || {}).ch) dt.setDate(dt.getDate() - 1); while ((d[todayStr(dt)] || {}).ch) { n++; dt.setDate(dt.getDate() - 1); } return n; }
+  function finishMQ(k) {
+    const M = S.mq, d = dayDoc(k.id); d.checks = d.checks || {};
+    if (M.kind === 'warm') {
+      Object.entries(M.per).forEach(([key, [r, t]]) => { const c = d.checks[key] || { n: 0 }; d.checks[key] = r >= Math.ceil(t * 0.67) ? { strong: true, at: Date.now(), n: c.n + 1 } : { due: addDays(3), n: c.n + 1, weak: true }; });
+      markAct(k.id, 'warm');
+    } else { dayRec(k.id).ch = { right: M.right, n: M.qs.length, at: Date.now() }; }
+    saveDay(k.id); checkBadges(k.id); M.done = true; if (M.right === M.qs.length) setTimeout(confetti, 50); render();
+  }
+  function viewMQ() {
+    const k = kidById(S.who), M = S.mq; if (!k || !M) return viewKidHome();
+    const main = h('main', { class: 'wrap quiz' });
+    if (M.done) {
+      const weak = Object.entries(M.per).filter(([key, [r, t]]) => r < Math.ceil(t * 0.67)).map(([key]) => unitOf(key));
+      main.appendChild(h('section', { class: 'result-card ' + (M.right >= M.qs.length * 0.67 ? 'pass' : 'retry') }, ring(Math.round((M.right / M.qs.length) * 100), M.right + ' of ' + M.qs.length, 'lg'),
+        lumi(M.right === M.qs.length ? 'cheer' : 'happy', M.kind === 'chal' ? (challengeStreak(k.id) > 1 ? challengeStreak(k.id) + '-day challenge streak! 🔥' : 'Challenge done! Come back tomorrow to start a streak.') : 'Warm-up done. Your brain is ready!'),
+        h('h1', null, M.kind === 'chal' ? 'Daily challenge complete' : 'Warm-up complete'),
+        weak.length ? h('div', { class: 'missed' }, h('p', null, M.kind === 'chal' ? 'Lessons worth another look:' : 'These need a little more practice — try the lesson again:'), h('div', { class: 'actions' }, weak.map((x) => h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g: x.g, s: x.s, i: x.i }) }, x.u.t)))) : null,
+        h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => { S.mq = null; go('home'); } }, 'Back to today\'s plan'))));
+      return h('div', null, kidBar(), main);
+    }
+    const item = M.qs[M.at], answered = M.picked != null;
+    const choices = h('div', { class: 'choices', role: 'group', 'aria-label': 'Answer choices' }, item.choices.map((ch, n) => {
+      let cls = 'choice'; if (answered) { if (ch === item.a) cls += ' right'; else if (n === M.picked) cls += ' wrong'; }
+      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; const ok = ch === item.a; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
+    }));
+    const ok = answered && item.choices[M.picked] === item.a;
+    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
+    main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices,
+      answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? pick(CHEER) : 'Not quite. The answer is ' + item.a + '.')) : null,
+      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
+    return h('div', null, kidBar(), main);
+  }
+
+  /* weekly goals and reflection (the learner's side of a weekly check-in) */
+  const weekRec = (kidId, ws) => { const d = dayDoc(kidId); d.weeks = d.weeks || {}; const w = ws || weekStart(); return d.weeks[w] || (d.weeks[w] = { goals: [] }); };
+  const GOAL_IDEAS = ['Master 3 math lessons', 'Read for 20 minutes every day', 'Get 100% on a spelling list', 'Finish a Spanish lesson', 'Write 5 journal entries', 'Do the daily challenge every day'];
+  function weekCard(k) {
+    const w = weekRec(k.id), dow = new Date().getDay(), showReflect = S.reflect || dow === 0 || dow >= 4 || (w.reflect && w.reflect.at);
+    const box = h('section', { class: 'card week-card' }, h('div', { class: 'card-head' }, h('h3', null, 'My week'), h('span', { class: 'small muted' }, 'Set up to 3 goals. Check them off when you reach them.')));
+    if (w.pnote) box.appendChild(h('div', { class: 'jr-pn' }, h('b', null, 'Note from your grown-up: '), w.pnote));
+    box.appendChild(h('ul', { class: 'goal-list' }, w.goals.map((gl, i) => h('li', { class: gl.done ? 'done' : '' }, h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: gl.done ? true : null, onchange: (e) => { gl.done = e.target.checked; saveDay(k.id); if (gl.done) confetti(); render(); } }), ' ' + gl.t),
+      h('button', { type: 'button', class: 'btn ghost xs', 'aria-label': 'Remove goal', onclick: () => { w.goals.splice(i, 1); saveDay(k.id); render(); } }, '✕')))));
+    if (w.goals.length < 3) {
+      const inp = h('input', { id: 'goal-in', maxlength: 80, placeholder: 'My goal this week…', list: 'goal-ideas', autocomplete: 'off' });
+      box.appendChild(h('form', { class: 'goal-form', onsubmit: (e) => { e.preventDefault(); const t = inp.value.trim(); if (!t) return; w.goals.push({ t, done: false }); saveDay(k.id); render(); } }, inp, h('datalist', { id: 'goal-ideas' }, GOAL_IDEAS.map((x) => h('option', { value: x }))), h('button', { class: 'btn primary sm', type: 'submit' }, 'Add goal')));
+    }
+    const cu = conundrumFor(k); if (cu) box.appendChild(h('p', { class: 'small' }, h('button', { type: 'button', class: 'btn ghost xs', onclick: () => go('conundrum') }, (dayDoc(k.id).con || {})[cu.id] ? '✓ ' : '🤔 ', 'Conundrum of the week: ' + cu.t)));
+    if (showReflect) {
+      const r = w.reflect || {};
+      box.appendChild(h('form', { class: 'form reflect-form', onsubmit: (e) => { e.preventDefault(); w.reflect = { good: $('#rf-good').value.trim(), hard: $('#rf-hard').value.trim(), next: $('#rf-next').value.trim(), at: Date.now() }; saveDay(k.id); toast('Reflection saved. Nice thinking!'); S.reflect = false; render(); } },
+        h('h4', null, 'Look back on my week'),
+        h('label', { for: 'rf-good' }, 'What went well?'), h('textarea', { id: 'rf-good', rows: 2, maxlength: 400 }, r.good || ''),
+        h('label', { for: 'rf-hard' }, 'What was hard?'), h('textarea', { id: 'rf-hard', rows: 2, maxlength: 400 }, r.hard || ''),
+        h('label', { for: 'rf-next' }, 'What will I try next week?'), h('textarea', { id: 'rf-next', rows: 2, maxlength: 400 }, r.next || ''),
+        h('button', { class: 'btn primary sm', type: 'submit' }, r.at ? 'Update reflection' : 'Save reflection')));
+    } else box.appendChild(h('button', { type: 'button', class: 'btn ghost sm', onclick: () => { S.reflect = true; render(); } }, 'Reflect on my week'));
+    return box;
+  }
+
+  /* conundrums */
+  const conBand = (g) => (g <= 4 ? 0 : g <= 8 ? 1 : 2);
+  function conundrumFor(k) { const list = CON.filter((c) => c.band === conBand(k.grade)); if (!list.length) return null; const wkN = Math.floor((parseDay(weekStart()).getTime() / 864e5 + 3) / 7); return list[wkN % list.length]; }
+  function viewConundrum() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    const c = conundrumFor(k); const d = dayDoc(k.id); d.con = d.con || {}; const ans = d.con[c.id];
+    const main = h('main', { class: 'wrap conundrum' }, h('button', { class: 'btn ghost sm back', onclick: () => go('home') }, '← Dashboard'),
+      h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Conundrum of the week'), h('h1', null, c.t), h('p', { class: 'lede' }, 'There\'s no single right answer. What matters is how well you think it through.')));
+    main.appendChild(h('article', { class: 'card con-story' }, h('p', { class: 'con-text' }, c.story), h('h3', null, c.q), Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => say(c.story + ' ' + c.q, 1) }, icon('voice'), ' Read it to me') : null));
+    if (!ans || S.conEdit) {
+      let choice = ans ? ans.choice : null;
+      const opts = h('div', { class: 'con-opts', role: 'radiogroup' }, c.opts.map((o) => h('button', { type: 'button', role: 'radio', 'aria-checked': choice === o ? 'true' : 'false', class: 'choice' + (choice === o ? ' right' : ''), onclick: (e) => { choice = o; opts.querySelectorAll('.choice').forEach((b) => { b.classList.remove('right'); b.setAttribute('aria-checked', 'false'); }); e.currentTarget.classList.add('right'); e.currentTarget.setAttribute('aria-checked', 'true'); $('#con-own').hidden = o !== 'Something else'; } }, o)));
+      main.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
+        e.preventDefault(); const err = $('#con-err'), why = $('#con-why').value.trim(), own = $('#con-own-in').value.trim();
+        if (!choice) return (err.textContent = 'Pick an answer first.');
+        if (choice === 'Something else' && !own) return (err.textContent = 'Tell us your own idea.');
+        if (wordCount(why) < (k.grade <= 3 ? 4 : 10)) return (err.textContent = 'Explain your thinking a little more — why did you choose it?');
+        d.con[c.id] = { choice: choice === 'Something else' ? 'My idea: ' + own : choice, why, at: Date.now(), talked: ans ? ans.talked : false }; S.conEdit = false;
+        saveDay(k.id); markAct(k.id, 'con'); checkBadges(k.id); confetti(); render();
+      } }, h('h3', null, 'What do you think?'), opts,
+        h('div', { id: 'con-own', hidden: choice === 'Something else' ? null : true }, h('label', { for: 'con-own-in' }, 'My own idea'), h('input', { id: 'con-own-in', maxlength: 160 })),
+        h('label', { for: 'con-why' }, 'Why? Give your best reasons.'), h('textarea', { id: 'con-why', rows: 4, maxlength: 1200 }, ans ? ans.why : ''),
+        h('p', { id: 'con-err', class: 'err', role: 'alert' }), h('button', { class: 'btn primary', type: 'submit' }, 'Share my thinking')));
+    } else {
+      main.appendChild(h('article', { class: 'card' }, h('p', { class: 'eyebrow' }, 'Your answer'), h('h3', null, ans.choice), h('p', { class: 'jr-text' }, ans.why),
+        h('h4', null, 'Now think about the other side'), h('ul', { class: 'points' }, c.think.map((t) => h('li', null, t))),
+        h('h4', null, 'Talk about it with your family'), h('ul', { class: 'points' }, c.talk.map((t) => h('li', null, t))),
+        h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.conEdit = true; render(); } }, 'Change my mind'), h('button', { class: 'btn primary sm', onclick: () => go('home') }, 'Done'))));
+    }
+    return h('div', null, kidBar(), main);
+  }
+
+  /* parent: weekly check-in (like an advisor meeting) */
+  function pWeek() {
+    const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Weekly check-in'),
+      h('p', { class: 'lede' }, 'A 10–15 minute talk each week: celebrate what was mastered, look at what needs review, and agree on next week\'s goals.'));
+    if (!kids().length) { wrap.appendChild(h('p', { class: 'muted' }, 'Add a learner first.')); return wrap; }
+    const k = kidById(S.pkid) || kids()[0]; S.pkid = k.id;
+    wrap.appendChild(h('div', { class: 'filters' }, h('label', { for: 'p-kid' }, 'Learner'), kidSelect()));
+    const ws = weekStart(), d = dayDoc(k.id), w = weekRec(k.id, ws), pass = settings().passMark, prog = kidDoc(k.id).prog;
+    const days = Object.entries(d.days || {}).filter(([dt]) => dt >= ws);
+    const planDays = days.filter(([, r]) => r.celebrated).length, chDays = days.filter(([, r]) => r.ch).length, focus = days.reduce((a, [, r]) => a + (r.focus || 0), 0);
+    const mastered = Object.entries(prog).filter(([key, p]) => p.best >= pass && p.at && todayStr(new Date(p.at)) >= ws && unitOf(key)).map(([key]) => unitOf(key));
+    const checks = d.checks || {}, strong = Object.keys(checks).filter((x) => checks[x].strong && checks[x].at && todayStr(new Date(checks[x].at)) >= ws).length;
+    const weak = Object.keys(checks).filter((x) => checks[x].weak && unitOf(x)).map((x) => unitOf(x));
+    wrap.appendChild(h('div', { class: 'hours-top' },
+      h('article', { class: 'card' }, h('h3', null, 'This week'), h('dl', { class: 'facts' },
+        h('div', null, h('dt', null, 'Daily plans finished'), h('dd', null, String(planDays))),
+        h('div', null, h('dt', null, 'Lessons mastered'), h('dd', null, String(mastered.length))),
+        h('div', null, h('dt', null, 'Check-backs passed'), h('dd', null, String(strong))),
+        h('div', null, h('dt', null, 'Challenge days · streak'), h('dd', null, chDays + ' · ' + challengeStreak(k.id) + ' 🔥')),
+        h('div', null, h('dt', null, 'Focus sessions'), h('dd', null, String(focus))),
+        h('div', null, h('dt', null, 'Time logged'), h('dd', null, fmtHours(minutesWeek(k.id)) + ' / ' + goalFor(k.id) + ' h')))),
+      h('article', { class: 'card' }, h('h3', null, 'Needs review'), weak.length ? h('ul', { class: 'points' }, weak.map((x) => h('li', null, SUBJ_NAME[x.s] + ': ' + x.u.t + ' (grade ' + x.g + ')'))) : h('p', { class: 'small muted' }, 'Nothing flagged — every check-back so far was passed.'),
+        h('p', { class: 'small muted' }, 'A week after a lesson is mastered, it comes back as a 3-question check. Lessons that slip show up here and in the warm-up.'))));
+    if (mastered.length) wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Mastered this week'), h('ul', { class: 'points' }, mastered.map((x) => h('li', null, SUBJ_NAME[x.s] + ': ' + x.u.t + ((d.explain || {})[x.g + '-' + x.s + '-' + x.i] ? ' — in their words: "' + d.explain[x.g + '-' + x.s + '-' + x.i] + '"' : ''))))));
+    wrap.appendChild(h('article', { class: 'card' }, h('h3', null, k.name + '\'s goals and reflection'),
+      w.goals.length ? h('ul', { class: 'points' }, w.goals.map((gl) => h('li', null, (gl.done ? '✓ ' : '○ ') + gl.t))) : h('p', { class: 'small muted' }, 'No goals set yet this week. Set them together on Monday.'),
+      w.reflect ? h('div', { class: 'reflect-view' }, h('p', null, h('b', null, 'Went well: '), w.reflect.good || '—'), h('p', null, h('b', null, 'Was hard: '), w.reflect.hard || '—'), h('p', null, h('b', null, 'Will try: '), w.reflect.next || '—')) : h('p', { class: 'small muted' }, 'Reflection not written yet (it appears on their dashboard from Thursday).'),
+      h('form', { class: 'jr-note-form', onsubmit: (e) => { e.preventDefault(); w.pnote = $('#wk-note').value.trim().slice(0, 600) || null; saveDay(k.id); toast('Note saved. ' + k.name + ' will see it on their dashboard.'); render(); } },
+        h('label', { class: 'small', for: 'wk-note' }, 'Note to ' + k.name), h('textarea', { id: 'wk-note', rows: 2, maxlength: 600 }, w.pnote || ''), h('button', { class: 'btn ghost xs', type: 'submit' }, 'Save note'))));
+    const c = conundrumFor(k), ca = c && (d.con || {})[c.id];
+    if (c) wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Conundrum of the week: ' + c.t), h('p', { class: 'small' }, c.story + ' ' + c.q),
+      ca ? [h('p', null, h('b', null, k.name + ' chose: '), ca.choice), h('p', { class: 'jr-text' }, ca.why)] : h('p', { class: 'small muted' }, 'Not answered yet — it shows up in Wednesday\'s plan.'),
+      h('h4', null, 'Questions for your family talk'), h('ul', { class: 'points' }, c.talk.concat(c.think).map((t) => h('li', null, t))),
+      ca ? h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: ca.talked ? true : null, onchange: (e) => { ca.talked = e.target.checked; saveDay(k.id); } }), ' We talked about it together') : null));
+    return wrap;
   }
 
   /* ─────────────── Lumi, the AI tutor (Claude API through a secure Netlify function) ─────────────── */
@@ -1802,8 +2075,8 @@
   async function loadSchool() {
     try { await Store.get('family'); } catch (e) { if (Store.provider === 'firebase') { S.screen = 'auth'; S.view = { mode: 'in' }; render(); toast('Could not load your school: ' + ((e && e.code) || 'error') + '. Check the Firestore rules, then sign in again.'); return; } Store.mode = 'local'; await Store.get('family'); }
     if (!fam()) { S.screen = 'setup'; S.view = { step: 1 }; render(); return; }
-    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.get('lit-' + k.id).catch(() => null), Store.get('lang-' + k.id).catch(() => null), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
-    Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); Store.watch('lit-' + k.id); Store.watch('lang-' + k.id); });
+    await Promise.all(kids().map((k) => Promise.all([Store.get('kid-' + k.id), Store.get('log-' + k.id), Store.get('lit-' + k.id).catch(() => null), Store.get('lang-' + k.id).catch(() => null), Store.get('day-' + k.id).catch(() => null), Store.provider === 'firebase' ? Store.get('lumi-' + k.id).catch(() => null) : null])));
+    Store.watch('family'); kids().forEach((k) => { Store.watch('kid-' + k.id); Store.watch('log-' + k.id); Store.watch('lit-' + k.id); Store.watch('lang-' + k.id); Store.watch('day-' + k.id); });
     S.screen = kids().length ? 'picker' : 'setup'; S.view = kids().length ? {} : { step: 2 }; render();
   }
   window.addEventListener('pagehide', () => { Player.stop(); Timer.stop(); });

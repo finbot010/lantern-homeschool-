@@ -593,6 +593,31 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .es-words .choice.good { border-color: var(--good); background: var(--good-bg); } .es-words .choice.bad { border-color: var(--bad); background: var(--bad-bg); }
 .accents { display: flex; flex-wrap: wrap; gap: 6px; }
 .mic-row { justify-content: center; } .btn.mic { font-size: 1.1rem; padding: 12px 22px; } .btn.mic.on { animation: pulse 1.2s infinite; }
+
+/* Today's plan, focus timer, weekly goals, conundrums */
+.plan-today { margin: 18px 0; display: grid; gap: 10px; border-top: 5px solid var(--sci); }
+.plan-today h2 { margin: 2px 0 0; } .plan-today.all-done { background: var(--good-bg); }
+.plan-meta { display: grid; justify-items: end; } .plan-meta b { font: 800 1.6rem var(--f-display); } .plan-meta small { color: var(--ink-3); max-width: 240px; text-align: right; }
+.plan-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.plan-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 12px; background: var(--sheet); flex-wrap: wrap; }
+.plan-item .tick { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--rule); display: grid; place-items: center; font-weight: 800; color: #fff; flex: none; }
+.plan-item.done .tick { background: var(--good); border-color: var(--good); } .plan-item.done .pi-t { color: var(--ink-3); text-decoration: line-through; }
+.pi-t { flex: 1 1 200px; } .pi-t small { color: var(--ink-3); }
+.fun-picks { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.plan-foot { align-items: center; }
+.focus-chip { position: fixed; left: 16px; bottom: 16px; z-index: 60; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; background: var(--ink); color: var(--sheet); box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: calc(100vw - 32px); }
+.focus-chip.break { background: #C27A12; color: #fff; border-radius: 16px; } .focus-chip.done { background: var(--good); color: #fff; }
+.focus-chip .fc-time { font: 800 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
+.focus-chip .btn.ghost { color: inherit; border-color: currentColor; }
+.week-card { display: grid; gap: 10px; margin-bottom: 18px; } .week-card h3 { margin: 0; }
+.goal-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; } .goal-list li { display: flex; justify-content: space-between; align-items: center; } .goal-list li.done label { text-decoration: line-through; color: var(--ink-3); }
+.goal-form { display: flex; gap: 8px; flex-wrap: wrap; } .goal-form input { flex: 1 1 220px; }
+.reflect-form h4 { margin: 6px 0 0; } .reflect-form textarea, .explain-box textarea, #wk-note, #con-why { font-family: inherit; }
+.explain-box { display: grid; gap: 6px; text-align: left; width: 100%; max-width: 520px; margin: 4px auto; } .explain-box .btn { justify-self: start; }
+.explain-q { flex-basis: 100%; color: var(--ink-3); font-style: italic; }
+.con-story .con-text { font-size: 1.1rem; line-height: 1.6; } .con-story h3 { margin: 8px 0; }
+.con-opts { display: grid; gap: 8px; margin: 8px 0 12px; }
+.reflect-view p { margin: 4px 0; }
 </style>
 <div id="app"></div>
 <script>
