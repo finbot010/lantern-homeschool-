@@ -1263,10 +1263,15 @@
     t.value = b.t; a.value = b.a || ''; const f = t.closest('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => { const m = $('#rd-min'); if (m) m.focus(); }, 350); toast('Great pick! Log your minutes when you finish reading.');
   }
+  async function kindleApp(b) {
+    S.kindleCopied = false;
+    try { await navigator.clipboard.writeText(b.t); S.kindleCopied = true; } catch (e) { /* clipboard blocked */ }
+    S.kindleTip = b.t; render(); const el = $('.kindle-tip'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   function booksForMe(k, books) {
     const g = k.grade, mode = S.bf || 'mine', done = {};
     books.forEach((b) => { if (b.fin) done[b.t.trim().toLowerCase()] = 1; });
-    const shelf = shelfFor(k.id).map((b) => ({ t: b.t, a: b.a, k: b.w, u: b.u || (b.w === 'kindle' ? KINDLE_URL : ''), d: WHERE[b.w] ? 'From our family bookshelf · ' + WHERE[b.w] : 'From our family bookshelf', mine: true }));
+    const shelf = shelfFor(k.id).map((b) => ({ t: b.t, a: b.a, k: b.w, u: b.u || (b.w === 'kindle' && settings().kindleWeb ? KINDLE_URL : ''), d: WHERE[b.w] ? 'From our family bookshelf · ' + WHERE[b.w] : 'From our family bookshelf', mine: true }));
     const lists = {
       mine: shelf.concat(BOOKS.filter((b) => b.g[0] <= g && g <= b.g[1])),
       easier: BOOKS.filter((b) => b.g[1] < g && b.g[1] >= g - 3),
@@ -1278,12 +1283,17 @@
     const tag = (b) => b.k === 'video' ? 'Read-aloud video' : b.k === 'ebook' ? 'Free e-book' : WHERE[b.k] || 'Our book';
     return h('section', { class: 'card books-for-me' },
       h('div', { class: 'card-head' }, h('h3', null, 'Books for me'), h('span', { class: 'small muted' }, 'Pick a book, then tap "I\'m reading this" to log it')),
+      S.kindleTip ? h('div', { class: 'kindle-tip', role: 'status' },
+        h('p', null, h('b', null, 'Open the Kindle app'), ' from your app launcher, then find "' + S.kindleTip + '" in your library.' + (S.kindleCopied ? ' The title is copied, so you can paste it into Kindle\'s search.' : '')),
+        h('p', { class: 'small' }, 'Come back here when you finish reading to log your minutes. Never sign in to Amazon yourself — ask your grown-up.'),
+        h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.kindleTip = null; render(); } }, 'Got it')) : null,
       h('div', { class: 'bf-tabs', role: 'tablist' }, tabs.map(([key, n]) => h('button', { type: 'button', role: 'tab', 'aria-selected': mode === key ? 'true' : 'false', class: 'gchip' + (mode === key ? ' on' : ''), onclick: () => { S.bf = key; render(); } }, n))),
       list.length ? h('ul', { class: 'bf-grid' }, list.map((b) => { const fin = done[b.t.trim().toLowerCase()];
         return h('li', { class: 'bf-card ' + (b.k || 'other') + (fin ? ' read' : '') },
           h('span', { class: 'bf-tag' }, fin ? '✓ Finished' : tag(b)), h('b', { class: 'bf-t' }, b.t), b.a ? h('span', { class: 'small muted' }, b.a) : null,
           b.mine ? null : h('span', { class: 'small' }, b.d), b.note ? h('span', { class: 'small bf-note' }, b.note) : null,
           h('div', { class: 'bf-actions' },
+            b.k === 'kindle' && !b.u ? h('button', { type: 'button', class: 'btn ghost xs', onclick: () => kindleApp(b) }, 'Read in Kindle app') : null,
             b.u ? h('a', { class: 'btn ghost xs', href: b.u, target: '_blank', rel: 'noopener noreferrer' }, b.k === 'video' ? 'Watch & read' : b.k === 'kindle' ? 'Open Kindle' : 'Open book', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
             h('button', { type: 'button', class: 'btn primary xs', onclick: () => pickBook(b) }, 'I\'m reading this'))); }))
         : h('p', { class: 'muted small' }, mode === 'shelf' ? 'No books here yet. Ask your grown-up to add books from your home or Kindle library.' : 'No books in this list.'));
@@ -1394,6 +1404,11 @@
           h('li', null, 'Paste them below, one book per line. You can add the author after a dash: "Charlotte\'s Web — E. B. White".'),
           h('li', null, 'Choose "Kindle" and which learners should see them, then press Add books.')),
         h('p', { class: 'small muted' }, 'Amazon doesn\'t let other apps read your Kindle library, so titles are added by hand. Your children open the books in your Kindle app or on read.amazon.com. To put your Kindle books on a child\'s own Kindle or tablet, use Amazon\'s family sharing (Amazon Household or the Amazon Parent Dashboard).')));
+    box.appendChild(h('div', { class: 'row2' }, h('div', null, h('label', { for: 'sh-kweb' }, 'Kindle books open in'),
+      h('select', { id: 'sh-kweb', onchange: (e) => { f.settings = Object.assign({}, f.settings, { kindleWeb: e.target.value === 'web' }); saveFamily(); toast(e.target.value === 'web' ? 'Kindle books will open on read.amazon.com.' : 'Kindle books will tell your children to open the Kindle app.'); } },
+        h('option', { value: 'app', selected: settings().kindleWeb ? null : true }, 'The Kindle app (recommended)'),
+        h('option', { value: 'web', selected: settings().kindleWeb ? true : null }, 'Kindle on the web (read.amazon.com)'))),
+      h('p', { class: 'small muted' }, 'With the app, children never see an Amazon sign-in page. Sign in to the Kindle app once yourself.')));
     const where = h('select', { id: 'sh-where' }, Object.entries(WHERE).map(([v, n]) => h('option', { value: v }, n)));
     box.appendChild(h('form', { class: 'form', onsubmit: (e) => {
       e.preventDefault(); const lines = $('#sh-lines').value.split(/\r?\n/).map(parseBookLine).filter(Boolean); const err = $('#sh-err');
