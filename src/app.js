@@ -1300,7 +1300,10 @@
     t.value = b.t; a.value = b.a || ''; const f = t.closest('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => { const m = $('#rd-min'); if (m) m.focus(); }, 350); toast('Great pick! Log your minutes when you finish reading.');
   }
+  const KINDLE_PLAY = 'https://play.google.com/store/apps/details?id=com.amazon.kindle';
+  const KINDLE_INTENT = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.amazon.kindle;S.browser_fallback_url=' + encodeURIComponent(KINDLE_PLAY) + ';end';
   async function kindleApp(b) {
+    if (/CrOS|Android/.test(navigator.userAgent)) { try { window.open(KINDLE_INTENT, '_blank', 'noopener'); } catch (e) { /* not supported: the steps below still help */ } }
     S.kindleCopied = false;
     try { await navigator.clipboard.writeText(b.t); S.kindleCopied = true; } catch (e) { /* clipboard blocked */ }
     S.kindleTip = b.t; render(); const el = $('.kindle-tip'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1321,7 +1324,7 @@
     return h('section', { class: 'card books-for-me' },
       h('div', { class: 'card-head' }, h('h3', null, 'Books for me'), h('span', { class: 'small muted' }, 'Pick a book, then tap "I\'m reading this" to log it')),
       S.kindleTip ? h('div', { class: 'kindle-tip', role: 'status' },
-        h('p', null, h('b', null, 'Open the Kindle app'), ' from your app launcher, then find "' + S.kindleTip + '" in your library.' + (S.kindleCopied ? ' The title is copied, so you can paste it into Kindle\'s search.' : '')),
+        h('p', null, h('b', null, 'Open the Kindle app'), ' — if it didn\'t open by itself, find Kindle in your app launcher (or tap Open on the Play Store page). Then find "' + S.kindleTip + '" in your library.' + (S.kindleCopied ? ' The title is copied, so you can paste it into Kindle\'s search.' : '')),
         h('p', { class: 'small' }, 'Come back here when you finish reading to log your minutes. Never sign in to Amazon yourself — ask your grown-up.'),
         h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.kindleTip = null; render(); } }, 'Got it')) : null,
       h('div', { class: 'bf-tabs', role: 'tablist' }, tabs.map(([key, n]) => h('button', { type: 'button', role: 'tab', 'aria-selected': mode === key ? 'true' : 'false', class: 'gchip' + (mode === key ? ' on' : ''), onclick: () => { S.bf = key; render(); } }, n))),
@@ -1331,9 +1334,11 @@
           b.mine ? null : h('span', { class: 'small' }, b.d), b.note ? h('span', { class: 'small bf-note' }, b.note) : null,
           h('div', { class: 'bf-actions' },
             b.k === 'kindle' && !b.u ? h('button', { type: 'button', class: 'btn ghost xs', onclick: () => kindleApp(b) }, 'Read in Kindle app') : null,
+            b.k === 'video' ? h('a', { class: 'btn ghost xs', href: 'https://www.youtubekids.com/search?q=' + encodeURIComponent('Storyline Online ' + b.t), target: '_blank', rel: 'noopener noreferrer' }, 'YouTube Kids', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
             b.u ? h('a', { class: 'btn ghost xs', href: b.u, target: '_blank', rel: 'noopener noreferrer' }, b.k === 'video' ? 'Watch & read' : b.k === 'kindle' ? 'Open Kindle' : 'Open book', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
             h('button', { type: 'button', class: 'btn primary xs', onclick: () => pickBook(b) }, 'I\'m reading this'))); }))
-        : h('p', { class: 'muted small' }, mode === 'shelf' ? 'No books here yet. Ask your grown-up to add books from your home or Kindle library.' : 'No books in this list.'));
+        : h('p', { class: 'muted small' }, mode === 'shelf' ? 'No books here yet. Ask your grown-up to add books from your home or Kindle library.' : 'No books in this list.'),
+      list.some((b) => b.k === 'video') ? h('p', { class: 'small muted' }, 'Video says "try watching in YouTube Kids"? Tap the YouTube Kids button on that book instead.') : null);
   }
 
   /* ── reading log ── */
