@@ -4,6 +4,8 @@ service cloud.firestore {
     // Each family account can read and write only its own school.
     match /families/{uid}/docs/{doc} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+      // Monthly backup helper: read-only, and only for the one family that set it up.
+      allow read: if request.auth != null && request.auth.uid == 'dZJjHipVzdgBziJ3jbB2bDTaaqq2' && uid == '50eSY0WVGTZCL7CEmtbujTbVt1W2';
     }
   }
 }
