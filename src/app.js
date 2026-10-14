@@ -700,8 +700,43 @@
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
+  /* ── backup & restore: one file with the whole school ── */
+  const KID_DOCS = ['kid-', 'log-', 'lit-', 'lang-', 'day-', 'lumi-'];
+  function backupData() {
+    const docs = { family: fam() };
+    kids().forEach((k) => KID_DOCS.forEach((p) => { const v = Store.cache[p + k.id]; if (v) docs[p + k.id] = v; }));
+    return { app: 'lantern-homeschool', v: 1, exported: new Date().toISOString(), school: fam().name, learners: kids().map((k) => k.name), docs };
+  }
+  async function downloadBackup() {
+    const f = fam(); const data = JSON.stringify(backupData());
+    await offer((f.name || 'lantern').replace(/\W+/g, '-') + '-backup-' + todayStr() + '.json', data);
+    f.settings = Object.assign({}, f.settings, { lastBackup: todayStr() }); saveFamily(); render();
+  }
+  async function waitSaved(ms) { const end = Date.now() + (ms || 15000); while (Date.now() < end) { if (!Object.values(Store.queues).some((q) => q.busy || q.next)) return true; await new Promise((r) => setTimeout(r, 200)); } return false; }
+  function restoreBackup(file) {
+    const rd = new FileReader();
+    rd.onload = async () => {
+      let b; try { b = JSON.parse(rd.result); } catch (e) { return toast('That file isn\'t a Lantern backup.'); }
+      if (!b || b.app !== 'lantern-homeschool' || !b.docs || !b.docs.family || !Array.isArray(b.docs.family.kids)) return toast('That file isn\'t a Lantern backup.');
+      const when = b.exported ? new Date(b.exported).toLocaleString() : 'an unknown date';
+      if (!confirm('Restore "' + (b.school || 'school') + '" from ' + when + '?\n\nLearners in the backup: ' + (b.learners || []).join(', ') + '.\n\nThis replaces everything in this school with the backup. Anything done since then will be lost.')) return;
+      const okName = /^(family|(kid|log|lit|lang|day|lumi)-[a-z0-9]+)$/;
+      Object.entries(b.docs).forEach(([name, data]) => { if (okName.test(name) && data && typeof data === 'object') Store.set(name, data); });
+      toast('Restoring…'); await waitSaved(); toast('Restored! Reloading…'); setTimeout(() => location.reload(), 800);
+    };
+    rd.readAsText(file);
+  }
+  function backupCard() {
+    const last = settings().lastBackup; const inp = h('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: (e) => { const f = e.target.files && e.target.files[0]; if (f) restoreBackup(f); e.target.value = ''; } });
+    return h('article', { class: 'card backup-card' }, h('h3', null, 'Backup'),
+      h('p', null, 'Download one file with your whole school: learners, progress, quiz scores, hours, reading logs, journals, Spanish, Quests and settings. Keep it in Google Drive or email it to yourself.'),
+      h('p', { class: 'small muted' }, (last ? 'Last backup: ' + fmtDate(last) + '. ' : 'No backup downloaded yet. ') + 'Tip: download one at the end of each month and each school year for your records.'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: downloadBackup }, 'Download a backup'), h('button', { class: 'btn ghost sm', onclick: () => inp.click() }, 'Restore from a backup…'), inp),
+      h('p', { class: 'small muted' }, 'Restoring replaces this school with the backup. Children\'s PINs and your parent PIN come back as they were in the backup.'));
+  }
   function pOverview() {
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'How everyone is doing'));
+    const lb = settings().lastBackup; if (kids().length && (!lb || (Date.now() - parseDay(lb).getTime()) > 30 * 864e5)) wrap.appendChild(h('div', { class: 'banner backup-nudge' }, (lb ? 'Your last backup was ' + fmtDate(lb) + '. ' : 'You haven\'t downloaded a backup yet. ') + (Store.mode === 'cloud' ? 'Your school is saved online, but a monthly backup file is good for your records. ' : 'This copy saves only on this device — download a backup so nothing is lost if it breaks. '), h('button', { class: 'btn ghost xs', onclick: downloadBackup }, 'Download a backup')));
     if (!kids().length) { wrap.appendChild(h('div', { class: 'empty card' }, h('p', null, 'No learners yet. Add your first learner in Settings.'), h('button', { class: 'btn primary', onclick: () => { S.ptab = 'settings'; render(); } }, 'Add a learner'))); return wrap; }
     wrap.appendChild(h('div', { class: 'overview' }, kids().map((k) => {
       const goal = goalFor(k.id) * 60; const gs = gradeStats(k.id, k.grade); const wk = minutesWeek(k.id), yr = minutesYear(k.id); const la = lastActive(k.id); const kd = kidDoc(k.id);
@@ -868,6 +903,7 @@
     } }, h('h3', null, 'Change parent PIN'),
       h('div', { class: 'row2' }, h('div', null, h('label', { for: 's-old' }, 'Current PIN'), h('input', { id: 's-old', type: 'password', inputmode: 'numeric', maxlength: 6, autocomplete: 'current-password' })), h('div', null, h('label', { for: 's-new' }, 'New PIN'), h('input', { id: 's-new', type: 'password', inputmode: 'numeric', maxlength: 6, autocomplete: 'new-password' }))),
       h('p', { id: 's-perr', class: 'err', role: 'alert' }), h('button', { class: 'btn primary sm', type: 'submit' }, 'Change PIN')));
+    wrap.appendChild(backupCard());
     wrap.appendChild(h('article', { class: 'card note' }, h('h3', null, 'About logins and privacy'),
       h('p', null, Store.provider === 'firebase' ? 'Your school is saved privately to your family account (' + ((window.firebase.auth().currentUser || {}).email || 'your email') + '). It syncs on any device where you sign in. Other families have their own accounts and can never see yours.'
         : Store.mode === 'cloud' ? 'Your school is saved privately to the Claude account that opened this page, so it syncs on any device signed in to that account. Other people who open the link see their own empty school, never yours.'
