@@ -619,6 +619,11 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .focus-chip .fc-time { font: 800 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
 .focus-chip .btn.ghost { color: inherit; border-color: currentColor; }
 .week-card { display: grid; gap: 10px; margin-bottom: 18px; } .week-card h3 { margin: 0; }
+.wq-cta { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--sci) 10%, transparent); border: 1px solid color-mix(in srgb, var(--sci) 35%, transparent); }
+.wq-cta.done { background: transparent; border-style: dashed; }
+.q-card > .btn.ghost.sm { justify-self: start; }
+.wq-es { display: grid; place-items: center; padding: 6px 0; }
+.wq-subj { text-align: left; width: 100%; max-width: 460px; margin: 4px auto; }
 .goal-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; } .goal-list li { display: flex; justify-content: space-between; align-items: center; } .goal-list li.done label { text-decoration: line-through; color: var(--ink-3); }
 .goal-form { display: flex; gap: 8px; flex-wrap: wrap; } .goal-form input { flex: 1 1 220px; }
 .reflect-form h4 { margin: 6px 0 0; } .reflect-form textarea, .explain-box textarea, #wk-note, #con-why { font-family: inherit; }
@@ -3907,7 +3912,8 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     { id: 'hola', n: '¡Hola!', d: 'Mastered 4 Spanish lessons' },
     { id: 'planner', n: 'Plan finisher', d: 'Finished 5 daily plans' },
     { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' },
-    { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' }
+    { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' },
+    { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -4124,6 +4130,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
     const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
+    earn('weekly', Object.values(dd.weeks || {}).filter((w) => w.quiz && w.quiz.first.score >= 80).length >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
 
@@ -5644,7 +5651,8 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     else if (pb > 0 || [1, 3, 5].includes(dow)) items.push({ id: 'write', kind: 'write', t: 'Journal: write about today\'s prompt', min: [10, 10, 15, 15][pb] });
     items.push({ id: 'span', kind: 'span', t: langDue(k.id).length ? 'Spanish: review words' : 'Spanish practice', min: 10 });
     if (pb > 0) items.push({ id: 'fun', kind: 'fun', t: 'Fun pick: you choose!', min: [0, 10, 10, 20][pb] });
-    items.push({ id: 'chal', kind: 'chal', t: 'Daily challenge (5 questions)', min: 5 });
+    if (dow === WQ_DAY) items.push({ id: 'wq', kind: 'wq', t: 'Weekly quiz: everything you learned this week', min: [10, 10, 15, 15][pb] });
+    else items.push({ id: 'chal', kind: 'chal', t: 'Daily challenge (5 questions)', min: 5 });
     r.plan = items; r.wk = wk; saveDay(k.id);
     return items;
   }
@@ -5652,6 +5660,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const r = dayRec(k.id), a = r.acts || {};
     if (it.kind === 'unit') return unitMastered(k.id, it.key);
     if (it.kind === 'chal') return !!r.ch;
+    if (it.kind === 'wq') return !!weekRec(k.id).quiz;
     if (it.kind === 'con') { const c = conundrumFor(k); return !!(c && (dayDoc(k.id).con || {})[c.id]); }
     return !!a[it.kind];
   }
@@ -5659,6 +5668,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     if (it.kind === 'unit') { const x = unitOf(it.key); return go('lesson', { g: x.g, s: x.s, i: x.i }); }
     if (it.kind === 'warm') return startMQ(k, 'warm');
     if (it.kind === 'chal') return startMQ(k, 'chal');
+    if (it.kind === 'wq') return startWQ(k);
     if (it.kind === 'read') return go('reading');
     if (it.kind === 'spell') { S.sp = null; return go('spell'); }
     if (it.kind === 'write') return go('journal');
@@ -5743,6 +5753,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
   function viewMQ() {
     const k = kidById(S.who), M = S.mq; if (!k || !M) return viewKidHome();
     const main = h('main', { class: 'wrap quiz' });
+    if (M.done && M.kind === 'wq') { main.appendChild(wqResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done) {
       const weak = Object.entries(M.per).filter(([key, [r, t]]) => r < Math.ceil(t * 0.67)).map(([key]) => unitOf(key));
       main.appendChild(h('section', { class: 'result-card ' + (M.right >= M.qs.length * 0.67 ? 'pass' : 'retry') }, ring(Math.round((M.right / M.qs.length) * 100), M.right + ' of ' + M.qs.length, 'lg'),
@@ -5755,14 +5766,135 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const item = M.qs[M.at], answered = M.picked != null;
     const choices = h('div', { class: 'choices', role: 'group', 'aria-label': 'Answer choices' }, item.choices.map((ch, n) => {
       let cls = 'choice'; if (answered) { if (ch === item.a) cls += ' right'; else if (n === M.picked) cls += ' wrong'; }
-      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; const ok = ch === item.a; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
+      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[M.picked] === item.a;
-    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
-    main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), choices,
+    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
+    const hear = (item.sayText || item.esSay) && Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => (item.esSay ? sayEs(item.esSay) : say(item.sayText, 0.85)) }, icon('voice'), item.esSay ? ' Escuchar' : ' Hear the sentence') : null;
+    main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), item.esIt ? h('div', { class: 'wq-es' }, esPic(item.esIt, true)) : null, hear, choices,
       answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? pick(CHEER) : 'Not quite. The answer is ' + item.a + '.')) : null,
-      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
+      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
     return h('div', null, kidBar(), main);
+  }
+
+  /* ── Friday weekly quiz: a mixed review of everything the learner worked on this week (Mon–Fri).
+     Lessons opened or quizzed this week, spelling lists practiced, and Spanish lessons practiced all feed it.
+     Misses flow back into the existing review systems (check-backs, tricky words, Spanish review). ── */
+  const WQ_N = [10, 12, 15, 15];
+  const WQ_DAY = 5; // Friday
+  function misspell(w) {
+    const out = new Set(), lw = w.toLowerCase(), V = 'aeiou';
+    const add = (x) => { if (x && x !== lw && x.length >= 2 && /^[a-z' -]+$/.test(x)) out.add(x); };
+    const subs = [['ie', 'ei'], ['ei', 'ie'], ['tion', 'sion'], ['sion', 'tion'], ['ible', 'able'], ['able', 'ible'], ['ph', 'f'], ['ck', 'k'], ['ee', 'ea'], ['ea', 'ee'], ['ai', 'ay'], ['ay', 'ai'], ['ou', 'ow'], ['ow', 'ou'], ['c', 'k'], ['k', 'c'], ['ance', 'ence'], ['ence', 'ance'], ['er', 'ur'], ['ir', 'er']];
+    subs.forEach(([a, b]) => { const i = lw.indexOf(a); if (i >= 0) add(lw.slice(0, i) + b + lw.slice(i + a.length)); });
+    for (let i = 1; i < lw.length; i++) { // doubled / undoubled letters
+      if (lw[i] === lw[i - 1]) add(lw.slice(0, i) + lw.slice(i + 1));
+      else if (/[b-df-hj-np-tv-z]/.test(lw[i]) && (i === lw.length - 1 || (V.includes(lw[i - 1]) && V.includes(lw[i + 1])))) add(lw.slice(0, i) + lw[i] + lw.slice(i));
+    }
+    if (lw.endsWith('e') && lw.length > 3) add(lw.slice(0, -1)); else if (lw.length > 2 && !V.includes(lw.slice(-1))) add(lw + 'e');
+    for (let i = 1; i < lw.length - 1; i++) if (lw[i] !== lw[i + 1]) add(lw.slice(0, i) + lw[i + 1] + lw[i] + lw.slice(i + 2)); // swapped letters
+    for (let i = 1; i < lw.length; i++) { const vi = V.indexOf(lw[i]); if (vi >= 0) add(lw.slice(0, i) + V[(vi + 1) % 5] + lw.slice(i + 1)); }
+    const m = shuffle(Array.from(out)).slice(0, 3);
+    return /^[A-Z]/.test(w) ? m.map((x) => x[0].toUpperCase() + x.slice(1)) : m;
+  }
+  function wqSources(kidId, ws) {
+    const kd = kidDoc(kidId), from = parseDay(ws).getTime(), src = {};
+    const put = (bucket, key) => { (src[bucket] = src[bucket] || []).includes(key) || src[bucket].push(key); };
+    Object.entries(kd.prog || {}).forEach(([key, p]) => { if ((p.at || 0) >= from && unitOf(key) && unitOf(key).u) put(key.split('-')[1], key); });
+    Object.entries(kd.viewed || {}).forEach(([key, t]) => { if (t >= from && unitOf(key) && unitOf(key).u) put(key.split('-')[1], key); });
+    const L = litDoc(kidId); Object.entries(L.spell || {}).forEach(([id, r]) => { if ((r.at || 0) >= from && spellList(id)) put('spell', 'sp:' + id); });
+    const G = langDoc(kidId); Object.entries(G.units || {}).forEach(([id, r]) => { if ((r.at || 0) >= from && ES.units.some((u) => u.id === id)) put('span', 'es:' + id); });
+    return src;
+  }
+  const wqLabel = (bucket) => (bucket === 'spell' ? 'Spelling' : bucket === 'span' ? 'Spanish' : SUBJ_NAME[bucket] || bucket);
+  function wqQuestion(key, used) {
+    if (key.startsWith('sp:')) {
+      const l = spellList(key.slice(3)); const rows = shuffle(l.w.filter((r) => !used.has('sp ' + r[0])));
+      for (const [w, sen] of rows) { const wrong = misspell(w); if (wrong.length < 3) continue; used.add('sp ' + w);
+        return { q: sen ? 'Which spelling fits?  ' + blankOut(sen, w) : 'Which word is spelled correctly?', a: w, choices: shuffle([w].concat(wrong)), sayText: sen || w, word: w, key, from: 'Spelling · ' + l.t }; }
+      return null;
+    }
+    if (key.startsWith('es:')) {
+      const u = ES.units.find((x) => x.id === key.slice(3)); const it = shuffle(u.items.filter((x) => !used.has('es ' + x.es)))[0]; if (!it) return null; used.add('es ' + it.es);
+      const others = shuffle(u.items.filter((x) => x.es !== it.es)).slice(0, 3);
+      if (Math.random() < 0.5) return { q: '¿Qué es? Pick the Spanish word.', a: it.es, choices: shuffle([it].concat(others).map((x) => x.es)), esIt: it, key, from: 'Spanish · ' + u.t };
+      return { q: 'What does "' + it.es + '" mean?', a: it.en, choices: shuffle([it].concat(others).map((x) => x.en)), esSay: it.es, key, from: 'Spanish · ' + u.t };
+    }
+    const x = unitOf(key); const q = buildQuestions(x.u).find((y) => !used.has(y.q)); if (!q) return null; used.add(q.q);
+    return Object.assign(q, { key, from: SUBJ_NAME[x.s] + ' · ' + x.u.t });
+  }
+  function buildWeeklyQuiz(k) {
+    const ws = weekStart(); let src = wqSources(k.id, ws), fallback = false;
+    if (!Object.keys(src).length) { src = wqSources(k.id, todayStr(new Date(parseDay(ws).getTime() - 7 * 864e5))); fallback = true; }
+    const buckets = shuffle(Object.keys(src)); if (!buckets.length) return null;
+    const want = WQ_N[planBand(k.grade)], used = new Set(), perKey = {}, qs = [], ptr = {};
+    buckets.forEach((b) => { src[b] = shuffle(src[b]); ptr[b] = 0; });
+    let stall = 0;
+    while (qs.length < want && stall < buckets.length * 4) {
+      const b = buckets[(qs.length + stall) % buckets.length], keys = src[b];
+      let got = null;
+      for (let t = 0; t < keys.length && !got; t++) { const key = keys[ptr[b]++ % keys.length]; if ((perKey[key] || 0) >= 3) continue; got = wqQuestion(key, used); if (got) perKey[key] = (perKey[key] || 0) + 1; }
+      if (got) { got.bucket = b; qs.push(got); stall = 0; } else stall++;
+    }
+    return qs.length ? { qs: shuffle(qs), fallback } : null;
+  }
+  function startWQ(k) {
+    const W = buildWeeklyQuiz(k);
+    if (!W) { toast('Nothing to quiz yet this week. Finish a lesson first, then come back!'); return render(); }
+    S.mq = { kind: 'wq', qs: W.qs, at: 0, right: 0, picked: null, per: {}, fallback: W.fallback }; go('mq');
+  }
+  function finishWQ(k) {
+    const M = S.mq, w = weekRec(k.id), d = dayDoc(k.id); d.checks = d.checks || {};
+    const bySubj = {}; M.qs.forEach((q, i) => { const b = bySubj[q.bucket] || (bySubj[q.bucket] = [0, 0]); b[1]++; if (q.ok) b[0]++; });
+    const missed = []; const L = litDoc(k.id), G = langDoc(k.id); L.tricky = L.tricky || {}; G.review = G.review || {};
+    M.qs.forEach((q) => {
+      if (q.ok) return;
+      if (q.key.startsWith('sp:')) { const t = L.tricky[q.word]; L.tricky[q.word] = { id: q.key.slice(3), box: 0, due: addDays(1), miss: ((t && t.miss) || 0) + 1 }; }
+      else if (q.key.startsWith('es:')) { const es = q.esIt ? q.esIt.es : q.esSay, r = G.review[es]; G.review[es] = { box: 0, due: addDays(1), miss: ((r && r.miss) || 0) + 1 }; }
+      if (!missed.includes(q.key)) missed.push(q.key);
+    });
+    // a unit with 2+ misses comes back in Monday's warm-up
+    Object.entries(M.per).forEach(([key, [r, t]]) => { if (!key.includes(':') && t - r >= 2) { const c = d.checks[key] || { n: 0 }; d.checks[key] = Object.assign(c, { due: addDays(1), weak: true, strong: false }); } });
+    const score = Math.round((M.right / M.qs.length) * 100), res = { right: M.right, n: M.qs.length, score, at: Date.now(), subj: bySubj, missed };
+    const prev = w.quiz; w.quiz = prev ? Object.assign(prev, { best: Math.max(prev.best || prev.first.score, score), tries: (prev.tries || 1) + 1, last: res }) : { first: res, best: score, tries: 1, last: res };
+    const r = dayRec(k.id); if (!r.ch) r.ch = { right: M.right, n: M.qs.length, at: Date.now(), wq: 1 };
+    saveLit(k.id); saveLang(k.id); saveDay(k.id); markAct(k.id, 'wq'); Timer.accrue(); Timer.flush(); checkBadges(k.id);
+    M.done = true; M.res = res; M.retake = !!prev; if (score >= 80) setTimeout(confetti, 50); render();
+  }
+  function wqResult(k, M) {
+    const res = M.res, pass = res.score >= 70;
+    const rows = Object.entries(res.subj).sort((a, b) => a[1][0] / a[1][1] - b[1][0] / b[1][1]);
+    const weakUnits = res.missed.filter((key) => !key.includes(':')).map(unitOf).filter(Boolean);
+    return h('section', { class: 'result-card ' + (pass ? 'pass' : 'retry') }, ring(res.score, res.right + ' of ' + res.n, 'lg'),
+      lumi(res.score >= 90 ? 'cheer' : pass ? 'happy' : 'think', res.score >= 90 ? 'Wow! You really learned this week\'s work!' : pass ? 'Nice work! A few things are worth one more look.' : 'Good effort. The things you missed will come back for practice next week.'),
+      h('h1', null, M.retake ? 'Practice round done' : 'Weekly quiz complete'),
+      M.retake ? h('p', { class: 'small muted' }, 'Your first score this week stays on your report. Practice rounds help you learn.') : null,
+      h('ul', { class: 'hbars wq-subj' }, rows.map(([b, [r, t]]) => h('li', null, h('span', null, wqLabel(b)), bar(Math.round((r / t) * 100), r / t >= 0.7 ? 'sci' : 'soc'), h('span', { class: 'num' }, r + '/' + t)))),
+      weakUnits.length ? h('div', { class: 'missed' }, h('p', null, 'Lessons worth another look:'), h('div', { class: 'actions' }, weakUnits.map((x) => h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('lesson', { g: x.g, s: x.s, i: x.i }); } }, x.u.t)))) : null,
+      res.missed.some((key) => key.includes(':')) ? h('p', { class: 'small muted' }, 'Missed spelling and Spanish words were added to your review lists.') : null,
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => { S.mq = null; go('home'); } }, 'Back to my dashboard')));
+  }
+  function wqCard(k) {
+    const dow = new Date().getDay(), q = weekRec(k.id).quiz;
+    if (!q && !(dow === WQ_DAY || dow === 6 || dow === 0)) return h('p', { class: 'small muted' }, '📝 Weekly quiz opens on Friday: a short mix of everything you learned this week.');
+    if (!q) return h('div', { class: 'wq-cta' }, h('span', null, '📝 ', h('b', null, 'Weekly quiz is ready'), ' · about ' + WQ_N[planBand(k.grade)] + ' questions from this week'), h('button', { type: 'button', class: 'btn primary sm', onclick: () => startWQ(k) }, 'Take the weekly quiz'));
+    return h('div', { class: 'wq-cta done' }, h('span', null, '✓ Weekly quiz: ', h('b', null, q.first.score + '%'), ' (' + q.first.right + ' of ' + q.first.n + ')'), h('button', { type: 'button', class: 'btn ghost xs', onclick: () => startWQ(k) }, 'Practice again'));
+  }
+  // parent view: this week's quiz and the trend over recent weeks
+  function wqParent(k) {
+    const d = dayDoc(k.id), q = weekRec(k.id).quiz;
+    const hist = Object.entries(d.weeks || {}).filter(([, w]) => w.quiz).sort((a, b) => (a[0] < b[0] ? 1 : -1)).slice(0, 8);
+    const card = h('article', { class: 'card' }, h('h3', null, 'Friday weekly quiz'));
+    if (!q) card.appendChild(h('p', { class: 'small muted' }, new Date().getDay() === WQ_DAY ? 'Ready today and not taken yet.' : 'Opens Friday (it can be taken through Sunday). It mixes questions from every lesson, spelling list and Spanish lesson ' + k.name + ' worked on this week.'));
+    else {
+      const f = q.first;
+      card.appendChild(h('p', null, h('b', null, f.score + '%'), ' · ' + f.right + ' of ' + f.n + ' correct on the first try' + (q.tries > 1 ? ' · best ' + q.best + '% after ' + q.tries + ' tries' : '')));
+      card.appendChild(h('ul', { class: 'hbars' }, Object.entries(f.subj).map(([b, [r, t]]) => h('li', null, h('span', null, wqLabel(b)), bar(Math.round((r / t) * 100), r / t >= 0.7 ? 'sci' : 'soc'), h('span', { class: 'num' }, r + '/' + t)))));
+      const wu = f.missed.filter((key) => !key.includes(':')).map(unitOf).filter(Boolean);
+      if (wu.length) card.appendChild(h('p', { class: 'small' }, 'Missed questions from: ' + wu.map((x) => SUBJ_NAME[x.s] + ': ' + x.u.t).join('; ') + '. Lessons with 2 or more misses come back in next week\'s warm-up.'));
+    }
+    if (hist.length > 1) card.appendChild(h('p', { class: 'small muted' }, 'Recent weeks (first try): ' + hist.map(([ws, w]) => parseDay(ws).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + w.quiz.first.score + '%').join(' · ')));
+    return card;
   }
 
   /* weekly goals and reflection (the learner's side of a weekly check-in) */
@@ -5778,6 +5910,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       const inp = h('input', { id: 'goal-in', maxlength: 80, placeholder: 'My goal this week…', list: 'goal-ideas', autocomplete: 'off' });
       box.appendChild(h('form', { class: 'goal-form', onsubmit: (e) => { e.preventDefault(); const t = inp.value.trim(); if (!t) return; w.goals.push({ t, done: false }); saveDay(k.id); render(); } }, inp, h('datalist', { id: 'goal-ideas' }, GOAL_IDEAS.map((x) => h('option', { value: x }))), h('button', { class: 'btn primary sm', type: 'submit' }, 'Add goal')));
     }
+    box.appendChild(wqCard(k));
     const cu = conundrumFor(k); if (cu) box.appendChild(h('p', { class: 'small' }, h('button', { type: 'button', class: 'btn ghost xs', onclick: () => go('conundrum') }, (dayDoc(k.id).con || {})[cu.id] ? '✓ ' : '🤔 ', 'Conundrum of the week: ' + cu.t)));
     if (showReflect) {
       const r = w.reflect || {};
@@ -5846,6 +5979,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
         h('div', null, h('dt', null, 'Time logged'), h('dd', null, fmtHours(minutesWeek(k.id)) + ' / ' + goalFor(k.id) + ' h')))),
       h('article', { class: 'card' }, h('h3', null, 'Needs review'), weak.length ? h('ul', { class: 'points' }, weak.map((x) => h('li', null, SUBJ_NAME[x.s] + ': ' + x.u.t + ' (grade ' + x.g + ')'))) : h('p', { class: 'small muted' }, 'Nothing flagged — every check-back so far was passed.'),
         h('p', { class: 'small muted' }, 'A week after a lesson is mastered, it comes back as a 3-question check. Lessons that slip show up here and in the warm-up.'))));
+    wrap.appendChild(wqParent(k));
     if (mastered.length) wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Mastered this week'), h('ul', { class: 'points' }, mastered.map((x) => h('li', null, SUBJ_NAME[x.s] + ': ' + x.u.t + ((d.explain || {})[x.g + '-' + x.s + '-' + x.i] ? ' — in their words: "' + d.explain[x.g + '-' + x.s + '-' + x.i] + '"' : ''))))));
     wrap.appendChild(h('article', { class: 'card' }, h('h3', null, k.name + '\'s goals and reflection'),
       w.goals.length ? h('ul', { class: 'points' }, w.goals.map((gl) => h('li', null, (gl.done ? '✓ ' : '○ ') + gl.t))) : h('p', { class: 'small muted' }, 'No goals set yet this week. Set them together on Monday.'),
