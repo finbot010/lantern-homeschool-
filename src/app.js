@@ -751,9 +751,27 @@
       h('div', { class: 'actions' }, h('button', { class: 'btn primary sm', onclick: downloadBackup }, 'Download a backup'), h('button', { class: 'btn ghost sm', onclick: () => inp.click() }, 'Restore from a backup…'), inp),
       h('p', { class: 'small muted' }, 'Restoring replaces this school with the backup. Children\'s PINs and your parent PIN come back as they were in the backup.'));
   }
+  // Grades whose courses have been expanded have a difficulty path (c.order). Flag when a learner is close to
+  // (or already in) a grade that still has the original short course, so the parent knows to ask for it.
+  function expandAlerts() {
+    const out = [];
+    kids().forEach((k) => SUBJ.filter((s) => CORE_SUBJ[s.k]).forEach((s) => {
+      const nx = nextUnitFor(k, s.k); if (!nx) return; const c = course(nx.g, s.k);
+      if (!c.order) { out.push({ k, s, g: nx.g, now: true }); return; }
+      if (settings().advance === false || nx.g >= 12 || (course(nx.g + 1, s.k) || {}).order) return;
+      const left = c.u.filter((u, i) => !unitMastered(k.id, nx.g + '-' + s.k + '-' + i)).length;
+      if (left <= 5) out.push({ k, s, g: nx.g + 1, left, now: false, from: nx.g });
+    }));
+    return out;
+  }
   function pOverview() {
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'How everyone is doing'));
     const lb = settings().lastBackup; if (kids().length && (!lb || (Date.now() - parseDay(lb).getTime()) > 30 * 864e5)) wrap.appendChild(h('div', { class: 'banner backup-nudge' }, (lb ? 'Your last backup was ' + fmtDate(lb) + '. ' : 'You haven\'t downloaded a backup yet. ') + (Store.mode === 'cloud' ? 'Your school is saved online, but a monthly backup file is good for your records. ' : 'This copy saves only on this device — download a backup so nothing is lost if it breaks. '), h('button', { class: 'btn ghost xs', onclick: downloadBackup }, 'Download a backup')));
+    const ea = expandAlerts(); if (ea.length) {
+      const grades = Array.from(new Set(ea.map((x) => x.g))).sort((a, b) => a - b);
+      wrap.appendChild(h('div', { class: 'banner expand-nudge' }, h('b', null, '📚 Next grade coming up'), h('ul', null, ea.map((x) => h('li', null, x.now ? x.k.name + ' is now working in ' + GRADE_NAME(x.g) + ' ' + x.s.n + ', which still has the shorter original course.' : x.k.name + ' has ' + x.left + ' lesson' + (x.left === 1 ? '' : 's') + ' left in ' + GRADE_NAME(x.from) + ' ' + x.s.n + '. ' + GRADE_NAME(x.g) + ' ' + x.s.n + ' hasn\'t been expanded yet.'))),
+        h('p', { class: 'small' }, 'Ask Claude: "Expand ' + grades.map(GRADE_NAME).join(' and ') + ' for my kids."')));
+    }
     if (!kids().length) { wrap.appendChild(h('div', { class: 'empty card' }, h('p', null, 'No learners yet. Add your first learner in Settings.'), h('button', { class: 'btn primary', onclick: () => { S.ptab = 'settings'; render(); } }, 'Add a learner'))); return wrap; }
     wrap.appendChild(h('div', { class: 'overview' }, kids().map((k) => {
       const goal = goalFor(k.id) * 60; const gs = gradeStats(k.id, k.grade); const wk = minutesWeek(k.id), yr = minutesYear(k.id); const la = lastActive(k.id); const kd = kidDoc(k.id);
