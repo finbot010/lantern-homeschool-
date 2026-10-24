@@ -198,19 +198,26 @@
      (per learner, Report cards tab). Bonus work still earns badges, themes and transcript credit. */
   const CORE_SUBJ = { math: 1, ela: 1, sci: 1, soc: 1 };
   const kidPlan = (kidId) => Object.assign({ extra: false, ai: false, fin: false }, (kidById(kidId) || {}).plan || {});
-  function requiredUnits(kidId, g, s) {
-    const c = course(g, s); const p = kidPlan(kidId);
-    if (CORE_SUBJ[s]) return p.extra || c.core == null ? c.u.length : Math.min(c.core, c.u.length);
-    return p[s] ? c.u.length : 0;
+  // Each course has a difficulty path (c.order: unit titles easiest → hardest) and a required set
+  // (the original first units plus any unit marked req). Saved progress stays keyed by array index.
+  function cmeta(c) {
+    if (c._path && c._n === c.u.length) return c;
+    const idx = c.u.map((u, i) => i), byT = {}; c.u.forEach((u, i) => { byT[u.t] = i; });
+    const path = (c.order || []).map((t) => byT[t]).filter((i) => i != null);
+    idx.forEach((i) => { if (!path.includes(i)) path.push(i); });
+    c._path = path; c._req = c.u.map((u, i) => (c.core == null ? true : i < c.core || !!u.req)); c._n = c.u.length; return c;
   }
+  const coursePath = (c) => cmeta(c)._path;
+  function isReqUnit(kidId, g, s, i) { const c = cmeta(course(g, s)), p = kidPlan(kidId); if (CORE_SUBJ[s]) return p.extra || c._req[i]; return !!p[s]; }
+  function requiredUnits(kidId, g, s) { const c = course(g, s); return c.u.filter((u, i) => isReqUnit(kidId, g, s, i)).length; }
   function unitMastered(kidId, key) { const kd = kidDoc(kidId); const p = kd.prog[key]; return !!((p && p.best >= settings().passMark) || (kd.done && kd.done[key])); }
   function courseStats(kidId, g, s) {
     const c = course(g, s); const prog = kidDoc(kidId).prog; const reqN = requiredUnits(kidId, g, s); const required = reqN > 0;
     let all = 0, core = 0, sum = 0, tried = 0, next = -1, nextBonus = -1;
-    c.u.forEach((u, i) => {
-      const key = g + '-' + s + '-' + i; const p = prog[key]; if (p) { tried++; sum += p.best; }
-      if (unitMastered(kidId, key)) { all++; if (i < reqN) core++; }
-      else if (i < reqN) { if (next < 0) next = i; } else if (nextBonus < 0) nextBonus = i;
+    coursePath(c).forEach((i) => {
+      const key = g + '-' + s + '-' + i; const p = prog[key]; if (p) { tried++; sum += p.best; } const rq = required && isReqUnit(kidId, g, s, i);
+      if (unitMastered(kidId, key)) { all++; if (rq) core++; }
+      else if (rq) { if (next < 0) next = i; } else if (nextBonus < 0) nextBonus = i;
     });
     const total = required ? reqN : c.u.length, mastered = required ? core : all;
     return { total, mastered, pct: Math.round((mastered / total) * 100), avg: tried ? Math.round(sum / tried) : null, tried,
@@ -603,34 +610,42 @@
     const main = h('main', { class: 'wrap' },
       h('button', { class: 'btn ghost sm back', onclick: () => go('home', { grade: g }) }, '← Dashboard'),
       h('header', { class: 'course-head ' + sm.c }, h('p', { class: 'eyebrow' }, GRADE_NAME(g) + ' · ' + sm.n), h('h1', null, c.t), h('div', { class: 'course-meta' }, bar(cs.pct, sm.c), h('span', null, cs.pct + '% complete · ' + cs.mastered + ' of ' + cs.total + ' units mastered' + (cs.bonusTotal ? ' · bonus ' + cs.bonusMastered + ' of ' + cs.bonusTotal : '') + (cs.required ? '' : ' · bonus course')))),
-      h('ol', { class: 'units' }, c.u.map((u, i) => { const st = unitStatus(kidId, g, s, i); const w = (kidDoc(kidId).watched || {})[g + '-' + s + '-' + i]; const isB = cs.required && i >= cs.reqN; return h('li', { class: 'unit ' + st.cls }, h('button', { class: 'unit-btn', onclick: () => go('lesson', { g, s, i }) }, h('span', { class: 'unit-n' }, (isB ? 'Bonus · ' : '') + 'Unit ' + (i + 1)), h('span', { class: 'unit-t' }, u.t), h('span', { class: 'watched-tag' }, w ? 'Video watched' : ''), h('span', { class: 'pill ' + st.cls }, st.t))); })),
+      h('ol', { class: 'units' }, coursePath(c).map((i, n) => { const u = c.u[i]; const st = unitStatus(kidId, g, s, i); const w = (kidDoc(kidId).watched || {})[g + '-' + s + '-' + i]; const isB = cs.required && !isReqUnit(kidId, g, s, i); return h('li', { class: 'unit ' + st.cls }, h('button', { class: 'unit-btn', onclick: () => go('lesson', { g, s, i }) }, h('span', { class: 'unit-n' }, (isB ? 'Bonus · ' : '') + 'Unit ' + (n + 1)), h('span', { class: 'unit-t' }, u.t), h('span', { class: 'watched-tag' }, w ? 'Video watched' : ''), h('span', { class: 'pill ' + st.cls }, st.t))); })),
       h('section', { class: 'card resources' }, h('h3', null, 'Course resources'), h('ul', null, c.r.map((r) => h('li', null, extLink(r))))));
     return h('div', null, kidBar(), main);
   }
   function extLink(r) { return h('a', { href: r[1], target: '_blank', rel: 'noopener noreferrer', class: 'ext' }, r[0], h('span', { class: 'sr-only' }, ' (opens in a new tab)')); }
   function viewLesson() {
     const { g, s, i } = S.view; const c = course(g, s); const u = c.u[i]; const kidId = S.who; const sm = SUBJ.find((x) => x.k === s);
-    const id = g + '-' + s + '-' + i; const kd = kidDoc(kidId);
+    const id = g + '-' + s + '-' + i; const kd = kidDoc(kidId); const path = coursePath(c), pos = path.indexOf(i), prevI = pos > 0 ? path[pos - 1] : null, nextI = pos < path.length - 1 ? path[pos + 1] : null;
     if (!kd.viewed[id]) { kd.viewed[id] = Date.now(); saveKid(kidId); checkBadges(kidId); }
     if (!Timer.on || Timer.on.kidId !== kidId || Timer.on.subj !== s) Timer.start(kidId, s);
     const st = unitStatus(kidId, g, s, i); const res = (u.r || []).concat(c.r.filter((r) => !(u.r || []).some((x) => x[1] === r[1]))).slice(0, 3);
     const main = h('main', { class: 'wrap lesson' },
       h('button', { class: 'btn ghost sm back', onclick: () => go('course', { g, s }) }, '← ' + c.t),
       h('article', { class: 'lesson-card' },
-        h('p', { class: 'eyebrow ' + sm.c }, sm.n + ' · Unit ' + (i + 1) + ' of ' + c.u.length), h('h1', null, u.t), h('span', { class: 'pill ' + st.cls }, st.t),
+        h('p', { class: 'eyebrow ' + sm.c }, sm.n + ' · Unit ' + (pos + 1) + ' of ' + c.u.length), h('h1', null, u.t), h('span', { class: 'pill ' + st.cls }, st.t),
         h('h2', { class: 'mini' }, 'Watch'), videoPlayer(g, s, i, () => startQuiz(g, s, i)),
         h('h2', { class: 'mini' }, 'Read'), h('ul', { class: 'points' }, u.l.map((p) => h('li', null, p))),
         u.try ? h('div', { class: 'try' }, h('b', null, 'Try it'), h('p', null, u.try)) : null,
         u.lab ? teachLab(u, id) : null,
         h('h2', { class: 'mini' }, 'Go deeper'), h('ul', { class: 'res-list' }, res.map((r) => h('li', null, extLink(r)))),
-        h('div', { class: 'quiz-cta' }, h('div', null, h('b', null, 'Ready? Take the quiz.'), h('p', { class: 'muted small' }, (u.g ? '5 fresh problems each try' : u.q.length + ' questions') + ' · score ' + settings().passMark + '% or higher to master this unit')), h('button', { class: 'btn primary', onclick: () => startQuiz(g, s, i) }, 'Start quiz'))),
+        h('div', { class: 'quiz-cta' }, h('div', null, h('b', null, 'Ready? Take the quiz.'), h('p', { class: 'muted small' }, (u.g ? '5 fresh problems each try' : Math.min(5, u.q.length) + ' questions' + (u.q.length > 5 ? ', different ones each try' : '')) + ' · score ' + settings().passMark + '% or higher to master this unit')), h('button', { class: 'btn primary', onclick: () => startQuiz(g, s, i) }, 'Start quiz'))),
       lumiFab({ kidId, g, s, i, unit: u.t, points: u.l, mode: 'lesson' }),
-      h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: i - 1 }) }, '← Previous unit') : h('span'), i < c.u.length - 1 ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: i + 1 }) }, 'Next unit →') : h('span')));
+      h('nav', { class: 'lesson-nav' }, prevI != null ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: prevI }) }, '← Previous unit') : h('span'), nextI != null ? h('button', { class: 'btn ghost sm', onclick: () => go('lesson', { g, s, i: nextI }) }, 'Next unit →') : h('span')));
     return h('div', null, kidBar(), main);
   }
-  function buildQuestions(u) {
-    if (u.g && GEN[u.g]) { const out = []; let guard = 0; while (out.length < 5 && guard++ < 40) { const p = GEN[u.g](); if (p && p.w && p.w.length >= 2 && !out.some((x) => x.q === p.q)) out.push({ q: p.q, a: p.a, v: p.v || null, choices: shuffle([p.a, ...p.w.slice(0, 3)]) }); } return out; }
-    return shuffle(u.q).map((row) => ({ q: row[0], a: row[1], v: row[5] && typeof row[5] === 'object' ? row[5] : null, choices: shuffle(row.slice(1, 5).filter((x) => typeof x === 'string')) }));
+  /* question memory: each learner sees questions they haven't seen before (or saw longest ago) first */
+  const qHash = (t) => { let x = 5381; for (let i = 0; i < t.length; i++) x = ((x << 5) + x + t.charCodeAt(i)) | 0; return (x >>> 0).toString(36); };
+  const dayNum = () => Math.floor(Date.now() / 6e4); // minutes, so same-day repeats still rotate oldest-first
+  function seenMap(kidId) { const d = dayDoc(kidId); return d.seen || (d.seen = {}); }
+  function markSeen(kidId, item) { if (!kidId || !item) return; const m = seenMap(kidId); m[qHash(item.q + '|' + item.a)] = dayNum(); const ks = Object.keys(m); if (ks.length > 3000) ks.sort((a, b) => m[a] - m[b]).slice(0, ks.length - 3000).forEach((k) => delete m[k]); }
+  const lastSeen = (kidId, q, a) => { const v = kidId ? seenMap(kidId)[qHash(q + '|' + a)] : undefined; return v == null ? -1 : v; };
+  function buildQuestions(u, kidId, n) {
+    n = n || 5; kidId = kidId === undefined ? S.who : kidId;
+    if (u.g && GEN[u.g]) { const out = []; let guard = 0, loose = 0; while (out.length < n && guard++ < 80) { const p = GEN[u.g](); if (!p || !p.w || p.w.length < 2 || out.some((x) => x.q === p.q)) continue; if (lastSeen(kidId, p.q, p.a) >= 0 && loose++ < 40) continue; out.push({ q: p.q, a: p.a, v: p.v || null, choices: shuffle([p.a, ...p.w.slice(0, 3)]) }); } return out; }
+    const rows = shuffle(u.q).sort((a, b) => lastSeen(kidId, a[0], a[1]) - lastSeen(kidId, b[0], b[1])).slice(0, Math.min(n, u.q.length));
+    return shuffle(rows).map((row) => ({ q: row[0], a: row[1], v: row[5] && typeof row[5] === 'object' ? row[5] : null, choices: shuffle(row.slice(1, 5).filter((x) => typeof x === 'string')) }));
   }
   function startQuiz(g, s, i) { S.quiz = { g, s, i, qs: buildQuestions(course(g, s).u[i]), at: 0, right: 0, picked: null }; go('quiz', { g, s, i }); }
   function pic(spec, cls) { const s = spec && window.LH_VIS ? window.LH_VIS(spec) : ''; if (!s) return null; const d = h('div', { class: cls || 'q-pic' }); d.innerHTML = s; return d; }
@@ -649,7 +664,7 @@
     const answered = Q.picked != null;
     const choices = h('div', { class: 'choices', role: 'group', 'aria-label': 'Answer choices' }, item.choices.map((ch, n) => {
       let cls = 'choice'; if (answered) { if (ch === item.a) cls += ' right'; else if (n === Q.picked) cls += ' wrong'; }
-      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { Q.picked = n; Q.msg = ch === item.a ? pick(CHEER) : pick(OOPS); if (ch === item.a) { Q.right++; confetti(); } render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
+      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { Q.picked = n; markSeen(S.who, item); Q.msg = ch === item.a ? pick(CHEER) : pick(OOPS); if (ch === item.a) { Q.right++; confetti(); } render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[Q.picked] === item.a;
     const fb = answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? (Q.msg || 'Correct!') : (Q.msg || 'Not quite.') + ' The answer is ' + item.a + '.')) : null;
@@ -666,14 +681,14 @@
     const kd = kidDoc(kidId); const prev = kd.prog[id]; const pass = settings().passMark;
     const wasMastered = prev && prev.best >= pass; const themesBefore = unlockedThemes(kidId);
     kd.prog[id] = { best: Math.max(score, prev ? prev.best : 0), last: score, tries: (prev ? prev.tries : 0) + 1, at: Date.now(), first: prev ? prev.first : Date.now() };
-    saveKid(kidId); if (!wasMastered && score >= pass) scheduleCheck(kidId, id); Timer.accrue(); Timer.flush(); checkBadges(kidId);
+    saveKid(kidId); saveDay(kidId); if (!wasMastered && score >= pass) scheduleCheck(kidId, id); Timer.accrue(); Timer.flush(); checkBadges(kidId);
     const newTheme = THEMES.find((t) => !themesBefore[t.id] && unlockedThemes(kidId)[t.id]);
     S.quiz.result = { score, pass: score >= pass, newly: !wasMastered && score >= pass, theme: newTheme ? newTheme.id : null };
     go('result', { g: Q.g, s: Q.s, i: Q.i });
   }
   function viewResult() {
     const Q = S.quiz; if (!Q || !Q.result) return viewKidHome();
-    const r = Q.result; const c = course(Q.g, Q.s); const sm = SUBJ.find((x) => x.k === Q.s); const nextI = Q.i + 1 < c.u.length ? Q.i + 1 : null;
+    const r = Q.result; const c = course(Q.g, Q.s); const sm = SUBJ.find((x) => x.k === Q.s); const path = coursePath(c), pos = path.indexOf(Q.i), nextI = pos < path.length - 1 ? path[pos + 1] : null;
     const main = h('main', { class: 'wrap result' },
       h('section', { class: 'result-card ' + (r.pass ? 'pass' : 'retry') },
         (() => { const st = h('div', { class: 'result-stars' }); st.innerHTML = window.LH_STARS ? window.LH_STARS(r.score >= 100 ? 3 : r.score >= settings().passMark ? 2 : r.score >= 40 ? 1 : 0) : ''; return st; })(),
@@ -744,6 +759,7 @@
       const goal = goalFor(k.id) * 60; const gs = gradeStats(k.id, k.grade); const wk = minutesWeek(k.id), yr = minutesYear(k.id); const la = lastActive(k.id); const kd = kidDoc(k.id);
       return h('article', { class: 'kid-card' },
         h('header', null, avatar(k), h('div', null, h('h2', null, k.name), h('p', { class: 'muted small' }, GRADE_NAME(k.grade) + ' · last active ' + (la ? fmtDate(la) : 'not yet'))), ring(gs.pct, 'grade', 'sm')),
+        (() => { const ah = SUBJ.map((s) => { const nx = nextUnitFor(k, s.k); return nx && nx.ahead ? s.n + ' (' + GRADE_NAME(nx.g) + ')' : null; }).filter(Boolean); return ah.length ? h('p', { class: 'ahead-note' }, '🚀 Finished ' + GRADE_NAME(k.grade) + ' work and moving ahead in: ' + ah.join(', ')) : null; })(),
         h('div', { class: 'subj-bars' }, SUBJ.map((s, i) => { const c = gs.courses[i]; return h('div', { class: 'sb' + (c.required ? '' : ' is-bonus') }, h('span', { class: 'sb-n' }, s.n + (c.required ? '' : ' (bonus)')), bar(c.pct, s.c), h('span', { class: 'sb-v' }, c.pct + '%'), h('span', { class: 'sb-g' }, LETTER(c.avg))); })),
         h('dl', { class: 'facts' },
           h('div', null, h('dt', null, 'Average score'), h('dd', null, gs.avg != null ? gs.avg + '% (' + LETTER(gs.avg) + ')' : '—')),
@@ -783,7 +799,7 @@
     const opt = (key, label, hint) => h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: p[key] ? true : null, onchange: (e) => { k.plan = Object.assign(kidPlan(k.id), { [key]: e.target.checked }); saveFamily(); checkBadges(k.id); render(); } }), ' ' + label, h('span', { class: 'muted small' }, ' — ' + hint));
     return h('article', { class: 'card plan-card' }, h('h3', null, 'What counts toward ' + k.name + '\'s grade'),
       h('p', { class: 'hint' }, 'Math, English, Science and Social Studies always count. Anything left unchecked is bonus: ' + k.name + ' can still do it, earn badges, themes and transcript credit, but it never lowers grade completion.'),
-      opt('extra', 'New units in Math, English, Science and Social Studies', 'the 3 units added to the end of each course'),
+      opt('extra', 'New units in Math, English, Science and Social Studies', 'the bonus lessons at the end of each course'),
       opt('ai', 'AI & Me', 'the artificial-intelligence course'),
       opt('fin', 'Money Smart', 'the financial-literacy course'));
   }
@@ -807,8 +823,8 @@
       wrap.appendChild(h('div', { class: 'detail-grid' }, SUBJ.map((s) => { const c = course(g, s.k); const cs = courseStats(k.id, g, s.k); const kd = kidDoc(k.id);
         const keys = c.u.map((u, i) => g + '-' + s.k + '-' + i); const open = keys.filter((key) => !unitMastered(k.id, key));
         return h('section', { class: 'card detail' }, h('h3', null, h('span', { class: 'dot ' + s.c }), c.t, cs.required ? null : h('span', { class: 'bonus-tag' }, 'Bonus')),
-          h('ol', null, c.u.map((u, i) => { const key = keys[i]; const p = kd.prog[key]; const st = unitStatus(k.id, g, s.k, i); const wv = (kd.watched || {})[key]; const manual = kd.done && kd.done[key]; const passed = p && p.best >= settings().passMark;
-            return h('li', null, h('span', null, (cs.required && i >= cs.reqN ? 'Bonus · ' : '') + u.t), h('span', { class: 'pill ' + st.cls }, p ? (passed ? st.t.replace(/ · \d+%$/, '') + ' ' + p.best + '%' : 'Best ' + p.best + '%') + ' · ' + p.tries + (p.tries === 1 ? ' try' : ' tries') + (manual && !passed ? ' · marked complete' : '') : st.t), wv ? h('span', { class: 'watched-tag' }, ' · video watched') : null,
+          h('ol', null, coursePath(c).map((i) => { const u = c.u[i]; const key = keys[i]; const p = kd.prog[key]; const st = unitStatus(k.id, g, s.k, i); const wv = (kd.watched || {})[key]; const manual = kd.done && kd.done[key]; const passed = p && p.best >= settings().passMark;
+            return h('li', null, h('span', null, (cs.required && !isReqUnit(k.id, g, s.k, i) ? 'Bonus · ' : '') + u.t), h('span', { class: 'pill ' + st.cls }, p ? (passed ? st.t.replace(/ · \d+%$/, '') + ' ' + p.best + '%' : 'Best ' + p.best + '%') + ' · ' + p.tries + (p.tries === 1 ? ' try' : ' tries') + (manual && !passed ? ' · marked complete' : '') : st.t), wv ? h('span', { class: 'watched-tag' }, ' · video watched') : null,
               passed ? null : h('button', { class: 'btn ghost xs', onclick: () => setDone(k.id, [key], !manual) }, manual ? 'Undo' : 'Mark complete'),
               (dayDoc(k.id).explain || {})[key] ? h('span', { class: 'small explain-q' }, '"' + dayDoc(k.id).explain[key] + '"') : null,
               passed ? h('button', { class: 'btn ghost xs', title: 'Mark when they can teach this to you', onclick: () => { const d = dayDoc(k.id); d.taught = d.taught || {}; if (d.taught[key]) delete d.taught[key]; else d.taught[key] = Date.now(); saveDay(k.id); render(); } }, (dayDoc(k.id).taught || {})[key] ? 'Undo teacher ★' : 'They taught it to me ★') : null); })),
@@ -879,7 +895,7 @@
     const wrap = h('section', null, h('h1', { class: 'p-title' }, 'Settings'));
     wrap.appendChild(h('form', { class: 'card form', onsubmit: (e) => {
       e.preventDefault(); const name = $('#s-name').value.trim(); if (!name) return;
-      f.name = name; f.settings = { ...(f.settings || {}), passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), goalAuto: $('#s-goalmode').value === 'auto', weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
+      f.name = name; f.settings = { ...(f.settings || {}), passMark: Number($('#s-pass').value), freeRoam: $('#s-roam').checked, yearStart: $('#s-year').value || defaultYearStart(), goalAuto: $('#s-goalmode').value === 'auto', advance: $('#s-adv').checked, weeklyGoal: Math.max(1, Math.min(60, Number($('#s-goal').value) || 20)) };
       saveFamily(); toast('Settings saved.'); render();
     } }, h('h3', null, 'School'),
       h('div', { class: 'row2' }, h('div', null, h('label', { for: 's-name' }, 'School name'), h('input', { id: 's-name', value: f.name, maxlength: 48 })), h('div', null, h('label', { for: 's-year' }, 'School year starts'), h('input', { id: 's-year', type: 'date', value: st.yearStart }))),
@@ -889,6 +905,7 @@
       h('div', { id: 's-goal-row', class: 'row2', hidden: st.goalAuto !== false ? true : null }, h('div', null, h('label', { for: 's-goal' }, 'Hours per week, every learner'), h('input', { id: 's-goal', type: 'number', min: 1, max: 60, value: st.weeklyGoal }))),
       h('p', { class: 'hint' }, 'By grade: grades 1–2 · 8 h, 3–5 · 10 h, 6–8 · 12 h, 9–12 · 15 h a week (about 1½–3 focused hours a day). One-on-one learning covers more ground per hour than a classroom, so Lantern aims for mastery, not minutes. Check your state\'s rules, which may ask for a minimum number of hours or days.'),
       h('label', { class: 'check' }, h('input', { id: 's-roam', type: 'checkbox', checked: st.freeRoam ? true : null }), ' Let learners open other grades (review or work ahead)'),
+      h('label', { class: 'check' }, h('input', { id: 's-adv', type: 'checkbox', checked: st.advance !== false ? true : null }), ' When every lesson in a subject is mastered, continue Today\'s plan with the next grade in that subject'),
       h('button', { class: 'btn primary sm', type: 'submit' }, 'Save settings')));
     wrap.appendChild(h('h2', { class: 'sec' }, 'Learners'));
     kids().forEach((k) => {
@@ -970,7 +987,7 @@
 
   function lessonScenes(g, s, i) {
     const c = course(g, s), u = c.u[i], sm = SUBJ.find((x) => x.k === s), key = g + '-' + s + '-' + i;
-    const sc = [{ t: 'title', say: GRADE_NAME(g) + ' ' + sm.n + '. Unit ' + (i + 1) + ': ' + u.t + ". Let's learn!" }];
+    const sc = [{ t: 'title', say: GRADE_NAME(g) + ' ' + sm.n + '. Unit ' + (coursePath(course(g, s)).indexOf(i) + 1) + ': ' + u.t + ". Let's learn!" }];
     u.l.forEach((p, n) => sc.push({ t: 'point', n, of: u.l.length, text: p, say: p }));
     if (u.g && GEN[u.g]) {
       if (!Player.example || Player.example.key !== key) Player.example = { key, p: GEN[u.g]() };
@@ -1017,7 +1034,7 @@
       const sc = scenes[Player.idx]; stage.innerHTML = ''; stage.className = 'stage scene-' + sc.t;
       stage.appendChild(h('div', { class: 'chalk-deco', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')));
       let body;
-      if (sc.t === 'title') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, c.t + ' · Unit ' + (i + 1) + ' of ' + c.u.length), h('h2', { class: 'vtitle' }, u.t), h('p', { class: 'vsub' }, 'Video lesson · about ' + totalMin + ' min'));
+      if (sc.t === 'title') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, c.t + ' · Unit ' + (coursePath(c).indexOf(i) + 1) + ' of ' + c.u.length), h('h2', { class: 'vtitle' }, u.t), h('p', { class: 'vsub' }, 'Video lesson · about ' + totalMin + ' min'));
       else if (sc.t === 'point') body = h('div', { class: 'vpoint' }, h('span', { class: 'vnum', 'aria-hidden': 'true' }, String(sc.n + 1)), h('div', null, h('p', { class: 'veyebrow' }, 'Key idea ' + (sc.n + 1) + ' of ' + sc.of), words(sc.text)));
       else if (sc.t === 'exq') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, "Let's solve one together"), pic(sc.v, 'v-pic'), words(sc.text), h('p', { class: 'think' }, 'Think about it', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
       else if (sc.t === 'exa') body = h('div', { class: 'vcenter' }, h('p', { class: 'veyebrow' }, 'Answer'), pic(sc.v, 'v-pic sm'), h('p', { class: 'vq-small' }, sc.text), h('p', { class: 'vanswer' }, sc.ans));
@@ -1773,10 +1790,8 @@
     const order = ['math', 'ela'].concat(doy % 2 ? ['sci', 'soc'] : ['soc', 'sci'], ['ai', 'fin']);
     const want = [2, 2, 3, 3][pb]; let n = 0;
     for (const s of order) {
-      if (n >= want) break; const c = course(g, s); if (!c) continue;
-      const cs = courseStats(k.id, g, s); if (cs.next < 0) continue;
-      const key = g + '-' + s + '-' + cs.next;
-      items.push({ id: 'u:' + key, kind: 'unit', key, t: SUBJ_NAME[s] + ': ' + c.u[cs.next].t, min: [20, 25, 25, 30][pb] }); n++;
+      if (n >= want) break; const nx = nextUnitFor(k, s); if (!nx) continue;
+      items.push({ id: 'u:' + nx.key, kind: 'unit', key: nx.key, t: nx.t, min: [20, 25, 25, 30][pb] }); n++;
     }
     if (dow === 2 || dow === 4) { const qp = questProgress(k.id);
       if (qp && qp.next >= 0) items.push({ id: 'quest', kind: 'quest', t: 'Quest: ' + qp.q.steps[qp.next].t, min: [15, 20, 25, 30][pb] });
@@ -1792,6 +1807,18 @@
     else items.push({ id: 'chal', kind: 'chal', t: 'Daily challenge (5 questions)', min: 5 });
     r.plan = items; r.wk = wk; saveDay(k.id);
     return items;
+  }
+  // The next lesson in a subject follows the difficulty path. A lesson only comes back on purpose:
+  // after a failed quiz ("Try again"), or through warm-ups and review. When every lesson in the grade's
+  // course is mastered, the plan moves on to the next grade's course (parent setting, on by default).
+  function nextUnitFor(k, s) {
+    const top = settings().advance === false ? k.grade : 12, kd = kidDoc(k.id);
+    for (let g = k.grade; g <= top; g++) {
+      const c = course(g, s); if (!c) continue; const cs = courseStats(k.id, g, s); if (cs.next < 0) continue;
+      const key = g + '-' + s + '-' + cs.next, pre = kd.prog[key] ? 'Try again: ' : kd.viewed[key] ? 'Continue: ' : '';
+      return { key, g, ahead: g > k.grade, t: pre + SUBJ_NAME[s] + (g > k.grade ? ' (' + GRADE_NAME(g) + ')' : '') + ': ' + c.u[cs.next].t };
+    }
+    return null;
   }
   function itemDone(k, it) {
     const r = dayRec(k.id), a = r.acts || {};
@@ -1903,7 +1930,7 @@
     const item = M.qs[M.at], answered = M.picked != null;
     const choices = h('div', { class: 'choices', role: 'group', 'aria-label': 'Answer choices' }, item.choices.map((ch, n) => {
       let cls = 'choice'; if (answered) { if (ch === item.a) cls += ' right'; else if (n === M.picked) cls += ' wrong'; }
-      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
+      return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; markSeen(S.who, item); const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[M.picked] === item.a;
     main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
