@@ -20,7 +20,14 @@
     { id: 'ocean', n: 'Ocean Deep', s: 'sci', d: 'Bubbles, fish and seaweed' },
     { id: 'treasure', n: 'Treasure Map', s: 'soc', d: 'Dotted trails and a compass' },
     { id: 'circuit', n: 'Circuit City', s: 'ai', d: 'Glowing neon circuits' },
-    { id: 'gold', n: 'Gold Rush', s: 'fin', d: 'Shiny coins and sparkles' }
+    { id: 'gold', n: 'Gold Rush', s: 'fin', d: 'Shiny coins and sparkles' },
+    // these unlock with a badge instead of a finished course
+    { id: 'beach', n: 'Caribbean Beach', b: 'hola', d: 'Palm trees, turquoise sea and seashells' },
+    { id: 'rainbow', n: 'Rainbow Sky', b: 'streak3', d: 'A big rainbow and fluffy clouds' },
+    { id: 'fiesta', n: 'Fiesta', b: 'planner', d: 'Papel picado flags and confetti' },
+    { id: 'dino', n: 'Dino Land', b: 'speller', d: 'Friendly dinosaurs and a volcano' },
+    { id: 'jungle', n: 'Jungle Safari', b: 'bookworm', d: 'Leafy vines and jungle flowers' },
+    { id: 'robots', n: 'Robot Workshop', b: 'coder', d: 'Gears, bolts and a robot buddy' }
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
@@ -52,7 +59,8 @@
     { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' },
     { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' },
     { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' },
-    { id: 'coder', n: 'Young coder', d: 'Finished 5 Code Lab lessons' }
+    { id: 'coder', n: 'Young coder', d: 'Finished 5 Code Lab lessons' },
+    { id: 'hablo', n: '¡Hablo español!', d: 'Mastered every Spanish 2 lesson' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -228,7 +236,8 @@
   }
   function unlockedThemes(kidId) {
     const out = {};
-    THEMES.forEach((t) => { for (let g = 1; g <= 12; g++) { if (COURSES[g + '-' + t.s] && courseStats(kidId, g, t.s).pct === 100) { out[t.id] = g; break; } } });
+    const bd = kidDoc(kidId).badges || {};
+    THEMES.forEach((t) => { if (t.b) { if (bd[t.b]) out[t.id] = true; return; } for (let g = 1; g <= 12; g++) { if (COURSES[g + '-' + t.s] && courseStats(kidId, g, t.s).pct === 100) { out[t.id] = g; break; } } });
     return out;
   }
   function kidTheme(kidId) { const t = kidDoc(kidId).theme; return t && unlockedThemes(kidId)[t] ? t : null; }
@@ -274,12 +283,12 @@
     const lit = litDoc(kidId);
     earn('speller', Object.values(lit.spell || {}).filter((x) => x.best >= pass).length >= 5);
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
-    earn('hola', esMastered(kidId) >= 4);
+    earn('hola', esMastered(kidId) >= 4); earn('hablo', ES2.units.length > 0 && es2Mastered(kidId) >= ES2.units.length);
     const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
     { const cd = dd.code || {}, L = window.LH_CODE || { blocks: [], python: [] }; const nb = L.blocks.filter((x) => { const r = (cd.b || {})[x.id]; return r && r.best >= pass && (r.un || r.cdo); }).length; const np = L.python.filter((x) => x.ex.every((e) => (((cd.p || {})[x.id] || {})[e.id] || {}).ok)).length; earn('coder', nb + np >= 5); }
     earn('trades', Object.values(dd.car || {}).some((t) => t && t.done));
     earn('weekly', Object.values(dd.weeks || {}).filter((w) => w.quiz && w.quiz.first.score >= 80).length >= 4);
-    if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
+    if (got.length) { saveKid(kidId); got.forEach((id) => { toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge'); THEMES.filter((t) => t.b === id).forEach((t) => toast('New background unlocked: ' + t.n + '! Pick it in My themes.', 'badge')); }); }
   }
 
   /* ─────────────── learning-time tracker ─────────────── */
@@ -589,7 +598,7 @@
       THEMES.map((t) => { const got = un[t.id], sn = SUBJ_NAME[t.s];
         return h('li', null, h('button', { type: 'button', class: 'theme-card' + (cur === t.id ? ' on' : '') + (got ? '' : ' locked'), disabled: got ? null : true, 'aria-pressed': cur === t.id ? 'true' : 'false', onclick: () => { kd.theme = t.id; saveKid(k.id); render(); } },
           h('span', { class: 'sw th-' + t.id, 'aria-hidden': 'true' }), got ? null : h('span', { class: 'lock', 'aria-hidden': 'true', html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h6V7a3 3 0 0 0-6 0v3z"/></svg>' }),
-          h('b', null, t.n), h('small', null, got ? t.d : 'Finish any ' + sn + ' course to unlock'))); })));
+          h('b', null, t.n), h('small', null, got ? t.d : t.b ? 'Earn the "' + (BADGES.find((x) => x.id === t.b) || {}).n + '" badge to unlock' : 'Finish any ' + sn + ' course to unlock'))); })));
     main.appendChild(h('h2', { class: 'sec' }, 'My reading voice'));
     main.appendChild(voicePicker(k));
     main.appendChild(h('h2', { class: 'sec' }, 'Badges'));
@@ -807,6 +816,7 @@
     for (let g = 9; g <= 12; g++) SUBJ.forEach((s) => { const st = courseStats(k.id, g, s.k); if (st.tried || st.mastered) { const c = course(g, s.k); rows.push({ g, title: c.t, pct: st.pct, letter: LETTER(st.avg), done: st.pct === 100, credit: st.pct === 100 ? c.credit || 1 : 0 }); } });
     const L = langDoc(k.id);
     if (L.doneAt && L.doneGrade >= 9) { const bs = ES.units.map((u) => ((L.units || {})[u.id] || {}).best).filter((x) => x != null); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null; rows.push({ g: L.doneGrade, title: 'Spanish 1: Beginner (Language Lab)', pct: 100, letter: LETTER(avg), done: true, credit: 0.5 }); }
+    if (L.done2At && (L.done2Grade || k.grade) >= 9) { const bs = ES2.units.map((u) => ((L.units || {})[u.id] || {}).best).filter((x) => x != null); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null; rows.push({ g: L.done2Grade || k.grade, title: 'Spanish 2 (Language Lab)', pct: 100, letter: LETTER(avg), done: true, credit: 0.5 }); }
     const CT = (window.LH_CAREERS || { tracks: [] }).tracks, cd = (dayDoc(k.id).car || {}), tDone = CT.filter((tr) => (cd[tr.id] || {}).done);
     if (k.grade >= 9 && tDone.length) { const bs = []; tDone.forEach((tr) => tr.mods.forEach((m) => { const r = ((cd[tr.id] || {}).m || {})[m.id]; if (r && r.best != null) bs.push(r.best); })); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null;
       rows.push({ g: k.grade, title: 'Career Exploration: Skilled Trades (' + tDone.length + ' of 8 pathways)', pct: Math.round((tDone.length / 8) * 100), letter: LETTER(avg), done: tDone.length >= 8, credit: tDone.length >= 8 ? 0.5 : 0 }); }
@@ -1605,11 +1615,14 @@
   /* ─────────────── Language Lab: Spanish (immersion-style practice) ─────────────── */
   // lang-{kidId} = { units: {unitId: {best,last,tries,at}}, review: {es: {box,due,miss}}, eng: bool, doneAt, doneGrade }
   const ES = window.LH_SPANISH || { units: [] };
+  const ES2 = window.LH_SPANISH2 || { units: [] };
+  const ESALL = () => ES.units.concat(ES2.units);
+  const esLevelOf = (uid) => (ES2.units.some((u) => u.id === uid) ? ES2 : ES);
   const langDoc = (id) => Store.cache['lang-' + id] || (Store.cache['lang-' + id] = { units: {}, review: {} });
   function saveLang(id) { Store.set('lang-' + id, langDoc(id)); }
   const fold = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[¿?¡!.,;:"'’]/g, ' ').replace(/\s+/g, ' ').trim();
   const stripArt = (s) => s.replace(/^(el|la|los|las|un|una) /, '');
-  const esFind = (es) => { for (const u of ES.units) { const it = u.items.find((x) => x.es === es); if (it) return { u, it }; } return null; };
+  const esFind = (es) => { for (const u of ESALL()) { const it = u.items.find((x) => x.es === es); if (it) return { u, it }; } return null; };
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
   function esVoice() {
     const vs = Player.synth ? Player.synth.getVoices().filter((v) => /^es[-_]/i.test(v.lang)) : [];
@@ -1629,6 +1642,9 @@
   const esHint = (k, it) => (langDoc(k.id).eng ? h('small', { class: 'es-en' }, it.en) : null);
   function langDue(kidId) { const r = langDoc(kidId).review || {}, t = todayStr(); return Object.keys(r).filter((w) => r[w].due <= t && esFind(w)); }
   const esMastered = (kidId) => ES.units.filter((u) => ((langDoc(kidId).units || {})[u.id] || {}).best >= settings().passMark).length;
+  const es2Mastered = (kidId) => ES2.units.filter((u) => ((langDoc(kidId).units || {})[u.id] || {}).best >= settings().passMark).length;
+  const es2Open = (kidId) => ES2.units.length > 0 && (esMastered(kidId) >= ES.units.length || !!langDoc(kidId).open2);
+  const esLv = (kidId) => (S.esLv === 1 || !es2Open(kidId) ? ES : S.esLv === 2 ? ES2 : (es2Mastered(kidId) < ES2.units.length || esMastered(kidId) >= ES.units.length ? ES2 : ES));
   // Similarity for speaking checks (speech recognizers often drop or change articles and accents).
   function lev(a, b) { const m = a.length, n = b.length; const d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; }
   function saidRight(heard, target) {
@@ -1649,7 +1665,7 @@
   }
   function startEs(unit, review) {
     const kidId = S.who; let items, pool;
-    if (review) { items = langDue(kidId).slice(0, 10).map((w) => esFind(w).it); pool = ES.units.reduce((a, u) => a.concat(u.items), []); }
+    if (review) { items = langDue(kidId).slice(0, 10).map((w) => esFind(w).it); pool = ESALL().reduce((a, u) => a.concat(u.items), []); }
     else { items = unit.items; pool = unit.items; }
     S.es = { uid: review ? null : unit.id, title: review ? 'Repaso' : unit.t, qs: esQuestions(items, pool), at: 0, right: 0, skipped: 0, missed: [], phase: 'ask', tries: 0, heard: null, review: !!review, spoken: -1 };
     go('spanish', { play: 1 });
@@ -1671,6 +1687,7 @@
     });
     if (s.uid) { const p = L.units[s.uid]; L.units[s.uid] = { best: Math.max(score, p ? p.best : 0), last: score, tries: (p ? p.tries : 0) + 1, at: Date.now() }; }
     if (!L.doneAt && esMastered(kidId) === ES.units.length) { L.doneAt = Date.now(); L.doneGrade = k ? k.grade : null; }
+    if (!L.done2At && ES2.units.length && es2Mastered(kidId) === ES2.units.length) { L.done2At = Date.now(); L.done2Grade = k ? k.grade : null; }
     saveLang(kidId); markAct(kidId, 'span'); Timer.accrue(); Timer.flush(); checkBadges(kidId);
     s.phase = 'done'; s.score = score; s.pass = score >= settings().passMark; if (s.pass) setTimeout(confetti, 50); render();
   }
@@ -1694,24 +1711,28 @@
     if (S.es && S.view.play) { main.appendChild(esPlay(k, S.es)); return h('div', null, kidBar(), main); }
     main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.es = null; go('home'); } }, '← Dashboard'));
     if (S.view.learn) {
-      const u = ES.units.find((x) => x.id === S.view.learn);
-      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Spanish 1 · Aprende'), h('h1', null, u.t), L.eng ? h('p', { class: 'muted' }, u.en) : null,
+      const u = ESALL().find((x) => x.id === S.view.learn);
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, esLevelOf(u.id).name + ' · Aprende'), h('h1', null, u.t), L.eng ? h('p', { class: 'muted' }, u.en) : null,
         h('p', { class: 'lede' }, 'Mira, escucha y repite. (Look, listen and repeat.)')));
       main.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => { let i = 0; const next = () => { if (S.screen !== 'spanish' || i >= u.items.length) return; const el = document.querySelectorAll('.es-card')[i]; document.querySelectorAll('.es-card').forEach((c) => c.classList.remove('on')); if (el) el.classList.add('on'); sayEs(u.items[i].es, 0.8); i++; setTimeout(next, 2200); }; next(); } }, icon('voice'), ' Escuchar todo')));
       main.appendChild(h('ul', { class: 'es-grid learn' }, u.items.map((it) => h('li', null, h('button', { type: 'button', class: 'es-card', onclick: (e) => { document.querySelectorAll('.es-card').forEach((c) => c.classList.remove('on')); e.currentTarget.classList.add('on'); sayEs(it.es, 0.8); } }, esPic(it), h('b', null, it.es), esHint(k, it))))));
+      if (u.story) main.appendChild(esStory(k, u));
+      if (u.mission) main.appendChild(esMission(k, u));
       main.appendChild(h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => startEs(u) }, '¡A practicar! (Practice)'), h('button', { class: 'btn ghost', onclick: () => go('spanish') }, 'Todas las lecciones')));
       return h('div', null, kidBar(), main);
     }
-    const pass = settings().passMark, due = langDue(k.id), m = esMastered(k.id);
-    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Language Lab'), h('h1', null, '¡Hola, ' + k.name + '! · Spanish 1'),
+    const pass = settings().passMark, due = langDue(k.id), CUR = esLv(k.id), m = CUR === ES ? esMastered(k.id) : es2Mastered(k.id);
+    if (ES2.units.length) main.appendChild(h('div', { class: 'tabs es-levels', role: 'tablist' }, [[1, ES], [2, ES2]].map(([n, C]) => { const open = n === 1 || es2Open(k.id); return h('button', { role: 'tab', class: 'tab' + (CUR === C ? ' on' : ''), 'aria-selected': CUR === C ? 'true' : 'false', disabled: open ? null : true, onclick: () => { S.esLv = n; render(); } }, C.name + (open ? '' : ' 🔒')); })));
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Language Lab'), h('h1', null, '¡Hola, ' + k.name + '! · ' + CUR.name),
       h('p', { class: 'lede' }, 'Learn Spanish the way you learned English: by matching words to pictures, listening and speaking. No translating needed.'),
-      h('div', { class: 'stat-row' }, stat(m + '/' + ES.units.length, 'lessons mastered'), stat(String(Object.keys(L.review || {}).length), 'words to review')),
+      h('div', { class: 'stat-row' }, stat(m + '/' + CUR.units.length, 'lessons mastered'), stat(String(Object.keys(L.review || {}).length), 'words to review')),
       h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: L.eng ? true : null, onchange: (e) => { L.eng = e.target.checked; saveLang(k.id); render(); } }), ' Show English hints')));
     if (!Player.synth || !esVoice()) main.appendChild(h('div', { class: 'banner' }, Player.synth ? 'This device has no Spanish voice installed, so words may be read with an English accent. On a Chromebook, the Google español voice is usually built in — try restarting Chrome.' : 'This browser can\'t read aloud, so listening practice is turned off.'));
     if (!SpeechRec) main.appendChild(h('p', { class: 'small muted' }, 'Speaking practice needs the Chrome browser with a microphone, so it is skipped on this device.'));
     if (due.length) main.appendChild(h('article', { class: 'card tricky-card' }, h('div', null, h('h3', null, 'Repaso (review)'), h('p', { class: 'muted small' }, due.length + ' word' + (due.length === 1 ? '' : 's') + ' ready to review today')), h('button', { class: 'btn primary sm', onclick: () => startEs(null, true) }, 'Review ' + Math.min(10, due.length) + ' words')));
-    main.appendChild(h('div', { class: 'spell-lists' }, ES.units.map((u, i) => {
-      const r = (L.units || {})[u.id]; const st = !r ? ['new', 'Nuevo'] : r.best >= pass ? ['mastered', '¡Excelente! · ' + r.best + '%'] : ['trying', 'Best ' + r.best + '%'];
+    if (CUR === ES2 && esMastered(k.id) < ES.units.length) main.appendChild(h('p', { class: 'small muted' }, 'Your grown-up opened Spanish 2 early. You can still finish Spanish 1 too.'));
+    main.appendChild(h('div', { class: 'spell-lists' }, CUR.units.map((u, i) => {
+      const r = (L.units || {})[u.id]; const mi = (L.mis || {})[u.id]; const st = !r ? ['new', 'Nuevo'] : r.best >= pass ? ['mastered', '¡Excelente! · ' + r.best + '%' + (mi ? ' · misión ✓' : '')] : ['trying', 'Best ' + r.best + '%'];
       return h('article', { class: 'card spell-list es-unit' }, h('div', { class: 'sl-top' }, h('span', { class: 'unit-n' }, 'Lección ' + (i + 1)), h('span', { class: 'pill ' + st[0] }, st[1])),
         h('h3', null, u.t), h('p', { class: 'muted small' }, u.en), h('div', { class: 'es-peek' }, u.items.slice(0, 4).map((it) => esPic(it))),
         h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => go('spanish', { learn: u.id }) }, 'Aprender (learn)'), h('button', { class: 'btn primary sm', onclick: () => startEs(u) }, r ? 'Practice again' : 'Practice')));
@@ -1728,7 +1749,7 @@
         h('h1', null, s.review ? '¡Repaso terminado!' : s.pass ? '¡Lección dominada!' : 'Sigue practicando'),
         s.missed.length ? h('div', { class: 'missed' }, h('p', null, 'Practice these (they\'ll come back for review):'), h('ul', { class: 'chips' }, s.missed.map((w) => h('li', null, h('button', { type: 'button', class: 'chip-btn', onclick: () => sayEs(w, 0.8) }, w))))) : null,
         h('div', { class: 'actions' },
-          !s.review ? h('button', { class: 'btn primary', onclick: () => startEs(ES.units.find((u) => u.id === s.uid)) }, 'Practice again') : null,
+          !s.review ? h('button', { class: 'btn primary', onclick: () => startEs(ESALL().find((u) => u.id === s.uid)) }, 'Practice again') : null,
           s.review && langDue(k.id).length ? h('button', { class: 'btn primary', onclick: () => startEs(null, true) }, 'Review more') : null,
           h('button', { class: 'btn ghost', onclick: () => { S.es = null; go('spanish'); } }, 'Todas las lecciones'))));
       return wrap;
@@ -1749,7 +1770,7 @@
     } else if (q.t === 'type') {
       card.appendChild(h('div', { class: 'es-stem' }, esPic(it, true), audioBtn, esHint(k, it)));
       if (s.phase === 'ask') {
-        const inp = h('input', { id: 'es-in', class: 'sp-input', autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off', spellcheck: 'false', lang: 'es', 'aria-label': 'Type the Spanish words', maxlength: 40 });
+        const inp = h('input', { id: 'es-in', class: 'sp-input', autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off', spellcheck: 'false', lang: 'es', 'aria-label': 'Type the Spanish words', maxlength: 60 });
         card.appendChild(h('div', { class: 'accents' }, ['á', 'é', 'í', 'ó', 'ú', 'ñ', '¿', '¡'].map((c) => h('button', { type: 'button', class: 'chip-btn', onclick: () => { const p = inp.selectionStart || inp.value.length; inp.value = inp.value.slice(0, p) + c + inp.value.slice(p); inp.focus(); inp.setSelectionRange(p + 1, p + 1); } }, c))));
         card.appendChild(h('form', { class: 'sp-form', onsubmit: (e) => { e.preventDefault(); const v = fold(inp.value); if (!v) return; s.typed = inp.value.trim(); const t = fold(it.es); s.accentNote = v === t && inp.value.trim().toLowerCase() !== it.es.toLowerCase(); esAnswer(v === t || stripArt(v) === stripArt(t)); } }, inp, h('button', { class: 'btn primary', type: 'submit' }, 'Comprobar (check)')));
         setTimeout(() => { const x = $('#es-in'); if (x) x.focus(); }, 30);
@@ -1769,19 +1790,41 @@
     wrap.appendChild(card);
     return wrap;
   }
+  // Spanish 2: a short story with comprehension questions, and a real-life mission
+  function esStory(k, u) {
+    const L = langDoc(k.id), st = u.story; S.esSt = S.esSt || {}; const A = S.esSt[u.id] || (S.esSt[u.id] = { picks: {}, order: st.q.map((r) => shuffle(r.slice(1, 5))) });
+    const card = h('article', { class: 'card es-story' }, h('div', { class: 'card-head' }, h('h3', null, '📖 Cuento (story)'), Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => sayEs(st.es, 0.8) }, icon('voice'), ' Escuchar') : null),
+      h('p', { class: 'es-story-text', lang: 'es' }, st.es), L.eng ? h('p', { class: 'small muted' }, st.en) : null);
+    st.q.forEach((r, qi) => { const pick = A.picks[qi];
+      card.appendChild(h('div', { class: 'es-sq' }, h('p', null, h('b', null, (qi + 1) + '. ' + r[0])), h('div', { class: 'es-words' }, A.order[qi].map((o) => h('button', { type: 'button', class: 'choice' + (pick != null && o === r[1] ? ' good' : '') + (pick === o && o !== r[1] ? ' bad' : ''), disabled: pick != null ? true : null, onclick: () => {
+        A.picks[qi] = o; if (Object.keys(A.picks).length === st.q.length) { const right = st.q.filter((x, i) => A.picks[i] === x[1]).length; L.read = L.read || {}; L.read[u.id] = Math.max(right, L.read[u.id] || 0); saveLang(k.id); markAct(k.id, 'span'); if (right === st.q.length) confetti(); } render(); } }, o)))));
+    });
+    if (Object.keys(A.picks).length === st.q.length) { const right = st.q.filter((x, i) => A.picks[i] === x[1]).length; card.appendChild(h('p', { class: right === st.q.length ? 'sp-ok' : 'small' }, right + ' de ' + st.q.length + ' — ' + (right === st.q.length ? '¡Excelente!' : '¡Buen trabajo! Read it again and try.'), right < st.q.length ? h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.esSt[u.id] = null; render(); } }, 'Otra vez') : null)); }
+    return card;
+  }
+  function esMission(k, u) {
+    const L = langDoc(k.id); L.mis = L.mis || {}; const done = L.mis[u.id];
+    const note = h('input', { id: 'mis-note', maxlength: 200, placeholder: 'What happened? (optional)', 'aria-label': 'What happened on your mission' });
+    return h('article', { class: 'card es-mission' }, h('h3', null, '🗺️ Misión (real-life mission)'), h('p', { lang: 'es' }, h('b', null, u.mission.es)), h('p', { class: 'small muted' }, u.mission.en),
+      done ? h('p', { class: 'sp-ok' }, '✓ ¡Misión cumplida!' + (done.note ? ' “' + done.note + '”' : '')) : h('form', { class: 'goal-form', onsubmit: (e) => { e.preventDefault(); L.mis[u.id] = { at: Date.now(), note: note.value.trim() }; saveLang(k.id); markAct(k.id, 'span'); confetti(); render(); } }, note, h('button', { class: 'btn primary sm', type: 'submit' }, '¡Lo hice! (I did it)')));
+  }
   function esCard(k) {
-    const m = esMastered(k.id), due = langDue(k.id).length;
-    return h('article', { class: 'lit-card spanish' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, '¡H!'), h('h3', null, 'Spanish'),
-      h('p', { class: 'muted small' }, m + ' of ' + ES.units.length + ' lessons mastered' + (due ? ' · ' + due + ' to review' : '')),
-      bar(Math.round((m / ES.units.length) * 100), 'soc'),
+    const two = es2Open(k.id) && esMastered(k.id) >= ES.units.length, C = two ? ES2 : ES, m = two ? es2Mastered(k.id) : esMastered(k.id), due = langDue(k.id).length;
+    return h('article', { class: 'lit-card spanish' }, h('div', { class: 'lit-ico', 'aria-hidden': 'true' }, '¡H!'), h('h3', null, C.name),
+      h('p', { class: 'muted small' }, m + ' of ' + C.units.length + ' lessons mastered' + (due ? ' · ' + due + ' to review' : '')),
+      bar(Math.round((m / C.units.length) * 100), 'soc'),
       h('button', { class: 'btn primary sm', onclick: () => { S.es = null; go('spanish'); } }, due ? 'Review Spanish' : '¡Vamos! (Let\'s go)'));
   }
   function pSpanish(k) {
     const L = langDoc(k.id), pass = settings().passMark, rv = L.review || {};
-    return h('article', { class: 'card' }, h('h3', null, 'Spanish 1 (Language Lab)'),
+    return h('article', { class: 'card' }, h('h3', null, 'Spanish (Language Lab)'),
       h('ul', { class: 'hbars' }, ES.units.map((u) => { const r = (L.units || {})[u.id]; return h('li', null, h('span', null, u.t + ' · ' + u.en), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'soc'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })),
+      ES2.units.length ? h('h4', null, 'Spanish 2' + (es2Open(k.id) ? '' : ' (opens when Spanish 1 is mastered)')) : null,
+      ES2.units.length ? h('ul', { class: 'hbars' }, ES2.units.map((u) => { const r = (L.units || {})[u.id], st = (L.read || {})[u.id], mi = (L.mis || {})[u.id]; return h('li', null, h('span', null, u.t + ' · ' + u.en + (st != null ? ' · story ' + st + '/3' : '') + (mi ? ' · mission ✓' : '')), bar(r ? r.best : 0, r && r.best >= pass ? 'sci' : 'soc'), h('span', { class: 'num' }, r ? r.best + '%' : '—')); })) : null,
+      Object.values(L.mis || {}).some((x) => x.note) ? h('p', { class: 'small' }, h('b', null, 'Mission notes: '), ES2.units.filter((u) => ((L.mis || {})[u.id] || {}).note).map((u) => u.t + ': “' + L.mis[u.id].note + '”').join(' · ')) : null,
+      ES2.units.length && !es2Open(k.id) ? h('label', { class: 'check small' }, h('input', { type: 'checkbox', onchange: (e) => { L.open2 = e.target.checked; saveLang(k.id); render(); } }), ' Open Spanish 2 now') : null,
       Object.keys(rv).length ? h('p', { class: 'small' }, 'Words to review: ' + Object.keys(rv).join(', ')) : null,
-      h('p', { class: 'small muted' }, 'Time in Spanish is logged in the Hours log. High school learners who master all 8 lessons get Spanish 1: Beginner (0.5 credit) on their transcript. Speaking practice uses Chrome\'s built-in speech recognition, which may send the audio to Google to turn it into text; learners can skip it.'));
+      h('p', { class: 'small muted' }, 'Time in Spanish is logged in the Hours log. High school learners get Spanish 1: Beginner and Spanish 2 (0.5 credit each) on their transcript when they master every lesson. Speaking practice uses Chrome\'s built-in speech recognition, which may send the audio to Google to turn it into text; learners can skip it.'));
   }
 
   /* ─────────────── Today's plan · check-backs · daily challenge · focus sessions · weekly goals · conundrums ───────────────
@@ -1998,7 +2041,7 @@
     Object.entries(kd.prog || {}).forEach(([key, p]) => { if ((p.at || 0) >= from && unitOf(key) && unitOf(key).u) put(key.split('-')[1], key); });
     Object.entries(kd.viewed || {}).forEach(([key, t]) => { if (t >= from && unitOf(key) && unitOf(key).u) put(key.split('-')[1], key); });
     const L = litDoc(kidId); Object.entries(L.spell || {}).forEach(([id, r]) => { if ((r.at || 0) >= from && spellList(id)) put('spell', 'sp:' + id); });
-    const G = langDoc(kidId); Object.entries(G.units || {}).forEach(([id, r]) => { if ((r.at || 0) >= from && ES.units.some((u) => u.id === id)) put('span', 'es:' + id); });
+    const G = langDoc(kidId); Object.entries(G.units || {}).forEach(([id, r]) => { if ((r.at || 0) >= from && ESALL().some((u) => u.id === id)) put('span', 'es:' + id); });
     return src;
   }
   const wqLabel = (bucket) => (bucket === 'spell' ? 'Spelling' : bucket === 'span' ? 'Spanish' : SUBJ_NAME[bucket] || bucket);
@@ -2010,7 +2053,7 @@
       return null;
     }
     if (key.startsWith('es:')) {
-      const u = ES.units.find((x) => x.id === key.slice(3)); const it = shuffle(u.items.filter((x) => !used.has('es ' + x.es)))[0]; if (!it) return null; used.add('es ' + it.es);
+      const u = ESALL().find((x) => x.id === key.slice(3)); const it = shuffle(u.items.filter((x) => !used.has('es ' + x.es)))[0]; if (!it) return null; used.add('es ' + it.es);
       const others = shuffle(u.items.filter((x) => x.es !== it.es)).slice(0, 3);
       if (Math.random() < 0.5) return { q: '¿Qué es? Pick the Spanish word.', a: it.es, choices: shuffle([it].concat(others).map((x) => x.es)), esIt: it, key, from: 'Spanish · ' + u.t };
       return { q: 'What does "' + it.es + '" mean?', a: it.en, choices: shuffle([it].concat(others).map((x) => x.en)), esSay: it.es, key, from: 'Spanish · ' + u.t };
