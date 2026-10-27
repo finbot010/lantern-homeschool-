@@ -619,6 +619,13 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .focus-chip .fc-time { font: 800 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
 .focus-chip .btn.ghost { color: inherit; border-color: currentColor; }
 .week-card { display: grid; gap: 10px; margin-bottom: 18px; } .week-card h3 { margin: 0; }
+.code-ed { width: 100%; box-sizing: border-box; font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding: 12px; border-radius: 10px; border: 1px solid var(--rule); background: #12201a; color: #E8F3EC; tab-size: 4; resize: vertical; }
+.code-in { width: 100%; box-sizing: border-box; font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace; padding: 8px; border-radius: 8px; border: 1px solid var(--rule); }
+.py-out { margin: 0; padding: 10px 12px; border-radius: 10px; background: #0f1a15; color: #D8F0E0; font: 14px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-x: auto; max-height: 260px; }
+.py-out.fail { background: color-mix(in srgb, var(--ela) 12%, var(--sheet)); color: var(--ink); border: 1px solid color-mix(in srgb, var(--ela) 45%, transparent); }
+.py-pass { margin: 0; color: var(--sci); font-weight: 700; } .py-hint { margin: 0; } .py-task { margin: 0; font-weight: 600; }
+.py-ex.ok { border-color: color-mix(in srgb, var(--sci) 55%, transparent); } .py-status.err { color: var(--ela); font-weight: 600; }
+.code-kid { border-top: 1px dashed var(--rule); padding-top: 10px; } .code-kid h3 { margin: 0; }
 .car-parent { display: grid; gap: 14px; } .car-parent > * { margin: 0; }
 .car-card { margin-bottom: 18px; display: grid; gap: 10px; } .car-card h3 { margin: 0; }
 .car-prog { display: grid; gap: 6px; margin: 8px 0 14px; }
@@ -3115,6 +3122,135 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
   };
 })();
 
+/* Lantern Homeschool — Code Lab (bonus course).
+   Two tracks:
+   • Blocks (grades 1–5): computational thinking with "unplugged" games at home plus Code.org's free
+     Computer Science Fundamentals (Course B for grades 1–2). Lessons and quiz questions here are original.
+   • Python (grades 6–12): real Python that runs in the browser inside Lantern, with automatic checking.
+     Exercise tests: { in: [inputs], out: 'exact output' } · { in, outHas: 'text' } · { call: 'expr', eq: 'repr' } · { has: 'code text' }.
+   Quiz rows: [question, correct, wrong1, wrong2, wrong3]. */
+(function () {
+  window.LH_CODE = {
+    csf: 'https://code.org/csf',
+    blocks: [
+      { id: 'safety', t: 'Staying safe online', cdo: 'Digital Trails', l: ['Everything you do online can leave a trail, like footprints.', 'Never share your full name, address, school or passwords online.', 'If something online makes you feel worried, tell a grown-up right away.'],
+        un: { t: 'Footprint game', steps: ['Draw two big footprints on paper.', 'In one, write things that are OK to share online (your favorite color, your favorite animal).', 'In the other, write things to keep private (your address, your password).', 'Show your grown-up and talk about why.'] },
+        q: [['Which is OK to share online?', 'Your favorite color', 'Your home address', 'Your password', 'Your phone number'], ['What should you do if something online scares you?', 'Tell a grown-up', 'Keep it a secret', 'Click on it', 'Share it with friends'], ['A password should be…', 'Kept secret', 'Shared with everyone', 'Written on your shirt', 'Your name'], ['Things you do online can leave a…', 'Trail', 'Puddle', 'Shadow', 'Song'], ['Is it safe to tell a stranger online where you live?', 'No', 'Yes', 'Only on Fridays', 'Only if they ask nicely']] },
+      { id: 'algo', t: 'Algorithms: step-by-step', cdo: 'Move It, Move It', l: ['An algorithm is a list of steps to finish a job.', 'Computers follow steps exactly, in order, even if the steps are silly.', 'Good algorithms are clear and in the right order.'],
+        un: { t: 'Robot grown-up', steps: ['Your grown-up is a robot that only does exactly what you say.', 'Give step-by-step directions to walk from the couch to the kitchen: "Step forward 3 times. Turn right."', 'If the robot bumps into something, change your steps and try again.', 'Then write the steps to make a sandwich. Was anything missing?'] },
+        q: [['An algorithm is…', 'A list of steps to do a job', 'A kind of animal', 'A computer screen', 'A song'], ['What happens if steps are in the wrong order?', 'The job may not work', 'Nothing changes', 'It always works', 'The computer fixes it'], ['Which is the first step to brush your teeth?', 'Put toothpaste on the brush', 'Rinse your mouth', 'Put the brush away', 'Smile in the mirror'], ['Computers follow steps…', 'Exactly as written', 'However they want', 'Only sometimes', 'Backward'], ['To get ready for school, which comes last?', 'Walk out the door', 'Wake up', 'Get dressed', 'Eat breakfast']] },
+      { id: 'seq', t: 'Sequencing', cdo: 'Sequencing with Angry Birds / Programming with Angry Birds', l: ['A sequence is the order of the steps.', 'In Code.org puzzles, you snap blocks together to move a character.', 'Read the blocks from top to bottom: the computer does them in that order.'],
+        un: { t: 'Arrow maze', steps: ['Draw a 4 × 4 grid on paper. Put a toy in one corner and a "treasure" in another.', 'Write arrows (→ ↓ ← ↑) to move the toy one square at a time to the treasure.', 'Follow your arrows. Did it work?'] },
+        q: [['A bird needs to go right 2 squares. Which code works?', '→ →', '← ←', '↑ ↑', '→'], ['The pig is 1 square up and 1 square right. Which code works?', '↑ →', '↓ ←', '← ←', '↓ ↓'], ['Code runs from…', 'Top to bottom', 'Bottom to top', 'Any order', 'Right to left'], ['A sequence is…', 'The order of steps', 'A color', 'A type of bird', 'A sound'], ['Code: → → ↓. How many moves is that?', '3', '2', '4', '1']] },
+      { id: 'debug', t: 'Debugging', cdo: 'Programming with Harvester', l: ['A bug is a mistake in code.', 'Debugging means finding and fixing the bug.', 'Run your code, watch where it goes wrong, change one thing, and try again.', 'Every coder makes bugs. Fixing them is part of the fun.'],
+        un: { t: 'Find the bug', steps: ['Your grown-up writes directions with one mistake, like "brush teeth, put on pajamas, take a bath."', 'Act them out. Where does it go wrong?', 'Fix the bug and act it out again.'] },
+        q: [['A bug in code is…', 'A mistake', 'An insect only', 'A new game', 'A button'], ['Debugging means…', 'Finding and fixing mistakes', 'Deleting all the code', 'Turning off the computer', 'Adding more bugs'], ['The code ↑ ↑ should be → →. What should you do?', 'Change the arrows to →', 'Add more ↑', 'Give up', 'Start a new game'], ['When your code doesn\'t work, the best first step is…', 'Watch where it goes wrong', 'Cry', 'Delete everything', 'Click randomly'], ['Do real programmers make bugs?', 'Yes, all the time', 'Never', 'Only kids do', 'Only on weekends']] },
+      { id: 'loops', t: 'Loops', cdo: 'Getting Loopy / Loops with Harvester', l: ['A loop repeats steps so you don\'t have to write them again and again.', '"Repeat 4 times: move forward" is the same as writing "move forward" 4 times.', 'Loops make code shorter and easier to read.'],
+        un: { t: 'Dance loop', steps: ['Make up a dance move: clap, stomp, spin.', 'Write it as a loop: "Repeat 3 times: clap, stomp, spin."', 'Do your loop dance with your grown-up!'] },
+        q: [['A loop…', 'Repeats steps', 'Stops the program', 'Is a color', 'Deletes code'], ['"Repeat 3 times: jump." How many jumps?', '3', '1', '6', '0'], ['→ → → → is the same as…', 'Repeat 4 times: →', 'Repeat 2 times: →', '→ once', 'Repeat 4 times: ↑'], ['Why use loops?', 'They make code shorter', 'They make code longer', 'They add bugs', 'They are required for colors'], ['"Repeat 2 times: clap, stomp." What happens?', 'clap, stomp, clap, stomp', 'clap, clap', 'stomp, stomp', 'clap, stomp']] },
+      { id: 'loops2', t: 'Drawing with loops', cdo: 'Loops with Laurel / Drawing Gardens with Loops', l: ['Loops can draw shapes: repeat 4 times (move, turn right) draws a square.', 'Find the pattern, then put it inside a loop.', 'You can change the number of repeats to change the picture.'],
+        un: { t: 'Body shapes', steps: ['Stand up. Repeat 4 times: take 2 steps, turn right. What shape did you walk?', 'Try repeat 3 times: take 2 steps, turn a big turn. What shape?', 'Draw both shapes on paper.'] },
+        q: [['Repeat 4 times: (move 1, turn right). What shape?', 'Square', 'Circle', 'Line', 'Star'], ['To draw a triangle you would repeat…', '3 times', '4 times', '10 times', '1 time'], ['Loops help you find and use…', 'Patterns', 'Colors only', 'Bugs', 'Passwords'], ['If you repeat a step 0 times, it happens…', 'Never', 'Once', 'Forever', 'Twice'], ['How many sides does a square have?', '4', '3', '5', '6']] },
+      { id: 'events', t: 'Events', cdo: 'The Big Event Jr. / A Royal Battle with Events', l: ['An event is something that makes code run, like a click, a tap or a key press.', '"When clicked, jump" waits until someone clicks.', 'Games use events: press a key and your character moves.'],
+        un: { t: 'Event game', steps: ['Make cards: "When I clap, you jump." "When I wave, you sit."', 'Your grown-up waits until you do the event, then does the action.', 'Switch roles!'] },
+        q: [['An event is…', 'Something that starts code, like a click', 'A loop', 'A bug', 'A list'], ['"When the green flag is clicked, say hello." When does it say hello?', 'After the flag is clicked', 'Before anything', 'Never', 'Every second'], ['Pressing the right arrow key to move a game character is an…', 'Event', 'Algorithm only', 'Error', 'Password'], ['Which is an event?', 'Tapping the screen', 'The color blue', 'The number 5', 'A shape'], ['In a game, "when the ball touches the goal, add a point" is…', 'An event', 'A loop', 'A bug', 'A sequence only']] },
+      { id: 'cond', t: 'If / then choices', cdo: 'Unplugged at home (conditionals come in Course C)', l: ['A conditional lets code make a choice: IF something is true, THEN do something.', '"If it is raining, take an umbrella."', 'Computers check the condition and pick what to do.'],
+        un: { t: 'If / then card game', steps: ['Use a deck of cards. Rule: IF the card is red, THEN clap. ELSE (black), stomp.', 'Flip cards one at a time and follow the rule.', 'Make up your own rule with a number: IF the card is more than 7, THEN jump.'] },
+        q: [['"If it is raining, then take an umbrella." It is raining. What do you do?', 'Take an umbrella', 'Wear sunglasses', 'Nothing', 'Go swimming'], ['A conditional helps a computer…', 'Make a choice', 'Draw a circle', 'Turn off', 'Repeat forever'], ['"If the card is red, clap. Else, stomp." The card is black. You…', 'Stomp', 'Clap', 'Jump', 'Sit'], ['Which is an if/then rule?', 'If you are hungry, then eat a snack', 'Red, blue, green', 'Repeat 3 times', 'Move right'], ['"If the score is 10, you win." The score is 8. Do you win?', 'No', 'Yes', 'Maybe', 'Twice']] },
+      { id: 'project', t: 'My first program', cdo: 'Finish your current Course B level, then build freely in its last lesson', l: ['Coders plan before they build: draw your idea first.', 'Use what you learned: sequences, loops, events and if/then.', 'Share your program and explain how it works.'],
+        un: { t: 'Plan and build a mini game', steps: ['Draw a game on paper: a character, a goal, and what keys or taps make it move (events).', 'Write the steps in order. Where could you use a loop?', 'Build it on Code.org with your grown-up, or act it out as a board game.', 'Show your family and explain one part of your code.'] },
+        q: [['What do coders often do before building?', 'Plan and draw their idea', 'Turn off the computer', 'Skip planning', 'Delete everything'], ['Which helps a character move when you press a key?', 'An event', 'A bug', 'A password', 'A color'], ['Which makes code repeat?', 'A loop', 'An event', 'A bug', 'A list of colors'], ['Which makes a choice?', 'If / then', 'A loop', 'A sequence', 'A footprint'], ['Sharing your program and explaining it helps you…', 'Understand it better', 'Forget it', 'Add bugs', 'Lose points']] }
+    ],
+    python: [
+      { id: 'hello', t: 'Hello, Python', l: ['print() shows text on the screen: print("Hello!")', 'Text in quotes is called a string. Quotes must match: "like this" or \'like this\'.', 'Lines starting with # are comments for humans; Python ignores them.', 'Python runs your code from top to bottom, one line at a time.'],
+        ex: [
+          { id: 'a', t: 'Print exactly: Hello, world!', start: '# Write your code below\n', hint: 'Use print() with the words inside quotes.', tests: [{ out: 'Hello, world!' }] },
+          { id: 'b', t: 'Print two lines: first "I am learning Python", then "Coding is fun!"', start: '', hint: 'Use two print() lines.', tests: [{ out: 'I am learning Python\nCoding is fun!' }] },
+          { id: 'c', t: 'Fix the bug so the program prints: Ready, set, go!', start: 'print("Ready, set, go!)\n', hint: 'Look at the quotation marks. Every string needs a quote at the start and the end.', tests: [{ out: 'Ready, set, go!' }] }
+        ] },
+      { id: 'vars', t: 'Variables', l: ['A variable is a name that stores a value: name = "Ana"', 'You can change a variable later: score = score + 1', 'f-strings put variables inside text: print(f"Hi, {name}!")', 'Variable names use letters, numbers and _, and can\'t start with a number.'],
+        ex: [
+          { id: 'a', t: 'The variable pet is set to "dog". Print: My pet is a dog (use the variable).', start: 'pet = "dog"\n', hint: 'Try print(f"My pet is a {pet}")', tests: [{ out: 'My pet is a dog' }, { has: 'pet}' }] },
+          { id: 'b', t: 'Make a variable score = 10, add 5 to it, then print the score.', start: '', hint: 'score = 10, then score = score + 5, then print(score).', tests: [{ out: '15' }] },
+          { id: 'c', t: 'Set city = "Puerto Plata" and year = 2026. Print: I live in Puerto Plata in 2026', start: '', hint: 'Use an f-string with {city} and {year}.', tests: [{ out: 'I live in Puerto Plata in 2026' }] }
+        ] },
+      { id: 'math', t: 'Numbers and math', l: ['Python does math: + − * / and ** for powers.', '/ gives a decimal (7 / 2 is 3.5); // gives the whole part (7 // 2 is 3); % gives the remainder (7 % 2 is 1).', 'Whole numbers are int; decimals are float.', 'Use round(x, 2) to round to 2 decimal places.'],
+        ex: [
+          { id: 'a', t: 'Print the answer to 7 × 8.', start: '', hint: 'Use * for multiplication: print(7 * 8)', tests: [{ out: '56' }] },
+          { id: 'b', t: 'A rectangle has width = 12 and height = 5. Store them in variables and print the area.', start: 'width = 12\nheight = 5\n', hint: 'Area is width * height.', tests: [{ out: '60' }] },
+          { id: 'c', t: 'Scores are 88, 92 and 79. Print their average rounded to 1 decimal place.', start: 'a = 88\nb = 92\nc = 79\n', hint: 'Add them, divide by 3, then use round(..., 1).', tests: [{ out: '86.3' }] },
+          { id: 'd', t: 'Print the remainder when 47 is divided by 5.', start: '', hint: 'The % operator gives the remainder.', tests: [{ out: '2' }, { has: '%' }] }
+        ] },
+      { id: 'input', t: 'Input and conversion', l: ['input() asks the user to type something: name = input("Name? ")', 'input() always gives back a string, even if they type a number.', 'Convert with int() or float(): age = int(input("Age? "))', 'Then you can do math with it.'],
+        ex: [
+          { id: 'a', t: 'Ask for a name with input() and print: Hello, NAME! (for example, Hello, Ana!)', start: 'name = input("What is your name? ")\n', hint: 'print(f"Hello, {name}!")', tests: [{ in: ['Ana'], out: 'Hello, Ana!' }, { in: ['Leo'], out: 'Hello, Leo!' }] },
+          { id: 'b', t: 'Ask for two whole numbers and print their sum.', start: 'a = input("First number: ")\nb = input("Second number: ")\n', hint: 'Convert with int() before adding: int(a) + int(b)', tests: [{ in: ['3', '4'], out: '7' }, { in: ['10', '25'], out: '35' }] },
+          { id: 'c', t: 'Ask for an age and print the age next year (for example, input 13 prints 14).', start: '', hint: 'age = int(input("Age? ")), then print(age + 1).', tests: [{ in: ['13'], out: '14' }, { in: ['7'], out: '8' }] }
+        ] },
+      { id: 'if', t: 'If, elif and else', l: ['if runs code only when a condition is True. Indent the code inside with 4 spaces.', 'Comparisons: == equal, != not equal, < > <= >=', 'elif checks another condition; else runs when nothing above was True.', 'Combine conditions with and, or, not.'],
+        ex: [
+          { id: 'a', t: 'Ask for a number. Print "even" if it is even, otherwise "odd".', start: 'n = int(input("Number: "))\n', hint: 'A number is even when n % 2 == 0.', tests: [{ in: ['4'], out: 'even' }, { in: ['7'], out: 'odd' }, { in: ['0'], out: 'even' }] },
+          { id: 'b', t: 'Ask for a test score. Print "A" for 90 or more, "B" for 80–89, "C" for 70–79, otherwise "Keep practicing".', start: 'score = int(input("Score: "))\n', hint: 'Start with if score >= 90:, then elif score >= 80:, and so on.', tests: [{ in: ['95'], out: 'A' }, { in: ['90'], out: 'A' }, { in: ['84'], out: 'B' }, { in: ['70'], out: 'C' }, { in: ['42'], out: 'Keep practicing' }] },
+          { id: 'c', t: 'Ask for an age. Print "teen" if it is from 13 to 19, otherwise "not a teen".', start: '', hint: 'Use and: if age >= 13 and age <= 19:', tests: [{ in: ['13'], out: 'teen' }, { in: ['19'], out: 'teen' }, { in: ['12'], out: 'not a teen' }, { in: ['20'], out: 'not a teen' }] }
+        ] },
+      { id: 'while', t: 'While loops', l: ['A while loop repeats as long as a condition is True.', 'Something inside the loop must change, or it repeats forever (an infinite loop).', 'Example: count = 3, then while count > 0: print(count) and count = count − 1.', 'break exits a loop early.'],
+        ex: [
+          { id: 'a', t: 'Use a while loop to print 5, 4, 3, 2, 1 (one per line), then "Liftoff!"', start: 'n = 5\n', hint: 'while n > 0: print(n), then n = n - 1. Print "Liftoff!" after the loop (not indented).', tests: [{ out: '5\n4\n3\n2\n1\nLiftoff!' }, { has: 'while' }] },
+          { id: 'b', t: 'Keep asking for numbers and add them up until the user types 0. Then print the total.', start: 'total = 0\n', hint: 'Use while True:, read a number, break if it is 0, otherwise add it to total.', tests: [{ in: ['5', '10', '0'], out: '15' }, { in: ['0'], out: '0' }, { in: ['1', '2', '3', '0'], out: '6' }] }
+        ] },
+      { id: 'for', t: 'For loops and range', l: ['A for loop repeats once for each item: for i in range(5): runs with i = 0, 1, 2, 3, 4.', 'range(1, 11) counts 1 to 10 (it stops before the second number).', 'range(0, 20, 5) counts by 5s: 0, 5, 10, 15.', 'Use a variable outside the loop to keep a running total.'],
+        ex: [
+          { id: 'a', t: 'Print the numbers 1 to 10, one per line, using a for loop.', start: '', hint: 'for i in range(1, 11): print(i)', tests: [{ out: '1\n2\n3\n4\n5\n6\n7\n8\n9\n10' }, { has: 'for' }] },
+          { id: 'b', t: 'Print the 7 times table from 7 x 1 = 7 to 7 x 10 = 70, one line each.', start: '', hint: 'for i in range(1, 11): print(f"7 x {i} = {7 * i}")', tests: [{ outHas: '7 x 1 = 7' }, { outHas: '7 x 10 = 70' }, { outLines: 10 }] },
+          { id: 'c', t: 'Add up all the numbers from 1 to 100 with a loop and print the total.', start: 'total = 0\n', hint: 'Loop over range(1, 101) and add each number to total.', tests: [{ out: '5050' }, { has: 'for' }] }
+        ] },
+      { id: 'lists', t: 'Lists', l: ['A list holds many values in order: foods = ["rice", "beans", "mango"]', 'Positions start at 0: foods[0] is "rice". foods[-1] is the last item.', 'len(foods) counts items; foods.append("plantain") adds one.', 'Loop through a list: for food in foods: print(food)'],
+        ex: [
+          { id: 'a', t: 'Print each food in the list on its own line.', start: 'foods = ["rice", "beans", "mango"]\n', hint: 'for food in foods: print(food)', tests: [{ out: 'rice\nbeans\nmango' }] },
+          { id: 'b', t: 'Add "plantain" to the list, then print how many foods there are.', start: 'foods = ["rice", "beans", "mango"]\n', hint: 'foods.append("plantain"), then print(len(foods)).', tests: [{ out: '4' }, { has: 'append' }] },
+          { id: 'c', t: 'Print how many even numbers are in the list.', start: 'nums = [3, 8, 12, 7, 6, 15, 20]\n', hint: 'Start count = 0, loop through nums, add 1 when n % 2 == 0.', tests: [{ out: '4' }] },
+          { id: 'd', t: 'Print the largest number in the list WITHOUT using max().', start: 'nums = [14, 3, 29, 8, 21]\n', hint: 'Keep a variable biggest = nums[0]; loop and replace it whenever you find a bigger number.', tests: [{ out: '29' }, { hasNot: 'max(' }] }
+        ] },
+      { id: 'func', t: 'Functions', l: ['A function is a named, reusable block of code: def greet(name):', 'Values you pass in are parameters. return sends a result back.', 'Call a function by its name: greet("Ana")', 'Functions make big programs easier to build and test.'],
+        ex: [
+          { id: 'a', t: 'Write a function double(n) that returns n times 2.', start: 'def double(n):\n    # your code here\n', hint: 'Inside the function: return n * 2', tests: [{ call: 'double(4)', eq: '8' }, { call: 'double(0)', eq: '0' }, { call: 'double(-3)', eq: '-6' }] },
+          { id: 'b', t: 'Write is_even(n) that returns True if n is even, otherwise False.', start: 'def is_even(n):\n', hint: 'return n % 2 == 0', tests: [{ call: 'is_even(4)', eq: 'True' }, { call: 'is_even(7)', eq: 'False' }, { call: 'is_even(0)', eq: 'True' }] },
+          { id: 'c', t: 'Write area(width, height) that returns the area of a rectangle.', start: '', hint: 'def area(width, height): then return width * height', tests: [{ call: 'area(3, 4)', eq: '12' }, { call: 'area(10, 2.5)', eq: '25.0' }] },
+          { id: 'd', t: 'Write average(nums) that returns the average of a list of numbers.', start: 'def average(nums):\n', hint: 'sum(nums) / len(nums)', tests: [{ call: 'average([2, 4, 6])', eq: '4.0' }, { call: 'average([10])', eq: '10.0' }] }
+        ] },
+      { id: 'strings', t: 'Working with strings', l: ['Strings have methods: .upper(), .lower(), .strip(), .replace("a", "b")', 'len(s) counts characters; s[0] is the first character; s[-1] is the last.', 'Slicing: s[0:3] gives the first 3 characters.', '"a" in s checks if one string is inside another.'],
+        ex: [
+          { id: 'a', t: 'Write shout(s) that returns s in capital letters followed by "!". shout("hi") returns "HI!"', start: 'def shout(s):\n', hint: 'return s.upper() + "!"', tests: [{ call: 'shout("hi")', eq: "'HI!'" }, { call: 'shout("let\'s go")', eq: '"LET\'S GO!"' }] },
+          { id: 'b', t: 'Write count_vowels(s) that returns how many vowels (a, e, i, o, u) are in s, ignoring capitals.', start: 'def count_vowels(s):\n', hint: 'Loop through s.lower() and add 1 when the letter is in "aeiou".', tests: [{ call: 'count_vowels("banana")', eq: '3' }, { call: 'count_vowels("Python")', eq: '1' }, { call: 'count_vowels("AEIOU")', eq: '5' }] },
+          { id: 'c', t: 'Write initials(first, last) that returns the initials with periods. initials("Ana", "Diaz") returns "A.D."', start: '', hint: 'first[0] + "." + last[0] + "."', tests: [{ call: 'initials("Ana", "Diaz")', eq: "'A.D.'" }, { call: 'initials("leo", "ruiz")', eq: "'L.R.'" }] }
+        ] },
+      { id: 'dicts', t: 'Dictionaries', l: ['A dictionary stores pairs of keys and values: prices = {"rice": 2.5, "milk": 1.25}', 'Look up a value with its key: prices["rice"]', 'Add or change a pair: prices["eggs"] = 3', 'Loop through pairs: for item, price in prices.items():'],
+        ex: [
+          { id: 'a', t: 'Print the price of milk from the dictionary.', start: 'prices = {"rice": 2.5, "milk": 1.25, "eggs": 3}\n', hint: 'print(prices["milk"])', tests: [{ out: '1.25' }] },
+          { id: 'b', t: 'Write total(cart) that adds up all the prices in a dictionary.', start: 'def total(cart):\n', hint: 'Loop through cart.values() and add them up (or use sum).', tests: [{ call: 'total({"rice": 2.5, "milk": 1.25, "eggs": 3})', eq: '6.75' }, { call: 'total({})', eq: '0' }] },
+          { id: 'c', t: 'Write word_count(text) that returns a dictionary counting each word. word_count("a b a") returns {"a": 2, "b": 1}', start: 'def word_count(text):\n', hint: 'Split the text with text.split(), start counts = {}, and add 1 for each word (use counts.get(w, 0)).', tests: [{ call: 'word_count("a b a") == {"a": 2, "b": 1}', eq: 'True' }, { call: 'word_count("the cat the hat the") == {"the": 3, "cat": 1, "hat": 1}', eq: 'True' }] }
+        ] },
+      { id: 'debug', t: 'Reading errors and debugging', l: ['Errors are clues, not failures. Read the LAST line of the error first.', 'SyntaxError: Python can\'t read the code (missing colon, quote or parenthesis).', 'NameError: a name is misspelled or used before it exists. TypeError: mixing types, like "5" + 3.', 'IndentationError: the spaces at the start of a line are wrong.'],
+        ex: [
+          { id: 'a', t: 'Fix the bug so this prints 10.', start: 'x = 5\nprint(X * 2)\n', hint: 'Python cares about capital letters. Is it x or X?', tests: [{ out: '10' }] },
+          { id: 'b', t: 'Fix the bug so this prints "Age next year: 14".', start: 'age = "13"\nprint("Age next year: " + str(age + 1))\n', hint: 'age is a string. Convert it with int(age) before adding 1.', tests: [{ out: 'Age next year: 14' }] },
+          { id: 'c', t: 'Fix the bugs so this prints "big".', start: 'n = 50\nif n > 10\nprint("big")\n', hint: 'An if line needs a colon at the end, and the next line must be indented 4 spaces.', tests: [{ out: 'big' }] }
+        ] },
+      { id: 'guess', t: 'Project: number guessing game', l: ['Big programs are built from small, tested pieces.', 'import random gives you random.randint(1, 100) for a random whole number.', 'First write and test a function that checks a guess. Then use it in a loop.', 'Play your game with your family!'],
+        ex: [
+          { id: 'a', t: 'Write check_guess(secret, guess) that returns "Too low", "Too high" or "Correct!"', start: 'def check_guess(secret, guess):\n', hint: 'Compare guess to secret with if / elif / else.', tests: [{ call: 'check_guess(50, 30)', eq: "'Too low'" }, { call: 'check_guess(50, 70)', eq: "'Too high'" }, { call: 'check_guess(50, 50)', eq: "'Correct!'" }] },
+          { id: 'b', t: 'Build the game: secret = 42 (for testing). Keep asking "Guess: " and print check_guess(...) each time until the guess is right. Then print the number of tries, like "You got it in 3 tries!"', start: 'def check_guess(secret, guess):\n    if guess < secret:\n        return "Too low"\n    elif guess > secret:\n        return "Too high"\n    return "Correct!"\n\nsecret = 42\ntries = 0\n', hint: 'Use while True:, read an int, add 1 to tries, print the result, and break when it is "Correct!". Then print the tries message.', tests: [{ in: ['20', '60', '42'], outHas: 'You got it in 3 tries!' }, { in: ['42'], outHas: 'You got it in 1 tries!' }, { in: ['50', '42'], outHas: 'Too high' }] }
+        ] },
+      { id: 'budget', t: 'Project: budget calculator', l: ['Programs help with real life, like planning money.', 'Store expenses in a dictionary and use functions to calculate.', 'Format money with two decimals: f"${amount:.2f}"', 'Test each function before putting it all together.'],
+        ex: [
+          { id: 'a', t: 'Write remaining(income, expenses) that returns income minus the total of the expenses dictionary.', start: 'def remaining(income, expenses):\n', hint: 'return income - sum(expenses.values())', tests: [{ call: 'remaining(500, {"food": 200, "phone": 30})', eq: '270' }, { call: 'remaining(100, {})', eq: '100' }] },
+          { id: 'b', t: 'Print a report: each expense as "food: $200.00" (one per line), then "Left: $270.00".', start: 'income = 500\nexpenses = {"food": 200, "phone": 30}\n', hint: 'Loop over expenses.items() and print f"{name}: ${cost:.2f}". Then print the money left the same way.', tests: [{ out: 'food: $200.00\nphone: $30.00\nLeft: $270.00' }] },
+          { id: 'c', t: 'Write can_afford(income, expenses, price) that returns True if the money left is at least the price.', start: '', hint: 'Compute what is left, then return left >= price.', tests: [{ call: 'can_afford(500, {"food": 200}, 300)', eq: 'True' }, { call: 'can_afford(500, {"food": 200}, 301)', eq: 'False' }] }
+        ] }
+    ]
+  };
+})();
+
 /* Lantern Homeschool — 2nd grade, expanded to the full grade-level course (Common Core math & ELA, NGSS science,
    and the social studies most strong schools teach in 2nd grade). New lessons are appended so saved progress
    stays matched; `order` lists every lesson easiest → hardest, and every lesson in the order is required.
@@ -4857,7 +4993,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
-    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'cte', n: 'Career & technical (trades)' }, { k: 'other', n: 'Other' }
+    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'cte', n: 'Career & technical (trades)' }, { k: 'code', n: 'Coding' }, { k: 'other', n: 'Other' }
   ];
   const SUBJ_NAME = Object.fromEntries([...SUBJ, ...EXTRA].map((s) => [s.k, s.n]));
   const COLORS = ['#3461C1', '#C2453A', '#2F8A57', '#7B4FA6', '#C27A12', '#1F8A8A', '#B23A7A', '#5B6B2F'];
@@ -4884,7 +5020,8 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' },
     { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' },
     { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' },
-    { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' }
+    { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' },
+    { id: 'coder', n: 'Young coder', d: 'Finished 5 Code Lab lessons' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -5108,6 +5245,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
     const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
+    { const cd = dd.code || {}, L = window.LH_CODE || { blocks: [], python: [] }; const nb = L.blocks.filter((x) => { const r = (cd.b || {})[x.id]; return r && r.best >= pass && (r.un || r.cdo); }).length; const np = L.python.filter((x) => x.ex.every((e) => (((cd.p || {})[x.id] || {})[e.id] || {}).ok)).length; earn('coder', nb + np >= 5); }
     earn('trades', Object.values(dd.car || {}).some((t) => t && t.done));
     earn('weekly', Object.values(dd.weeks || {}).filter((w) => w.quiz && w.quiz.first.score >= 80).length >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
@@ -5159,11 +5297,11 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest, career: viewCareer
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest, career: viewCareer, code: viewCode
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest', 'career'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest', 'career', 'code'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -5397,7 +5535,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
         h('div', { class: 'stat-row' },
           stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
-    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); if (carOn(k)) main.appendChild(carCard(k)); }
+    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); if (carOn(k)) main.appendChild(carCard(k)); const cc = codeCard(k); if (cc) main.appendChild(cc); }
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
@@ -5545,7 +5683,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['careers', 'Career paths'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['careers', 'Careers & coding'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
     const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, careers: pCareers, tutor: pTutor, settings: pSettings }[S.ptab]();
@@ -5641,6 +5779,8 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const CT = (window.LH_CAREERS || { tracks: [] }).tracks, cd = (dayDoc(k.id).car || {}), tDone = CT.filter((tr) => (cd[tr.id] || {}).done);
     if (k.grade >= 9 && tDone.length) { const bs = []; tDone.forEach((tr) => tr.mods.forEach((m) => { const r = ((cd[tr.id] || {}).m || {})[m.id]; if (r && r.best != null) bs.push(r.best); })); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null;
       rows.push({ g: k.grade, title: 'Career Exploration: Skilled Trades (' + tDone.length + ' of 8 pathways)', pct: Math.round((tDone.length / 8) * 100), letter: LETTER(avg), done: tDone.length >= 8, credit: tDone.length >= 8 ? 0.5 : 0 }); }
+    const PYL = (window.LH_CODE || { python: [] }).python, pcd = ((dayDoc(k.id).code || {}).p) || {};
+    if (k.grade >= 9 && PYL.length && PYL.every((x) => x.ex.every((e) => ((pcd[x.id] || {})[e.id] || {}).ok))) rows.push({ g: k.grade, title: 'Introduction to Programming (Python)', pct: 100, letter: '—', done: true, credit: 0.5 });
     const done = rows.filter((r) => r.done && r.letter !== '—');
     const gpa = done.length ? (done.reduce((a, r) => a + POINTS[r.letter], 0) / done.length).toFixed(2) : null;
     return { rows, gpa, credits: rows.reduce((a, r) => a + r.credit, 0) };
@@ -6715,7 +6855,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       const li = h('li', { class: 'plan-item' + (ok ? ' done' : '') }, h('span', { class: 'tick', 'aria-hidden': 'true' }, ok ? '✓' : ''), h('span', { class: 'pi-t' }, it.t, h('small', null, ' · ' + it.min + ' min')));
       if (it.kind === 'fun') {
         li.appendChild(ok ? h('span', { class: 'small muted' }, 'Done') : h('span', { class: 'fun-picks' },
-          [['AI & Me', () => go('course', { g: k.grade, s: 'ai' })], ['Money Smart', () => go('course', { g: k.grade, s: 'fin' })], ['A book', () => go('reading')], ['More Spanish', () => { S.es = null; go('spanish'); }]].map(([n, f]) => h('button', { type: 'button', class: 'chip-btn', onclick: f }, n)),
+          [['Code Lab', () => { S.codeL = null; go('code'); }], ['AI & Me', () => go('course', { g: k.grade, s: 'ai' })], ['Money Smart', () => go('course', { g: k.grade, s: 'fin' })], ['A book', () => go('reading')], ['More Spanish', () => { S.es = null; go('spanish'); }]].map(([n, f]) => h('button', { type: 'button', class: 'chip-btn', onclick: f }, n)),
           h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { markAct(k.id, 'fun'); render(); } }, 'I did it ✓')));
       } else if (!ok) li.appendChild(h('button', { type: 'button', class: 'btn primary xs', onclick: () => startItem(k, it) }, 'Start'));
       ul.appendChild(li);
@@ -6776,6 +6916,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const k = kidById(S.who), M = S.mq; if (!k || !M) return viewKidHome();
     const main = h('main', { class: 'wrap quiz' });
     if (M.done && M.kind === 'wq') { main.appendChild(wqResult(k, M)); return h('div', null, kidBar(), main); }
+    if (M.done && M.kind === 'code') { main.appendChild(codeResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done && M.kind === 'car') { main.appendChild(carResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done) {
       const weak = Object.entries(M.per).filter(([key, [r, t]]) => r < Math.ceil(t * 0.67)).map(([key]) => unitOf(key));
@@ -6792,11 +6933,11 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; markSeen(S.who, item); const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[M.picked] === item.a;
-    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'car' ? 'Career Paths' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
+    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'car' ? 'Career Paths' : M.kind === 'code' ? 'Code Lab' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
     const hear = (item.sayText || item.esSay) && Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => (item.esSay ? sayEs(item.esSay) : say(item.sayText, 0.85)) }, icon('voice'), item.esSay ? ' Escuchar' : ' Hear the sentence') : null;
     main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), item.esIt ? h('div', { class: 'wq-es' }, esPic(item.esIt, true)) : null, hear, choices,
       answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? pick(CHEER) : 'Not quite. The answer is ' + item.a + '.')) : null,
-      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else if (M.kind === 'car') finishCar(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
+      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else if (M.kind === 'car') finishCar(k); else if (M.kind === 'code') finishCode(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
     return h('div', null, kidBar(), main);
   }
 
@@ -7123,7 +7264,208 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       box.appendChild(h('p', { class: 'small muted' }, 'Sign off only after you saw the hands-on activity done safely. On Mondays and Wednesdays, the next module appears in ' + k.name + '\'s plan.'));
       wrap.appendChild(box);
     });
+    wrap.appendChild(pCode());
     return wrap;
+  }
+
+  /* ─────────────── Code Lab (bonus): Blocks with Code.org for younger learners, real Python for older ───────────────
+     day-{kidId}.code = { b: { lessonId: { un, cdo, best, last, tries, at, done } }, p: { lessonId: { exId: { ok, code } } } }
+     Python runs in a Web Worker (Pyodide from jsDelivr) so an endless loop can be stopped without freezing the page. */
+  const CODE = window.LH_CODE || { blocks: [], python: [] };
+  const codeDoc = (kidId) => { const d = dayDoc(kidId); const c = d.code || (d.code = {}); c.b = c.b || {}; c.p = c.p || {}; return c; };
+  const codeTrack = (k) => { const v = kidPlan(k.id).code; return v === false || v === 'off' ? null : v === 'blocks' || v === 'python' ? v : k.grade <= 5 ? 'blocks' : 'python'; };
+  const bDone = (r) => !!(r && (r.best || 0) >= settings().passMark && (r.un || r.cdo));
+  const pDone = (kidId, L) => L.ex.every((x) => ((codeDoc(kidId).p[L.id] || {})[x.id] || {}).ok);
+  function codeProgress(k) {
+    const t = codeTrack(k); if (!t) return null; const list = t === 'blocks' ? CODE.blocks : CODE.python;
+    const done = list.filter((L) => (t === 'blocks' ? bDone(codeDoc(k.id).b[L.id]) : pDone(k.id, L))).length;
+    return { t, list, done, total: list.length, complete: done === list.length };
+  }
+  const codeUnlocked = (k, t, i) => { if (i === 0) return true; const prev = (t === 'blocks' ? CODE.blocks : CODE.python)[i - 1]; return t === 'blocks' ? (codeDoc(k.id).b[prev.id] || {}).best >= settings().passMark : pDone(k.id, prev); };
+  function codeCard(k) {
+    const p = codeProgress(k); if (!p) return null;
+    return h('section', { class: 'card car-card' }, h('div', { class: 'card-head' }, h('h3', null, 'Code Lab'), h('span', { class: 'bonus-tag' }, 'Bonus')),
+      h('div', { class: 'quest-row' }, h('span', { class: 'quest-e', 'aria-hidden': 'true' }, p.t === 'blocks' ? '🧩' : '🐍'), h('div', null, h('b', null, p.t === 'blocks' ? 'Coding with blocks' : 'Python'), h('div', { class: 'small muted' }, p.complete ? 'Track complete! 🏅' : p.done + ' of ' + p.total + ' lessons done'))),
+      bar(Math.round((p.done / p.total) * 100), 'ai'), h('button', { class: 'btn primary sm', onclick: () => { S.codeL = null; go('code'); } }, 'Open Code Lab'));
+  }
+
+  /* Python engine */
+  const PY_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
+  const PY_HARNESS = [
+    'import sys, json, math, traceback',
+    'def _run(code, inputs, calls):',
+    '    disp = []; clean = []; q = list(inputs)',
+    '    class _O:',
+    '        def write(self, s):',
+    '            disp.append(s); clean.append(s); return len(s)',
+    '        def flush(self): pass',
+    '    def _input(prompt=""):',
+    '        disp.append(str(prompt))',
+    '        if not q: raise EOFError("The program asked for more input than it was given.")',
+    '        v = str(q.pop(0)); disp.append(v + "\\n"); return v',
+    '    ns = {"__name__": "__main__", "input": _input}',
+    '    old = sys.stdout; sys.stdout = _O(); err = None; res = []',
+    '    try:',
+    '        exec(compile(code, "<your code>", "exec"), ns)',
+    '        for expr, eq in calls:',
+    '            try:',
+    '                r = eval(expr, ns); x = eval(eq, {})',
+    '                num = isinstance(r, (int, float)) and isinstance(x, (int, float)) and not isinstance(r, bool) and not isinstance(x, bool)',
+    '                res.append([bool(math.isclose(r, x, rel_tol=1e-9, abs_tol=1e-9) if num else (r == x and type(r) == type(x) or (isinstance(r, bool) and r == x))), repr(r)])',
+    '            except BaseException as e:',
+    '                res.append([False, type(e).__name__ + ": " + str(e)])',
+    '    except BaseException as e:',
+    '        ln = getattr(e, "lineno", None) if isinstance(e, SyntaxError) else None',
+    '        if ln is None:',
+    '            fr = [f for f in traceback.extract_tb(e.__traceback__) if f.filename == "<your code>"]',
+    '            ln = fr[-1].lineno if fr else None',
+    '        err = ("Line " + str(ln) + ": " if ln else "") + type(e).__name__ + ": " + str(getattr(e, "msg", None) or e)',
+    '    finally:',
+    '        sys.stdout = old',
+    '    return json.dumps({"out": "".join(disp), "clean": "".join(clean), "err": err, "calls": res})'
+  ].join('\n');
+  const Py = {
+    w: null, ready: false, fail: null, pend: {}, n: 0, readyP: null,
+    start() {
+      if (this.w || this.fail) return this.readyP;
+      const src = 'importScripts(' + JSON.stringify(PY_URL + 'pyodide.js') + ');\nconst H = ' + JSON.stringify(PY_HARNESS) + ';\n' +
+        'const ready = loadPyodide({ indexURL: ' + JSON.stringify(PY_URL) + ' }).then((py) => { py.runPython(H); return py; });\n' +
+        'ready.then(() => postMessage({ ready: 1 }), (e) => postMessage({ loadFail: String((e && e.message) || e) }));\n' +
+        'onmessage = async (e) => { const d = e.data; try { const py = await ready; const r = py.globals.get("_run")(d.code, py.toPy(d.inputs), py.toPy(d.calls)); postMessage({ id: d.id, r: JSON.parse(r) }); } catch (err) { postMessage({ id: d.id, r: { out: "", clean: "", err: String((err && err.message) || err), calls: [] } }); } };';
+      let res; this.readyP = new Promise((r) => { res = r; });
+      try { this.w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' }))); }
+      catch (e) { this.fail = 'Python can\'t start in this window. Open Lantern at lantern-homeschool.netlify.app to code.'; res(false); return this.readyP; }
+      this.w.onmessage = (e) => { const d = e.data;
+        if (d.ready) { this.ready = true; res(true); if (S.screen === 'code') render(); }
+        if (d.loadFail) { this.fail = 'Python couldn\'t load (' + d.loadFail.slice(0, 80) + '). Check the internet connection and reload.'; this.w.terminate(); this.w = null; res(false); if (S.screen === 'code') render(); }
+        if (d.id && this.pend[d.id]) { const p = this.pend[d.id]; delete this.pend[d.id]; clearTimeout(p.t); p.res(d.r); } };
+      this.w.onerror = (e) => { if (!this.ready) { this.fail = 'Python couldn\'t start here. Open Lantern at lantern-homeschool.netlify.app to code.'; this.w = null; res(false); if (S.screen === 'code') render(); } };
+      return this.readyP;
+    },
+    async run(code, inputs, calls) {
+      const ok = await this.start(); if (!ok) return { out: '', clean: '', err: this.fail, calls: [] };
+      const id = ++this.n;
+      return new Promise((res) => {
+        const t = setTimeout(() => { delete this.pend[id]; if (this.w) this.w.terminate(); this.w = null; this.ready = false; this.readyP = null; this.start(); res({ out: '', clean: '', err: 'Your program ran for more than 5 seconds and was stopped. Is there a loop that never ends?', calls: [], timeout: true }); }, 5000);
+        this.pend[id] = { res, t }; this.w.postMessage({ id, code, inputs: inputs || [], calls: calls || [] });
+      });
+    }
+  };
+  const norm = (s) => String(s || '').replace(/\r/g, '').split('\n').map((l) => l.replace(/\s+$/, '')).join('\n').replace(/\n+$/, '');
+  async function pyCheck(ex, code) {
+    const fails = [], calls = ex.tests.filter((t) => t.call);
+    for (const t of ex.tests) {
+      if (t.has && !code.includes(t.has)) { fails.push('Your code should use ' + JSON.stringify(t.has.trim()) + ' for this exercise.'); continue; }
+      if (t.hasNot && code.includes(t.hasNot)) { fails.push('Try it without using ' + t.hasNot.replace('(', '') + '.'); continue; }
+      if (t.out == null && t.outHas == null && t.outLines == null) continue;
+      const r = await Py.run(code, t.in, []); if (r.err) return { ok: false, msg: r.err, out: r.out };
+      const got = norm(r.clean), w = t.in && t.in.length ? ' with input ' + t.in.join(', ') : '';
+      if (t.out != null && got !== norm(t.out)) fails.push('Expected' + w + ':\n' + norm(t.out) + '\nYour program printed:\n' + (got || '(nothing)'));
+      else if (t.outHas != null && !got.includes(t.outHas)) fails.push('Expected' + w + ' the output to include: ' + t.outHas + '\nYour program printed:\n' + (got || '(nothing)'));
+      else if (t.outLines != null && got.split('\n').filter((l) => l.trim()).length !== t.outLines) fails.push('Expected ' + t.outLines + ' lines of output, but got ' + got.split('\n').filter((l) => l.trim()).length + '.');
+    }
+    if (calls.length && !fails.length) {
+      const r = await Py.run(code, [], calls.map((t) => [t.call, t.eq])); if (r.err) return { ok: false, msg: r.err, out: r.out };
+      r.calls.forEach((c, i) => { if (!c[0]) fails.push(calls[i].call.replace(/ == .*$/, '') + ' should give ' + (calls[i].call.includes(' == ') ? calls[i].call.split(' == ')[1] : calls[i].eq) + ', but gave ' + c[1]); });
+    }
+    return fails.length ? { ok: false, msg: fails[0] } : { ok: true };
+  }
+  function codeEditor(id, val, onInput) {
+    const ta = h('textarea', { id, class: 'code-ed', rows: Math.max(6, Math.min(16, String(val).split('\n').length + 2)), spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', 'aria-label': 'Python code' }, val);
+    ta.addEventListener('input', () => onInput(ta.value));
+    ta.addEventListener('keydown', (e) => {
+      const s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); ta.value = v.slice(0, s) + '    ' + v.slice(en); ta.selectionStart = ta.selectionEnd = s + 4; onInput(ta.value); }
+      else if (e.key === 'Enter') { const line = v.slice(v.lastIndexOf('\n', s - 1) + 1, s); let ind = (line.match(/^ */) || [''])[0]; if (/:\s*$/.test(line)) ind += '    '; if (ind) { e.preventDefault(); const ins = '\n' + ind; ta.value = v.slice(0, s) + ins + v.slice(en); ta.selectionStart = ta.selectionEnd = s + ins.length; onInput(ta.value); } }
+    });
+    return ta;
+  }
+  function viewCode() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'code') Timer.start(k.id, 'code');
+    const p = codeProgress(k), main = h('main', { class: 'wrap career code-lab' });
+    if (!p) { main.appendChild(h('p', null, 'Code Lab is turned off. Ask your grown-up.')); return h('div', null, kidBar(), main); }
+    const blocks = p.t === 'blocks';
+    if (S.codeL == null) {
+      main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => go('home') }, '← Dashboard'));
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Code Lab · Bonus'), h('h1', null, blocks ? '🧩 Coding with blocks' : '🐍 Python'),
+        h('p', { class: 'lede' }, blocks ? 'Learn to think like a coder with games at home and puzzles on Code.org.' : 'Write real Python code right here. Run it, check it, and build your own programs.')));
+      main.appendChild(h('div', { class: 'car-prog' }, bar(Math.round((p.done / p.total) * 100), 'ai'), h('span', { class: 'small' }, p.done + ' of ' + p.total + ' lessons complete')));
+      main.appendChild(h('ol', { class: 'units' }, p.list.map((L, i) => { const open = codeUnlocked(k, p.t, i), done = blocks ? bDone(codeDoc(k.id).b[L.id]) : pDone(k.id, L);
+        const nOk = blocks ? 0 : L.ex.filter((x) => ((codeDoc(k.id).p[L.id] || {})[x.id] || {}).ok).length;
+        const st = done ? ['mastered', 'Complete'] : !open ? ['new', '🔒 Finish the previous lesson first'] : blocks ? ((codeDoc(k.id).b[L.id] || {}).best != null ? ['trying', 'Best ' + codeDoc(k.id).b[L.id].best + '%'] : ['new', 'Not started']) : nOk ? ['trying', nOk + ' of ' + L.ex.length + ' exercises'] : ['new', 'Not started'];
+        return h('li', { class: 'unit ' + st[0] }, h('button', { class: 'unit-btn', disabled: open ? null : true, onclick: () => { S.codeL = i; render(); } }, h('span', { class: 'unit-n' }, 'Lesson ' + (i + 1) + (blocks ? '' : ' · ' + L.ex.length + ' exercises')), h('span', { class: 'unit-t' }, L.t), h('span', { class: 'watched-tag' }), h('span', { class: 'pill ' + st[0] }, st[1]))); })));
+      return h('div', null, kidBar(), main);
+    }
+    const i = S.codeL, L = p.list[i];
+    main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.codeL = null; render(); } }, '← Code Lab'));
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, (blocks ? '🧩 Blocks' : '🐍 Python') + ' · Lesson ' + (i + 1) + ' of ' + p.total), h('h1', null, L.t)));
+    main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Big ideas'), h('ul', { class: 'points' }, L.l.map((x) => h('li', null, x))), Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => say(L.l.join(' '), 0.95) }, icon('voice'), ' Read it to me') : null));
+    if (blocks) {
+      const r = codeDoc(k.id).b[L.id] || (codeDoc(k.id).b[L.id] = {});
+      main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Play it at home: ' + L.un.t), h('ol', { class: 'points' }, L.un.steps.map((x) => h('li', null, x))),
+        r.un ? h('p', { class: 'small' }, '✓ Done') : h('button', { class: 'btn primary sm', onclick: () => { r.un = Date.now(); markAct(k.id, 'fun'); saveDay(k.id); render(); } }, 'We played it ✓')));
+      main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Code it on Code.org'), h('p', { class: 'small' }, 'With your grown-up, open Code.org, choose Course B (Computer Science Fundamentals), and do the lesson: ' + L.cdo + '.'),
+        h('div', { class: 'actions' }, h('a', { class: 'btn ghost sm', href: CODE.csf, target: '_blank', rel: 'noopener noreferrer' }, 'Open Code.org ↗'), r.cdo ? h('span', { class: 'done-pill' }, '✓ Done') : h('button', { class: 'btn primary sm', onclick: () => { r.cdo = Date.now(); saveDay(k.id); render(); } }, 'I did it on Code.org ✓'))));
+      main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Quick check'), h('p', { class: 'small' }, (r.best != null ? 'Best so far: ' + r.best + '%. ' : '') + 'Score ' + settings().passMark + '% to unlock the next lesson.'),
+        h('button', { class: 'btn primary sm', onclick: () => { const qs = buildQuestions({ q: L.q }, k.id, 5).map((q) => Object.assign(q, { key: 'code:' + L.id, from: 'Code Lab · ' + L.t })); S.mq = { kind: 'code', qs, at: 0, right: 0, picked: null, per: {}, li: i }; go('mq'); } }, r.best != null ? 'Try again' : 'Start the quick check')));
+    } else {
+      Py.start();
+      main.appendChild(h('p', { class: 'small py-status' + (Py.fail ? ' err' : '') }, Py.fail ? Py.fail : Py.ready ? '🐍 Python is ready.' : '⏳ Starting Python… (the first time takes about 10 seconds)'));
+      const rec = codeDoc(k.id).p[L.id] || (codeDoc(k.id).p[L.id] = {}); S.pyCode = S.pyCode || {}; S.pyRes = S.pyRes || {};
+      L.ex.forEach((x, n) => {
+        const key = L.id + '/' + x.id, er = rec[x.id] || {}; if (S.pyCode[key] == null) S.pyCode[key] = er.code != null ? er.code : x.start;
+        const res = S.pyRes[key] || {}, needsIn = x.tests.some((t) => t.in && t.in.length) || /input\s*\(/.test(S.pyCode[key]);
+        const ed = codeEditor('ed-' + key.replace(/\W/g, '_'), S.pyCode[key], (v) => { S.pyCode[key] = v; });
+        const inBox = h('textarea', { class: 'code-in', rows: 2, placeholder: 'Type what the user would enter, one answer per line', 'aria-label': 'Program input' }, res.inputs || '');
+        const save = (ok) => { rec[x.id] = { ok: ok ? Date.now() : er.ok || 0, code: S.pyCode[key].slice(0, 3000) }; saveDay(k.id); };
+        const card = h('section', { class: 'card car-step py-ex' + (er.ok ? ' ok' : '') },
+          h('h2', { class: 'mini' }, 'Exercise ' + (n + 1) + (er.ok ? ' ✓' : '')), h('p', { class: 'py-task' }, x.t), ed,
+          needsIn ? h('div', null, h('label', { class: 'small' }, 'Input for Run'), inBox) : null,
+          h('div', { class: 'actions' },
+            h('button', { class: 'btn ghost sm', disabled: res.busy ? true : null, onclick: async () => { res.busy = true; res.inputs = inBox.value; S.pyRes[key] = res; render(); const r = await Py.run(S.pyCode[key], inBox.value ? inBox.value.split('\n') : [], []); Object.assign(res, { busy: false, out: r.out, err: r.err, msg: null }); save(false); render(); } }, '▶ Run'),
+            h('button', { class: 'btn primary sm', disabled: res.busy ? true : null, onclick: async () => { res.busy = true; S.pyRes[key] = res; render(); const c = await pyCheck(x, S.pyCode[key]); Object.assign(res, { busy: false, ok: c.ok, msg: c.ok ? null : c.msg, out: c.out != null ? c.out : res.out, err: null }); save(c.ok); markAct(k.id, 'fun'); if (c.ok) { confetti(); const was = pDone(k.id, L); if (was) { toast('Lesson complete! 🐍'); checkBadges(k.id); } } render(); } }, '✓ Check'),
+            h('button', { class: 'btn ghost sm', onclick: () => { res.hint = !res.hint; S.pyRes[key] = res; render(); } }, res.hint ? 'Hide hint' : 'Hint'),
+            lumiReady(k.id) ? h('button', { class: 'btn ghost sm', onclick: () => { lumiContext({ kidId: k.id, g: k.grade, s: 'code', unit: 'Python: ' + L.t, points: L.l, mode: 'code', question: x.t, getCode: () => S.pyCode[key], getOut: () => (S.pyRes[key] || {}).err || (S.pyRes[key] || {}).msg || (S.pyRes[key] || {}).out || '' }); LP.open = true; drawLumi(); } }, 'Ask Lumi') : null,
+            h('button', { class: 'btn ghost sm', onclick: () => { if (confirm('Start this exercise over?')) { S.pyCode[key] = x.start; S.pyRes[key] = {}; render(); } } }, 'Reset')),
+          res.busy ? h('p', { class: 'small muted' }, Py.ready ? 'Running…' : 'Starting Python…') : null,
+          res.hint ? h('p', { class: 'small py-hint' }, '💡 ' + x.hint) : null,
+          res.ok ? h('p', { class: 'py-pass', role: 'status' }, '✓ All checks passed. Great coding!') : null,
+          res.msg ? h('pre', { class: 'py-out fail', role: 'status' }, res.msg) : null,
+          res.err ? h('pre', { class: 'py-out fail', role: 'status' }, res.err) : null,
+          res.out && !res.msg ? h('pre', { class: 'py-out' }, res.out) : null);
+        main.appendChild(card);
+      });
+    }
+    const nxt = i + 1 < p.total && codeUnlocked(k, p.t, i + 1) ? i + 1 : null;
+    main.appendChild(h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => { S.codeL = i - 1; render(); } }, '← Previous lesson') : h('span'), nxt != null ? h('button', { class: 'btn primary sm', onclick: () => { S.codeL = nxt; render(); } }, 'Next lesson →') : h('span')));
+    return h('div', null, kidBar(), main);
+  }
+  function finishCode(k) {
+    const M = S.mq, L = CODE.blocks[M.li], r = codeDoc(k.id).b[L.id] || (codeDoc(k.id).b[L.id] = {}), score = Math.round((M.right / M.qs.length) * 100);
+    Object.assign(r, { best: Math.max(score, r.best || 0), last: score, tries: (r.tries || 0) + 1, at: Date.now() }); if (!r.done && bDone(r)) r.done = Date.now();
+    markAct(k.id, 'fun'); saveDay(k.id); Timer.accrue(); Timer.flush(); checkBadges(k.id);
+    M.done = true; M.res = { score, pass: score >= settings().passMark }; if (M.res.pass) setTimeout(confetti, 50); render();
+  }
+  function codeResult(k, M) {
+    const res = M.res, nxt = M.li + 1 < CODE.blocks.length ? M.li + 1 : null;
+    return h('section', { class: 'result-card ' + (res.pass ? 'pass' : 'retry') }, ring(res.score, M.right + ' of ' + M.qs.length, 'lg'),
+      lumi(res.pass ? 'cheer' : 'think', res.pass ? 'You think like a coder!' : 'Let\'s look at the big ideas and try again.'), h('h1', null, res.pass ? 'Quick check passed' : 'Almost there'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => { S.mq = null; S.codeL = M.li; go('code'); } }, 'Back to the lesson'),
+        res.pass && nxt != null ? h('button', { class: 'btn ghost', onclick: () => { S.mq = null; S.codeL = nxt; go('code'); } }, 'Next: ' + CODE.blocks[nxt].t) : null));
+  }
+  function pCode() {
+    const box = h('article', { class: 'card' }, h('h2', null, 'Code Lab (bonus)'),
+      h('p', { class: 'small' }, 'Blocks (grades 1–5): coding games at home plus Code.org\'s free Course B. Python (grades 6–12): real code that runs inside Lantern with automatic checking; Lumi can give hints without writing the answer. A Chromebook works for both; a physical keyboard helps for Python.'),
+      h('p', { class: 'small muted' }, 'It is bonus work: it adds badges and hours but never lowers grade completion. A high school learner who finishes the Python track gets "Introduction to Programming (Python)" on the transcript for 0.5 credit.'));
+    kids().forEach((k) => {
+      const p = codeProgress(k), cur = kidPlan(k.id).code || 'auto';
+      const sel = h('select', { 'aria-label': 'Code Lab track for ' + k.name, onchange: (e) => { k.plan = Object.assign(kidPlan(k.id), { code: e.target.value === 'auto' ? undefined : e.target.value }); saveFamily(); render(); } },
+        [['auto', 'By grade (' + (k.grade <= 5 ? 'Blocks' : 'Python') + ')'], ['blocks', 'Blocks'], ['python', 'Python'], ['off', 'Off']].map(([v, n]) => h('option', { value: v, selected: cur === v ? true : null }, n)));
+      box.appendChild(h('div', { class: 'code-kid' }, h('div', { class: 'card-head' }, h('h3', null, k.name), sel),
+        !p ? h('p', { class: 'small muted' }, 'Off') : h('p', { class: 'small' }, (p.t === 'blocks' ? '🧩 Blocks' : '🐍 Python') + ' · ' + p.done + ' of ' + p.total + ' lessons complete' + (p.done < p.total ? ' · next: ' + (p.list.find((L) => !(p.t === 'blocks' ? bDone(codeDoc(k.id).b[L.id]) : pDone(k.id, L))) || {}).t : ''))));
+    });
+    return box;
   }
 
   function questProgress(kidId) { const a = questDoc(kidId).active; if (!a) return null; const q = questById(a.id); if (!q) return null; const done = q.steps.filter((s, i) => a.steps[i]).length; return { q, a, done, total: q.steps.length, next: q.steps.findIndex((s, i) => !a.steps[i]) }; }
@@ -7256,7 +7598,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     LP.msgs.forEach((x) => log.appendChild(h('p', { class: 'lp-msg ' + (x.role === 'user' ? 'me' : 'bot') + (x.err ? ' err' : '') }, x.content)));
     if (LP.busy) log.appendChild(h('p', { class: 'lp-msg bot think' }, 'Lumi is thinking', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
     el.appendChild(log);
-    const chips = c.mode === 'quiz' ? ['Give me a hint', 'Explain the idea behind this question', 'What does this word mean?'] : ['Explain it another way', 'Give me an example', 'Quiz me with one question', 'Why does this matter?'];
+    const chips = c.mode === 'code' ? ['Why doesn\'t my code work?', 'Give me a hint', 'Explain this error'] : c.mode === 'quiz' ? ['Give me a hint', 'Explain the idea behind this question', 'What does this word mean?'] : ['Explain it another way', 'Give me an example', 'Quiz me with one question', 'Why does this matter?'];
     el.appendChild(h('div', { class: 'lp-chips' }, chips.map((t) => h('button', { type: 'button', class: 'chip-btn', disabled: LP.busy || !left ? true : null, onclick: () => lumiSend(t) }, t))));
     const ta = h('textarea', { id: 'lumi-in', rows: 2, maxlength: 400, placeholder: left ? 'Type your question…' : 'No more questions today', disabled: left ? null : true, 'aria-label': 'Your question for Lumi' });
     ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); lumiSend(ta.value); } });
@@ -7273,7 +7615,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       const tok = await u.getIdToken();
       const hist = LP.msgs.filter((x) => !x.err).slice(-10).map((x) => ({ role: x.role, content: x.content }));
       const r = await fetch(LUMI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ grade: c.g, subject: SUBJ_NAME[c.s] || c.s, unit: c.unit, points: c.points, mode: c.mode, question: c.question || '', choices: c.choices || [], messages: hist }) });
+        body: JSON.stringify({ grade: c.g, subject: SUBJ_NAME[c.s] || c.s, unit: c.unit, points: c.points, mode: c.mode, question: c.question || '', choices: c.choices || [], code: c.getCode ? String(c.getCode() || '').slice(0, 3000) : undefined, output: c.getOut ? String(c.getOut() || '').slice(0, 800) : undefined, messages: hist }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.reply) throw new Error(j.error || (r.status === 404 ? 'Lumi isn\'t available on this site yet.' : 'Lumi is resting right now. Try again in a little while.'));
       LP.msgs.push({ role: 'assistant', content: j.reply });

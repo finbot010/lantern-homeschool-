@@ -610,6 +610,13 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .focus-chip .fc-time { font: 800 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
 .focus-chip .btn.ghost { color: inherit; border-color: currentColor; }
 .week-card { display: grid; gap: 10px; margin-bottom: 18px; } .week-card h3 { margin: 0; }
+.code-ed { width: 100%; box-sizing: border-box; font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding: 12px; border-radius: 10px; border: 1px solid var(--rule); background: #12201a; color: #E8F3EC; tab-size: 4; resize: vertical; }
+.code-in { width: 100%; box-sizing: border-box; font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace; padding: 8px; border-radius: 8px; border: 1px solid var(--rule); }
+.py-out { margin: 0; padding: 10px 12px; border-radius: 10px; background: #0f1a15; color: #D8F0E0; font: 14px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-x: auto; max-height: 260px; }
+.py-out.fail { background: color-mix(in srgb, var(--ela) 12%, var(--sheet)); color: var(--ink); border: 1px solid color-mix(in srgb, var(--ela) 45%, transparent); }
+.py-pass { margin: 0; color: var(--sci); font-weight: 700; } .py-hint { margin: 0; } .py-task { margin: 0; font-weight: 600; }
+.py-ex.ok { border-color: color-mix(in srgb, var(--sci) 55%, transparent); } .py-status.err { color: var(--ela); font-weight: 600; }
+.code-kid { border-top: 1px dashed var(--rule); padding-top: 10px; } .code-kid h3 { margin: 0; }
 .car-parent { display: grid; gap: 14px; } .car-parent > * { margin: 0; }
 .car-card { margin-bottom: 18px; display: grid; gap: 10px; } .car-card h3 { margin: 0; }
 .car-prog { display: grid; gap: 6px; margin: 8px 0 14px; }

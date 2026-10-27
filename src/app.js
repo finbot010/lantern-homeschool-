@@ -24,7 +24,7 @@
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
-    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'cte', n: 'Career & technical (trades)' }, { k: 'other', n: 'Other' }
+    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'cte', n: 'Career & technical (trades)' }, { k: 'code', n: 'Coding' }, { k: 'other', n: 'Other' }
   ];
   const SUBJ_NAME = Object.fromEntries([...SUBJ, ...EXTRA].map((s) => [s.k, s.n]));
   const COLORS = ['#3461C1', '#C2453A', '#2F8A57', '#7B4FA6', '#C27A12', '#1F8A8A', '#B23A7A', '#5B6B2F'];
@@ -51,7 +51,8 @@
     { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' },
     { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' },
     { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' },
-    { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' }
+    { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' },
+    { id: 'coder', n: 'Young coder', d: 'Finished 5 Code Lab lessons' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -275,6 +276,7 @@
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
     const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
+    { const cd = dd.code || {}, L = window.LH_CODE || { blocks: [], python: [] }; const nb = L.blocks.filter((x) => { const r = (cd.b || {})[x.id]; return r && r.best >= pass && (r.un || r.cdo); }).length; const np = L.python.filter((x) => x.ex.every((e) => (((cd.p || {})[x.id] || {})[e.id] || {}).ok)).length; earn('coder', nb + np >= 5); }
     earn('trades', Object.values(dd.car || {}).some((t) => t && t.done));
     earn('weekly', Object.values(dd.weeks || {}).filter((w) => w.quiz && w.quiz.first.score >= 80).length >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
@@ -326,11 +328,11 @@
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest, career: viewCareer
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest, career: viewCareer, code: viewCode
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest', 'career'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest', 'career', 'code'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -564,7 +566,7 @@
         h('div', { class: 'stat-row' },
           stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
-    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); if (carOn(k)) main.appendChild(carCard(k)); }
+    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); if (carOn(k)) main.appendChild(carCard(k)); const cc = codeCard(k); if (cc) main.appendChild(cc); }
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
@@ -712,7 +714,7 @@
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['careers', 'Career paths'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['careers', 'Careers & coding'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
     const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, careers: pCareers, tutor: pTutor, settings: pSettings }[S.ptab]();
@@ -808,6 +810,8 @@
     const CT = (window.LH_CAREERS || { tracks: [] }).tracks, cd = (dayDoc(k.id).car || {}), tDone = CT.filter((tr) => (cd[tr.id] || {}).done);
     if (k.grade >= 9 && tDone.length) { const bs = []; tDone.forEach((tr) => tr.mods.forEach((m) => { const r = ((cd[tr.id] || {}).m || {})[m.id]; if (r && r.best != null) bs.push(r.best); })); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null;
       rows.push({ g: k.grade, title: 'Career Exploration: Skilled Trades (' + tDone.length + ' of 8 pathways)', pct: Math.round((tDone.length / 8) * 100), letter: LETTER(avg), done: tDone.length >= 8, credit: tDone.length >= 8 ? 0.5 : 0 }); }
+    const PYL = (window.LH_CODE || { python: [] }).python, pcd = ((dayDoc(k.id).code || {}).p) || {};
+    if (k.grade >= 9 && PYL.length && PYL.every((x) => x.ex.every((e) => ((pcd[x.id] || {})[e.id] || {}).ok))) rows.push({ g: k.grade, title: 'Introduction to Programming (Python)', pct: 100, letter: '—', done: true, credit: 0.5 });
     const done = rows.filter((r) => r.done && r.letter !== '—');
     const gpa = done.length ? (done.reduce((a, r) => a + POINTS[r.letter], 0) / done.length).toFixed(2) : null;
     return { rows, gpa, credits: rows.reduce((a, r) => a + r.credit, 0) };
@@ -1882,7 +1886,7 @@
       const li = h('li', { class: 'plan-item' + (ok ? ' done' : '') }, h('span', { class: 'tick', 'aria-hidden': 'true' }, ok ? '✓' : ''), h('span', { class: 'pi-t' }, it.t, h('small', null, ' · ' + it.min + ' min')));
       if (it.kind === 'fun') {
         li.appendChild(ok ? h('span', { class: 'small muted' }, 'Done') : h('span', { class: 'fun-picks' },
-          [['AI & Me', () => go('course', { g: k.grade, s: 'ai' })], ['Money Smart', () => go('course', { g: k.grade, s: 'fin' })], ['A book', () => go('reading')], ['More Spanish', () => { S.es = null; go('spanish'); }]].map(([n, f]) => h('button', { type: 'button', class: 'chip-btn', onclick: f }, n)),
+          [['Code Lab', () => { S.codeL = null; go('code'); }], ['AI & Me', () => go('course', { g: k.grade, s: 'ai' })], ['Money Smart', () => go('course', { g: k.grade, s: 'fin' })], ['A book', () => go('reading')], ['More Spanish', () => { S.es = null; go('spanish'); }]].map(([n, f]) => h('button', { type: 'button', class: 'chip-btn', onclick: f }, n)),
           h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { markAct(k.id, 'fun'); render(); } }, 'I did it ✓')));
       } else if (!ok) li.appendChild(h('button', { type: 'button', class: 'btn primary xs', onclick: () => startItem(k, it) }, 'Start'));
       ul.appendChild(li);
@@ -1943,6 +1947,7 @@
     const k = kidById(S.who), M = S.mq; if (!k || !M) return viewKidHome();
     const main = h('main', { class: 'wrap quiz' });
     if (M.done && M.kind === 'wq') { main.appendChild(wqResult(k, M)); return h('div', null, kidBar(), main); }
+    if (M.done && M.kind === 'code') { main.appendChild(codeResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done && M.kind === 'car') { main.appendChild(carResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done) {
       const weak = Object.entries(M.per).filter(([key, [r, t]]) => r < Math.ceil(t * 0.67)).map(([key]) => unitOf(key));
@@ -1959,11 +1964,11 @@
       return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; markSeen(S.who, item); const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[M.picked] === item.a;
-    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'car' ? 'Career Paths' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
+    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'car' ? 'Career Paths' : M.kind === 'code' ? 'Code Lab' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
     const hear = (item.sayText || item.esSay) && Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => (item.esSay ? sayEs(item.esSay) : say(item.sayText, 0.85)) }, icon('voice'), item.esSay ? ' Escuchar' : ' Hear the sentence') : null;
     main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), item.esIt ? h('div', { class: 'wq-es' }, esPic(item.esIt, true)) : null, hear, choices,
       answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? pick(CHEER) : 'Not quite. The answer is ' + item.a + '.')) : null,
-      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else if (M.kind === 'car') finishCar(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
+      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else if (M.kind === 'car') finishCar(k); else if (M.kind === 'code') finishCode(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
     return h('div', null, kidBar(), main);
   }
 
@@ -2290,7 +2295,208 @@
       box.appendChild(h('p', { class: 'small muted' }, 'Sign off only after you saw the hands-on activity done safely. On Mondays and Wednesdays, the next module appears in ' + k.name + '\'s plan.'));
       wrap.appendChild(box);
     });
+    wrap.appendChild(pCode());
     return wrap;
+  }
+
+  /* ─────────────── Code Lab (bonus): Blocks with Code.org for younger learners, real Python for older ───────────────
+     day-{kidId}.code = { b: { lessonId: { un, cdo, best, last, tries, at, done } }, p: { lessonId: { exId: { ok, code } } } }
+     Python runs in a Web Worker (Pyodide from jsDelivr) so an endless loop can be stopped without freezing the page. */
+  const CODE = window.LH_CODE || { blocks: [], python: [] };
+  const codeDoc = (kidId) => { const d = dayDoc(kidId); const c = d.code || (d.code = {}); c.b = c.b || {}; c.p = c.p || {}; return c; };
+  const codeTrack = (k) => { const v = kidPlan(k.id).code; return v === false || v === 'off' ? null : v === 'blocks' || v === 'python' ? v : k.grade <= 5 ? 'blocks' : 'python'; };
+  const bDone = (r) => !!(r && (r.best || 0) >= settings().passMark && (r.un || r.cdo));
+  const pDone = (kidId, L) => L.ex.every((x) => ((codeDoc(kidId).p[L.id] || {})[x.id] || {}).ok);
+  function codeProgress(k) {
+    const t = codeTrack(k); if (!t) return null; const list = t === 'blocks' ? CODE.blocks : CODE.python;
+    const done = list.filter((L) => (t === 'blocks' ? bDone(codeDoc(k.id).b[L.id]) : pDone(k.id, L))).length;
+    return { t, list, done, total: list.length, complete: done === list.length };
+  }
+  const codeUnlocked = (k, t, i) => { if (i === 0) return true; const prev = (t === 'blocks' ? CODE.blocks : CODE.python)[i - 1]; return t === 'blocks' ? (codeDoc(k.id).b[prev.id] || {}).best >= settings().passMark : pDone(k.id, prev); };
+  function codeCard(k) {
+    const p = codeProgress(k); if (!p) return null;
+    return h('section', { class: 'card car-card' }, h('div', { class: 'card-head' }, h('h3', null, 'Code Lab'), h('span', { class: 'bonus-tag' }, 'Bonus')),
+      h('div', { class: 'quest-row' }, h('span', { class: 'quest-e', 'aria-hidden': 'true' }, p.t === 'blocks' ? '🧩' : '🐍'), h('div', null, h('b', null, p.t === 'blocks' ? 'Coding with blocks' : 'Python'), h('div', { class: 'small muted' }, p.complete ? 'Track complete! 🏅' : p.done + ' of ' + p.total + ' lessons done'))),
+      bar(Math.round((p.done / p.total) * 100), 'ai'), h('button', { class: 'btn primary sm', onclick: () => { S.codeL = null; go('code'); } }, 'Open Code Lab'));
+  }
+
+  /* Python engine */
+  const PY_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
+  const PY_HARNESS = [
+    'import sys, json, math, traceback',
+    'def _run(code, inputs, calls):',
+    '    disp = []; clean = []; q = list(inputs)',
+    '    class _O:',
+    '        def write(self, s):',
+    '            disp.append(s); clean.append(s); return len(s)',
+    '        def flush(self): pass',
+    '    def _input(prompt=""):',
+    '        disp.append(str(prompt))',
+    '        if not q: raise EOFError("The program asked for more input than it was given.")',
+    '        v = str(q.pop(0)); disp.append(v + "\\n"); return v',
+    '    ns = {"__name__": "__main__", "input": _input}',
+    '    old = sys.stdout; sys.stdout = _O(); err = None; res = []',
+    '    try:',
+    '        exec(compile(code, "<your code>", "exec"), ns)',
+    '        for expr, eq in calls:',
+    '            try:',
+    '                r = eval(expr, ns); x = eval(eq, {})',
+    '                num = isinstance(r, (int, float)) and isinstance(x, (int, float)) and not isinstance(r, bool) and not isinstance(x, bool)',
+    '                res.append([bool(math.isclose(r, x, rel_tol=1e-9, abs_tol=1e-9) if num else (r == x and type(r) == type(x) or (isinstance(r, bool) and r == x))), repr(r)])',
+    '            except BaseException as e:',
+    '                res.append([False, type(e).__name__ + ": " + str(e)])',
+    '    except BaseException as e:',
+    '        ln = getattr(e, "lineno", None) if isinstance(e, SyntaxError) else None',
+    '        if ln is None:',
+    '            fr = [f for f in traceback.extract_tb(e.__traceback__) if f.filename == "<your code>"]',
+    '            ln = fr[-1].lineno if fr else None',
+    '        err = ("Line " + str(ln) + ": " if ln else "") + type(e).__name__ + ": " + str(getattr(e, "msg", None) or e)',
+    '    finally:',
+    '        sys.stdout = old',
+    '    return json.dumps({"out": "".join(disp), "clean": "".join(clean), "err": err, "calls": res})'
+  ].join('\n');
+  const Py = {
+    w: null, ready: false, fail: null, pend: {}, n: 0, readyP: null,
+    start() {
+      if (this.w || this.fail) return this.readyP;
+      const src = 'importScripts(' + JSON.stringify(PY_URL + 'pyodide.js') + ');\nconst H = ' + JSON.stringify(PY_HARNESS) + ';\n' +
+        'const ready = loadPyodide({ indexURL: ' + JSON.stringify(PY_URL) + ' }).then((py) => { py.runPython(H); return py; });\n' +
+        'ready.then(() => postMessage({ ready: 1 }), (e) => postMessage({ loadFail: String((e && e.message) || e) }));\n' +
+        'onmessage = async (e) => { const d = e.data; try { const py = await ready; const r = py.globals.get("_run")(d.code, py.toPy(d.inputs), py.toPy(d.calls)); postMessage({ id: d.id, r: JSON.parse(r) }); } catch (err) { postMessage({ id: d.id, r: { out: "", clean: "", err: String((err && err.message) || err), calls: [] } }); } };';
+      let res; this.readyP = new Promise((r) => { res = r; });
+      try { this.w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' }))); }
+      catch (e) { this.fail = 'Python can\'t start in this window. Open Lantern at lantern-homeschool.netlify.app to code.'; res(false); return this.readyP; }
+      this.w.onmessage = (e) => { const d = e.data;
+        if (d.ready) { this.ready = true; res(true); if (S.screen === 'code') render(); }
+        if (d.loadFail) { this.fail = 'Python couldn\'t load (' + d.loadFail.slice(0, 80) + '). Check the internet connection and reload.'; this.w.terminate(); this.w = null; res(false); if (S.screen === 'code') render(); }
+        if (d.id && this.pend[d.id]) { const p = this.pend[d.id]; delete this.pend[d.id]; clearTimeout(p.t); p.res(d.r); } };
+      this.w.onerror = (e) => { if (!this.ready) { this.fail = 'Python couldn\'t start here. Open Lantern at lantern-homeschool.netlify.app to code.'; this.w = null; res(false); if (S.screen === 'code') render(); } };
+      return this.readyP;
+    },
+    async run(code, inputs, calls) {
+      const ok = await this.start(); if (!ok) return { out: '', clean: '', err: this.fail, calls: [] };
+      const id = ++this.n;
+      return new Promise((res) => {
+        const t = setTimeout(() => { delete this.pend[id]; if (this.w) this.w.terminate(); this.w = null; this.ready = false; this.readyP = null; this.start(); res({ out: '', clean: '', err: 'Your program ran for more than 5 seconds and was stopped. Is there a loop that never ends?', calls: [], timeout: true }); }, 5000);
+        this.pend[id] = { res, t }; this.w.postMessage({ id, code, inputs: inputs || [], calls: calls || [] });
+      });
+    }
+  };
+  const norm = (s) => String(s || '').replace(/\r/g, '').split('\n').map((l) => l.replace(/\s+$/, '')).join('\n').replace(/\n+$/, '');
+  async function pyCheck(ex, code) {
+    const fails = [], calls = ex.tests.filter((t) => t.call);
+    for (const t of ex.tests) {
+      if (t.has && !code.includes(t.has)) { fails.push('Your code should use ' + JSON.stringify(t.has.trim()) + ' for this exercise.'); continue; }
+      if (t.hasNot && code.includes(t.hasNot)) { fails.push('Try it without using ' + t.hasNot.replace('(', '') + '.'); continue; }
+      if (t.out == null && t.outHas == null && t.outLines == null) continue;
+      const r = await Py.run(code, t.in, []); if (r.err) return { ok: false, msg: r.err, out: r.out };
+      const got = norm(r.clean), w = t.in && t.in.length ? ' with input ' + t.in.join(', ') : '';
+      if (t.out != null && got !== norm(t.out)) fails.push('Expected' + w + ':\n' + norm(t.out) + '\nYour program printed:\n' + (got || '(nothing)'));
+      else if (t.outHas != null && !got.includes(t.outHas)) fails.push('Expected' + w + ' the output to include: ' + t.outHas + '\nYour program printed:\n' + (got || '(nothing)'));
+      else if (t.outLines != null && got.split('\n').filter((l) => l.trim()).length !== t.outLines) fails.push('Expected ' + t.outLines + ' lines of output, but got ' + got.split('\n').filter((l) => l.trim()).length + '.');
+    }
+    if (calls.length && !fails.length) {
+      const r = await Py.run(code, [], calls.map((t) => [t.call, t.eq])); if (r.err) return { ok: false, msg: r.err, out: r.out };
+      r.calls.forEach((c, i) => { if (!c[0]) fails.push(calls[i].call.replace(/ == .*$/, '') + ' should give ' + (calls[i].call.includes(' == ') ? calls[i].call.split(' == ')[1] : calls[i].eq) + ', but gave ' + c[1]); });
+    }
+    return fails.length ? { ok: false, msg: fails[0] } : { ok: true };
+  }
+  function codeEditor(id, val, onInput) {
+    const ta = h('textarea', { id, class: 'code-ed', rows: Math.max(6, Math.min(16, String(val).split('\n').length + 2)), spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', 'aria-label': 'Python code' }, val);
+    ta.addEventListener('input', () => onInput(ta.value));
+    ta.addEventListener('keydown', (e) => {
+      const s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); ta.value = v.slice(0, s) + '    ' + v.slice(en); ta.selectionStart = ta.selectionEnd = s + 4; onInput(ta.value); }
+      else if (e.key === 'Enter') { const line = v.slice(v.lastIndexOf('\n', s - 1) + 1, s); let ind = (line.match(/^ */) || [''])[0]; if (/:\s*$/.test(line)) ind += '    '; if (ind) { e.preventDefault(); const ins = '\n' + ind; ta.value = v.slice(0, s) + ins + v.slice(en); ta.selectionStart = ta.selectionEnd = s + ins.length; onInput(ta.value); } }
+    });
+    return ta;
+  }
+  function viewCode() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'code') Timer.start(k.id, 'code');
+    const p = codeProgress(k), main = h('main', { class: 'wrap career code-lab' });
+    if (!p) { main.appendChild(h('p', null, 'Code Lab is turned off. Ask your grown-up.')); return h('div', null, kidBar(), main); }
+    const blocks = p.t === 'blocks';
+    if (S.codeL == null) {
+      main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => go('home') }, '← Dashboard'));
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Code Lab · Bonus'), h('h1', null, blocks ? '🧩 Coding with blocks' : '🐍 Python'),
+        h('p', { class: 'lede' }, blocks ? 'Learn to think like a coder with games at home and puzzles on Code.org.' : 'Write real Python code right here. Run it, check it, and build your own programs.')));
+      main.appendChild(h('div', { class: 'car-prog' }, bar(Math.round((p.done / p.total) * 100), 'ai'), h('span', { class: 'small' }, p.done + ' of ' + p.total + ' lessons complete')));
+      main.appendChild(h('ol', { class: 'units' }, p.list.map((L, i) => { const open = codeUnlocked(k, p.t, i), done = blocks ? bDone(codeDoc(k.id).b[L.id]) : pDone(k.id, L);
+        const nOk = blocks ? 0 : L.ex.filter((x) => ((codeDoc(k.id).p[L.id] || {})[x.id] || {}).ok).length;
+        const st = done ? ['mastered', 'Complete'] : !open ? ['new', '🔒 Finish the previous lesson first'] : blocks ? ((codeDoc(k.id).b[L.id] || {}).best != null ? ['trying', 'Best ' + codeDoc(k.id).b[L.id].best + '%'] : ['new', 'Not started']) : nOk ? ['trying', nOk + ' of ' + L.ex.length + ' exercises'] : ['new', 'Not started'];
+        return h('li', { class: 'unit ' + st[0] }, h('button', { class: 'unit-btn', disabled: open ? null : true, onclick: () => { S.codeL = i; render(); } }, h('span', { class: 'unit-n' }, 'Lesson ' + (i + 1) + (blocks ? '' : ' · ' + L.ex.length + ' exercises')), h('span', { class: 'unit-t' }, L.t), h('span', { class: 'watched-tag' }), h('span', { class: 'pill ' + st[0] }, st[1]))); })));
+      return h('div', null, kidBar(), main);
+    }
+    const i = S.codeL, L = p.list[i];
+    main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.codeL = null; render(); } }, '← Code Lab'));
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, (blocks ? '🧩 Blocks' : '🐍 Python') + ' · Lesson ' + (i + 1) + ' of ' + p.total), h('h1', null, L.t)));
+    main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Big ideas'), h('ul', { class: 'points' }, L.l.map((x) => h('li', null, x))), Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => say(L.l.join(' '), 0.95) }, icon('voice'), ' Read it to me') : null));
+    if (blocks) {
+      const r = codeDoc(k.id).b[L.id] || (codeDoc(k.id).b[L.id] = {});
+      main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Play it at home: ' + L.un.t), h('ol', { class: 'points' }, L.un.steps.map((x) => h('li', null, x))),
+        r.un ? h('p', { class: 'small' }, '✓ Done') : h('button', { class: 'btn primary sm', onclick: () => { r.un = Date.now(); markAct(k.id, 'fun'); saveDay(k.id); render(); } }, 'We played it ✓')));
+      main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Code it on Code.org'), h('p', { class: 'small' }, 'With your grown-up, open Code.org, choose Course B (Computer Science Fundamentals), and do the lesson: ' + L.cdo + '.'),
+        h('div', { class: 'actions' }, h('a', { class: 'btn ghost sm', href: CODE.csf, target: '_blank', rel: 'noopener noreferrer' }, 'Open Code.org ↗'), r.cdo ? h('span', { class: 'done-pill' }, '✓ Done') : h('button', { class: 'btn primary sm', onclick: () => { r.cdo = Date.now(); saveDay(k.id); render(); } }, 'I did it on Code.org ✓'))));
+      main.appendChild(h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, 'Quick check'), h('p', { class: 'small' }, (r.best != null ? 'Best so far: ' + r.best + '%. ' : '') + 'Score ' + settings().passMark + '% to unlock the next lesson.'),
+        h('button', { class: 'btn primary sm', onclick: () => { const qs = buildQuestions({ q: L.q }, k.id, 5).map((q) => Object.assign(q, { key: 'code:' + L.id, from: 'Code Lab · ' + L.t })); S.mq = { kind: 'code', qs, at: 0, right: 0, picked: null, per: {}, li: i }; go('mq'); } }, r.best != null ? 'Try again' : 'Start the quick check')));
+    } else {
+      Py.start();
+      main.appendChild(h('p', { class: 'small py-status' + (Py.fail ? ' err' : '') }, Py.fail ? Py.fail : Py.ready ? '🐍 Python is ready.' : '⏳ Starting Python… (the first time takes about 10 seconds)'));
+      const rec = codeDoc(k.id).p[L.id] || (codeDoc(k.id).p[L.id] = {}); S.pyCode = S.pyCode || {}; S.pyRes = S.pyRes || {};
+      L.ex.forEach((x, n) => {
+        const key = L.id + '/' + x.id, er = rec[x.id] || {}; if (S.pyCode[key] == null) S.pyCode[key] = er.code != null ? er.code : x.start;
+        const res = S.pyRes[key] || {}, needsIn = x.tests.some((t) => t.in && t.in.length) || /input\s*\(/.test(S.pyCode[key]);
+        const ed = codeEditor('ed-' + key.replace(/\W/g, '_'), S.pyCode[key], (v) => { S.pyCode[key] = v; });
+        const inBox = h('textarea', { class: 'code-in', rows: 2, placeholder: 'Type what the user would enter, one answer per line', 'aria-label': 'Program input' }, res.inputs || '');
+        const save = (ok) => { rec[x.id] = { ok: ok ? Date.now() : er.ok || 0, code: S.pyCode[key].slice(0, 3000) }; saveDay(k.id); };
+        const card = h('section', { class: 'card car-step py-ex' + (er.ok ? ' ok' : '') },
+          h('h2', { class: 'mini' }, 'Exercise ' + (n + 1) + (er.ok ? ' ✓' : '')), h('p', { class: 'py-task' }, x.t), ed,
+          needsIn ? h('div', null, h('label', { class: 'small' }, 'Input for Run'), inBox) : null,
+          h('div', { class: 'actions' },
+            h('button', { class: 'btn ghost sm', disabled: res.busy ? true : null, onclick: async () => { res.busy = true; res.inputs = inBox.value; S.pyRes[key] = res; render(); const r = await Py.run(S.pyCode[key], inBox.value ? inBox.value.split('\n') : [], []); Object.assign(res, { busy: false, out: r.out, err: r.err, msg: null }); save(false); render(); } }, '▶ Run'),
+            h('button', { class: 'btn primary sm', disabled: res.busy ? true : null, onclick: async () => { res.busy = true; S.pyRes[key] = res; render(); const c = await pyCheck(x, S.pyCode[key]); Object.assign(res, { busy: false, ok: c.ok, msg: c.ok ? null : c.msg, out: c.out != null ? c.out : res.out, err: null }); save(c.ok); markAct(k.id, 'fun'); if (c.ok) { confetti(); const was = pDone(k.id, L); if (was) { toast('Lesson complete! 🐍'); checkBadges(k.id); } } render(); } }, '✓ Check'),
+            h('button', { class: 'btn ghost sm', onclick: () => { res.hint = !res.hint; S.pyRes[key] = res; render(); } }, res.hint ? 'Hide hint' : 'Hint'),
+            lumiReady(k.id) ? h('button', { class: 'btn ghost sm', onclick: () => { lumiContext({ kidId: k.id, g: k.grade, s: 'code', unit: 'Python: ' + L.t, points: L.l, mode: 'code', question: x.t, getCode: () => S.pyCode[key], getOut: () => (S.pyRes[key] || {}).err || (S.pyRes[key] || {}).msg || (S.pyRes[key] || {}).out || '' }); LP.open = true; drawLumi(); } }, 'Ask Lumi') : null,
+            h('button', { class: 'btn ghost sm', onclick: () => { if (confirm('Start this exercise over?')) { S.pyCode[key] = x.start; S.pyRes[key] = {}; render(); } } }, 'Reset')),
+          res.busy ? h('p', { class: 'small muted' }, Py.ready ? 'Running…' : 'Starting Python…') : null,
+          res.hint ? h('p', { class: 'small py-hint' }, '💡 ' + x.hint) : null,
+          res.ok ? h('p', { class: 'py-pass', role: 'status' }, '✓ All checks passed. Great coding!') : null,
+          res.msg ? h('pre', { class: 'py-out fail', role: 'status' }, res.msg) : null,
+          res.err ? h('pre', { class: 'py-out fail', role: 'status' }, res.err) : null,
+          res.out && !res.msg ? h('pre', { class: 'py-out' }, res.out) : null);
+        main.appendChild(card);
+      });
+    }
+    const nxt = i + 1 < p.total && codeUnlocked(k, p.t, i + 1) ? i + 1 : null;
+    main.appendChild(h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => { S.codeL = i - 1; render(); } }, '← Previous lesson') : h('span'), nxt != null ? h('button', { class: 'btn primary sm', onclick: () => { S.codeL = nxt; render(); } }, 'Next lesson →') : h('span')));
+    return h('div', null, kidBar(), main);
+  }
+  function finishCode(k) {
+    const M = S.mq, L = CODE.blocks[M.li], r = codeDoc(k.id).b[L.id] || (codeDoc(k.id).b[L.id] = {}), score = Math.round((M.right / M.qs.length) * 100);
+    Object.assign(r, { best: Math.max(score, r.best || 0), last: score, tries: (r.tries || 0) + 1, at: Date.now() }); if (!r.done && bDone(r)) r.done = Date.now();
+    markAct(k.id, 'fun'); saveDay(k.id); Timer.accrue(); Timer.flush(); checkBadges(k.id);
+    M.done = true; M.res = { score, pass: score >= settings().passMark }; if (M.res.pass) setTimeout(confetti, 50); render();
+  }
+  function codeResult(k, M) {
+    const res = M.res, nxt = M.li + 1 < CODE.blocks.length ? M.li + 1 : null;
+    return h('section', { class: 'result-card ' + (res.pass ? 'pass' : 'retry') }, ring(res.score, M.right + ' of ' + M.qs.length, 'lg'),
+      lumi(res.pass ? 'cheer' : 'think', res.pass ? 'You think like a coder!' : 'Let\'s look at the big ideas and try again.'), h('h1', null, res.pass ? 'Quick check passed' : 'Almost there'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => { S.mq = null; S.codeL = M.li; go('code'); } }, 'Back to the lesson'),
+        res.pass && nxt != null ? h('button', { class: 'btn ghost', onclick: () => { S.mq = null; S.codeL = nxt; go('code'); } }, 'Next: ' + CODE.blocks[nxt].t) : null));
+  }
+  function pCode() {
+    const box = h('article', { class: 'card' }, h('h2', null, 'Code Lab (bonus)'),
+      h('p', { class: 'small' }, 'Blocks (grades 1–5): coding games at home plus Code.org\'s free Course B. Python (grades 6–12): real code that runs inside Lantern with automatic checking; Lumi can give hints without writing the answer. A Chromebook works for both; a physical keyboard helps for Python.'),
+      h('p', { class: 'small muted' }, 'It is bonus work: it adds badges and hours but never lowers grade completion. A high school learner who finishes the Python track gets "Introduction to Programming (Python)" on the transcript for 0.5 credit.'));
+    kids().forEach((k) => {
+      const p = codeProgress(k), cur = kidPlan(k.id).code || 'auto';
+      const sel = h('select', { 'aria-label': 'Code Lab track for ' + k.name, onchange: (e) => { k.plan = Object.assign(kidPlan(k.id), { code: e.target.value === 'auto' ? undefined : e.target.value }); saveFamily(); render(); } },
+        [['auto', 'By grade (' + (k.grade <= 5 ? 'Blocks' : 'Python') + ')'], ['blocks', 'Blocks'], ['python', 'Python'], ['off', 'Off']].map(([v, n]) => h('option', { value: v, selected: cur === v ? true : null }, n)));
+      box.appendChild(h('div', { class: 'code-kid' }, h('div', { class: 'card-head' }, h('h3', null, k.name), sel),
+        !p ? h('p', { class: 'small muted' }, 'Off') : h('p', { class: 'small' }, (p.t === 'blocks' ? '🧩 Blocks' : '🐍 Python') + ' · ' + p.done + ' of ' + p.total + ' lessons complete' + (p.done < p.total ? ' · next: ' + (p.list.find((L) => !(p.t === 'blocks' ? bDone(codeDoc(k.id).b[L.id]) : pDone(k.id, L))) || {}).t : ''))));
+    });
+    return box;
   }
 
   function questProgress(kidId) { const a = questDoc(kidId).active; if (!a) return null; const q = questById(a.id); if (!q) return null; const done = q.steps.filter((s, i) => a.steps[i]).length; return { q, a, done, total: q.steps.length, next: q.steps.findIndex((s, i) => !a.steps[i]) }; }
@@ -2423,7 +2629,7 @@
     LP.msgs.forEach((x) => log.appendChild(h('p', { class: 'lp-msg ' + (x.role === 'user' ? 'me' : 'bot') + (x.err ? ' err' : '') }, x.content)));
     if (LP.busy) log.appendChild(h('p', { class: 'lp-msg bot think' }, 'Lumi is thinking', h('span', { class: 'dots3', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
     el.appendChild(log);
-    const chips = c.mode === 'quiz' ? ['Give me a hint', 'Explain the idea behind this question', 'What does this word mean?'] : ['Explain it another way', 'Give me an example', 'Quiz me with one question', 'Why does this matter?'];
+    const chips = c.mode === 'code' ? ['Why doesn\'t my code work?', 'Give me a hint', 'Explain this error'] : c.mode === 'quiz' ? ['Give me a hint', 'Explain the idea behind this question', 'What does this word mean?'] : ['Explain it another way', 'Give me an example', 'Quiz me with one question', 'Why does this matter?'];
     el.appendChild(h('div', { class: 'lp-chips' }, chips.map((t) => h('button', { type: 'button', class: 'chip-btn', disabled: LP.busy || !left ? true : null, onclick: () => lumiSend(t) }, t))));
     const ta = h('textarea', { id: 'lumi-in', rows: 2, maxlength: 400, placeholder: left ? 'Type your question…' : 'No more questions today', disabled: left ? null : true, 'aria-label': 'Your question for Lumi' });
     ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); lumiSend(ta.value); } });
@@ -2440,7 +2646,7 @@
       const tok = await u.getIdToken();
       const hist = LP.msgs.filter((x) => !x.err).slice(-10).map((x) => ({ role: x.role, content: x.content }));
       const r = await fetch(LUMI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ grade: c.g, subject: SUBJ_NAME[c.s] || c.s, unit: c.unit, points: c.points, mode: c.mode, question: c.question || '', choices: c.choices || [], messages: hist }) });
+        body: JSON.stringify({ grade: c.g, subject: SUBJ_NAME[c.s] || c.s, unit: c.unit, points: c.points, mode: c.mode, question: c.question || '', choices: c.choices || [], code: c.getCode ? String(c.getCode() || '').slice(0, 3000) : undefined, output: c.getOut ? String(c.getOut() || '').slice(0, 800) : undefined, messages: hist }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.reply) throw new Error(j.error || (r.status === 404 ? 'Lumi isn\'t available on this site yet.' : 'Lumi is resting right now. Try again in a little while.'));
       LP.msgs.push({ role: 'assistant', content: j.reply });
