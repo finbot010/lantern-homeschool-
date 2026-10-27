@@ -619,6 +619,15 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .focus-chip .fc-time { font: 800 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
 .focus-chip .btn.ghost { color: inherit; border-color: currentColor; }
 .week-card { display: grid; gap: 10px; margin-bottom: 18px; } .week-card h3 { margin: 0; }
+.car-parent { display: grid; gap: 14px; } .car-parent > * { margin: 0; }
+.car-card { margin-bottom: 18px; display: grid; gap: 10px; } .car-card h3 { margin: 0; }
+.car-prog { display: grid; gap: 6px; margin: 8px 0 14px; }
+.car-step { margin: 12px 0; display: grid; gap: 10px; } .car-step .mini { margin: 0; }
+.car-kw { display: grid; gap: 8px; margin: 0; } .car-kw div { display: grid; grid-template-columns: minmax(110px, 180px) 1fr; gap: 10px; } .car-kw dt { font-weight: 700; } .car-kw dd { margin: 0; }
+@media (max-width: 560px) { .car-kw div { grid-template-columns: 1fr; gap: 2px; } }
+.car-safety { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--fin, #C27A12) 14%, transparent); border: 1px solid color-mix(in srgb, var(--fin, #C27A12) 45%, transparent); font-size: .92rem; }
+.car-career { margin: 12px 0; display: grid; gap: 8px; } .car-career h2 { margin: 0; }
+.car-checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; } .car-checks .ready-tag { color: var(--sci); font-weight: 600; }
 .expand-nudge { display: grid; gap: 6px; margin: 8px 0 14px; } .expand-nudge ul { margin: 0; padding-left: 18px; } .expand-nudge p { margin: 0; }
 .ahead-note { margin: 4px 0 8px; font-size: .9rem; color: var(--sci); font-weight: 600; }
 .wq-cta { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--sci) 10%, transparent); border: 1px solid color-mix(in srgb, var(--sci) 35%, transparent); }
@@ -3026,6 +3035,86 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
   ];
 })();
 
+/* Lantern Homeschool — Career Paths: Skilled Trades.
+   Each Lantern module pairs with a Home Depot Path to Pro "Skills Explorers" module (the parent's free educator account
+   on ON24). The video lessons stay on Skills Explorers; everything here — key words, safe home activities, quiz
+   questions and explanations — is original to Lantern. SAFETY: activities use only batteries, LEDs, static electricity
+   or looking (never touching) household wiring; anything near the breaker panel or outlets is done by a grown-up.
+   Quiz rows: [question, correct, wrong1, wrong2, wrong3]. */
+(function () {
+  window.LH_CAREERS = {
+    url: 'https://vshow.on24.com/vshow/PTP2026/curriculum/8020',
+    program: 'Home Depot Path to Pro · Skills Explorers',
+    minGrade: 6,
+    tracks: [{
+      id: 'el', t: 'Electricity', e: '⚡',
+      blurb: 'How electricity is made, how it travels through a home, how to stay safe around it, and what electricians do.',
+      mods: [
+        { id: 'intro', t: 'Introduction and welcome', hd: 'Electricity: Introduction and Welcome', min: 1,
+          kw: [['Electricity', 'Energy carried by moving electric charges'], ['Trade', 'A job that uses skilled hands-on work, like electrician or plumber']],
+          l: ['Electricity powers lights, phones, refrigerators, hospitals and the internet.', 'Electricians are skilled tradespeople who install and fix the systems that carry it.', 'Electricity is useful and also dangerous, so safety comes first in every lesson.'],
+          act: { t: 'Electricity hunt', hands: false, steps: ['Walk through your home and list 10 things that use electricity.', 'Mark each one: plugs into the wall (W) or uses batteries (B).', 'Circle the one your family would miss most in a power outage.'] },
+          q: [['What do electricians do?', 'Install and repair electrical systems', 'Grow crops', 'Fly airplanes', 'Teach music'], ['A trade is a job that uses…', 'Skilled, hands-on work', 'Only computers', 'No training', 'Only reading'], ['Which of these uses electricity?', 'A refrigerator', 'A wooden spoon', 'A paper book', 'A rubber ball'], ['What comes first when working with electricity?', 'Safety', 'Speed', 'Guessing', 'Decoration'], ['A device that runs on batteries uses…', 'Stored electrical energy', 'Water power', 'No energy', 'Wind only']] },
+        { id: 'what', t: 'What is electricity?', hd: 'Electricity: What is Electricity', min: 5,
+          kw: [['Electron', 'A tiny negatively charged particle in atoms'], ['Current', 'The flow of electric charge, measured in amperes (amps)'], ['Voltage', 'The "push" that moves charge, measured in volts'], ['Conductor / insulator', 'Conductors (copper) let current flow easily; insulators (rubber, plastic) block it']],
+          l: ['All matter is made of atoms, and atoms contain electrons that carry negative charge.', 'Electric current is a flow of charge through a path, like water through a pipe.', 'Voltage is the push (volts), current is the flow (amps), and resistance slows the flow (ohms).', 'Metals like copper are conductors; rubber and plastic are insulators, which is why wires are coated in plastic.'],
+          act: { t: 'Static electricity', hands: false, steps: ['Tear tissue paper into tiny bits.', 'Rub a balloon on your hair or a wool sweater for 10 seconds.', 'Hold the balloon near the paper bits. What happens? Why?', 'Try again near a thin stream of water from a faucet.'] },
+          q: [['Electric current is…', 'The flow of electric charge', 'The color of a wire', 'A type of battery', 'The weight of a light bulb'], ['Voltage is best described as…', 'The push that moves charge', 'The amount of copper', 'The flow of water', 'How bright the sun is'], ['Which is a good conductor?', 'Copper', 'Rubber', 'Glass', 'Plastic'], ['Why are wires covered in plastic?', 'Plastic is an insulator that keeps current in the wire', 'To make them heavier', 'Plastic conducts better', 'For decoration only'], ['Current is measured in…', 'Amperes (amps)', 'Volts', 'Pounds', 'Degrees'], ['Rubbing a balloon on your hair makes the balloon…', 'Charged with static electricity', 'Magnetic', 'Hot', 'Heavier']] },
+        { id: 'source', t: 'Where electricity comes from', hd: 'Electricity: Where Electricity Comes From', min: 3,
+          kw: [['Generator', 'A machine that turns motion into electricity using magnets and coils of wire'], ['Power plant', 'A place that generates electricity on a large scale'], ['Grid', 'The network of power lines that delivers electricity'], ['Transformer', 'A device that raises or lowers voltage']],
+          l: ['Most electricity comes from generators: something spins a turbine, which spins magnets near coils of wire.', 'The turbine can be turned by steam (from burning fuel or nuclear heat), falling water, or wind. Solar panels make electricity directly from sunlight.', 'High-voltage transmission lines carry electricity long distances; transformers lower the voltage before it reaches homes.', 'A meter outside the home measures how much electricity the family uses.'],
+          act: { t: 'Follow the power', hands: false, steps: ['With a grown-up, look outside (don\'t touch!) for the power line or underground box that brings electricity to your home.', 'Find the electric meter. What does it measure?', 'Look at an electric bill with your grown-up: how many kilowatt-hours (kWh) did your home use last month?', 'Draw the path: power plant → lines → transformer → meter → your outlets.'] },
+          q: [['A generator turns motion into…', 'Electricity', 'Water', 'Coal', 'Sunlight'], ['Which source makes electricity directly from sunlight?', 'Solar panels', 'Coal plants', 'Gas turbines', 'Dams'], ['A transformer…', 'Raises or lowers voltage', 'Stores water', 'Measures time', 'Creates oil'], ['The network of power lines is called the…', 'Grid', 'Circuit board', 'Battery', 'Panel'], ['What does an electric meter measure?', 'How much electricity a home uses', 'Water pressure', 'Outdoor temperature', 'Internet speed'], ['Which is a renewable source of electricity?', 'Wind', 'Coal', 'Oil', 'Natural gas']] },
+        { id: 'circuit', t: 'Circuits', hd: 'Electricity: Circuits', min: 7,
+          kw: [['Circuit', 'A complete loop that electricity flows around'], ['Load', 'The thing that uses the electricity, like a bulb'], ['Series circuit', 'One path; if one part breaks, everything stops'], ['Parallel circuit', 'Several paths; one can break and others keep working'], ['Short circuit', 'An accidental shortcut that lets too much current flow']],
+          l: ['A circuit needs a power source, a conductor (wire), a load, and a complete loop back to the source.', 'A switch opens the loop (off) or closes it (on).', 'In a series circuit, there is one path. In a parallel circuit, each device has its own path; homes are wired in parallel.', 'A short circuit skips the load. It can make wires and batteries dangerously hot.'],
+          act: { t: 'Build a battery circuit', hands: true, safety: 'Use only 1 or 2 AA batteries (1.5 volts each). Never connect the two ends of a battery directly with a wire: that\'s a short circuit and the battery can get hot. Never use wall outlets.', steps: ['Gather: 1–2 AA batteries, a small LED or flashlight bulb, aluminum foil strips or wires, and tape.', 'Connect battery (+) → bulb → back to battery (−). Does it light?', 'Make a gap in the loop. What happens?', 'If you have two bulbs, try series (one path) and parallel (two paths). Unscrew one bulb in each. What changes?'] },
+          q: [['What does every circuit need?', 'A complete loop with a power source and a load', 'Only a bulb', 'Only a switch', 'A wall outlet'], ['A switch turns a circuit off by…', 'Opening the loop', 'Adding more batteries', 'Making the wire longer', 'Cooling the bulb'], ['In which circuit does one broken bulb make all the others go out?', 'Series', 'Parallel', 'Short', 'Every circuit'], ['Homes are wired mostly in…', 'Parallel', 'Series', 'One single loop', 'No circuits'], ['A short circuit is dangerous because…', 'Too much current flows and things get hot', 'Nothing happens', 'It makes lights brighter safely', 'It saves electricity'], ['In a battery circuit, the bulb is the…', 'Load', 'Source', 'Switch', 'Insulator']] },
+        { id: 'breaker', t: 'Breakers and fuses', hd: 'Electricity: Breakers and Fuses', min: 6,
+          kw: [['Overload', 'Too many devices pulling current on one circuit'], ['Circuit breaker', 'A switch that automatically turns off (trips) when current is too high'], ['Fuse', 'A safety device with a wire that melts to stop current'], ['Panel', 'The box where circuits and breakers are, also called the breaker box']],
+          l: ['Each circuit in a home can safely carry only so much current.', 'Too much current heats wires and can start a fire.', 'A breaker trips (switches off) to stop the current; it can be reset. A fuse melts and must be replaced.', 'The breaker panel has labels showing which breaker controls which rooms. Only adults reset breakers, and only after unplugging the cause.'],
+          act: { t: 'Map the breaker panel (with a grown-up)', hands: true, safety: 'A grown-up opens only the outer door of the panel. Never remove the inside cover or touch anything inside. Learners only look and read labels.', steps: ['With your grown-up, find your home\'s breaker panel.', 'Read the labels. Copy them into a simple map: which breaker controls the kitchen, bedrooms, bathroom?', 'Find the main breaker. What do you think it controls?', 'Ask your grown-up: has a breaker ever tripped here? What caused it?'] },
+          q: [['A circuit breaker…', 'Turns off when current gets too high', 'Makes more electricity', 'Stores water', 'Brightens lights'], ['A fuse protects a circuit by…', 'Melting to stop the current', 'Adding voltage', 'Cooling the house', 'Lighting up'], ['What can happen if a circuit is overloaded?', 'Wires can overheat and start a fire', 'Lights get brighter safely', 'Nothing', 'The meter stops'], ['Who should reset a tripped breaker?', 'An adult, after unplugging what caused it', 'Any child', 'Nobody ever', 'Only a firefighter'], ['Plugging a space heater, microwave and hair dryer into one circuit might cause…', 'An overload', 'A rainbow', 'A short battery', 'Lower bills'], ['The difference between a breaker and a fuse is that a breaker…', 'Can be reset; a fuse must be replaced', 'Melts', 'Uses water', 'Makes electricity']] },
+        { id: 'wiring', t: 'Wiring in your home', hd: 'Electricity: Wiring In Your Home', min: 11,
+          kw: [['Hot wire', 'Carries current to the device (often black)'], ['Neutral wire', 'Carries current back (white)'], ['Ground wire', 'A safety path to the earth (green or bare copper)'], ['GFCI outlet', 'An outlet that shuts off power fast if current leaks, used near water'], ['Code', 'Safety rules electricians must follow, like the National Electrical Code']],
+          l: ['Electricity enters through the meter, goes to the panel, and branches into circuits that run through the walls.', 'Most outlets have three wires: hot, neutral and ground. Colors help electricians identify them.', 'GFCI outlets (with TEST and RESET buttons) are required near water, like kitchens and bathrooms, to prevent shocks.', 'Electricians follow the electrical code so homes are safe, and inspectors check their work.'],
+          act: { t: 'Outlet detective', hands: true, safety: 'Look only. Never put anything into an outlet or remove a cover plate. Your grown-up presses the GFCI buttons.', steps: ['Count the outlets in 3 rooms. Which room has the most?', 'Find a GFCI outlet (with TEST and RESET buttons). Where is it, and why there?', 'With your grown-up, have them press TEST (power goes off) and then RESET (power comes back).', 'Look for an outlet with three holes. Which hole do you think is the ground?'] },
+          q: [['Which wire is a safety path to the earth?', 'Ground', 'Hot', 'Neutral', 'Phone'], ['GFCI outlets are required near…', 'Water, like kitchens and bathrooms', 'Bookshelves', 'Bedroom closets only', 'Windows'], ['What does a GFCI outlet do?', 'Shuts off power fast if current leaks', 'Makes more power', 'Charges phones faster', 'Changes voltage'], ['Electricity enters a home through the meter and then goes to the…', 'Panel', 'Roof', 'Garden', 'Water heater only'], ['Safety rules electricians must follow are called…', 'The electrical code', 'A recipe', 'A blueprint only', 'A warranty'], ['The neutral wire is usually…', 'White', 'Green', 'Bare copper', 'Purple']] },
+        { id: 'switch', t: 'Light switches', hd: 'Electricity: Light Switches', min: 5,
+          kw: [['Single-pole switch', 'One switch controls a light from one place'], ['Three-way switch', 'Two switches control one light from two places'], ['Dimmer', 'A switch that changes how much power reaches a light']],
+          l: ['A switch opens or closes the circuit to a light.', 'It is placed on the hot wire, so when it\'s off, no current reaches the fixture.', 'Three-way switches let you turn a light on at one end of a hallway and off at the other.', 'Electricians always turn off the breaker and test that wires are dead before working on a switch.'],
+          act: { t: 'Build a paper-clip switch', hands: true, safety: 'Use only your battery circuit from the Circuits lesson. Never open a wall switch.', steps: ['Tape two thumbtacks or foil pads to a piece of cardboard, a little apart.', 'Connect one wire from your battery circuit to each pad.', 'Lay a metal paper clip across the pads: on! Lift it: off!', 'Challenge: find a light in your home that has two switches. That\'s a three-way switch.'] },
+          q: [['A switch controls a light by…', 'Opening or closing the circuit', 'Changing the bulb color', 'Adding water', 'Storing electricity'], ['A light you can control from both ends of a hallway uses…', 'Three-way switches', 'One single-pole switch', 'A fuse', 'A GFCI'], ['A dimmer switch…', 'Changes how much power reaches the light', 'Makes electricity', 'Turns off the whole house', 'Is a fuse'], ['Before working on a switch, an electrician first…', 'Turns off the breaker and tests that the wires are dead', 'Turns the light on', 'Wets their hands', 'Calls a plumber'], ['When a switch is off, the circuit is…', 'Open', 'Closed', 'Shorted', 'Overloaded'], ['Switches are placed on which wire?', 'The hot wire', 'The ground wire', 'The phone line', 'No wire']] },
+        { id: 'safety', t: 'Safety inspection and audit', hd: 'Electricity: Safety Inspection and Audit', min: 5,
+          kw: [['Hazard', 'Something that could cause harm'], ['Frayed cord', 'A cord with damaged insulation showing wires'], ['Overloaded outlet', 'Too many plugs or power strips on one outlet'], ['Smoke alarm', 'A device that warns of fire; test it monthly']],
+          l: ['Common electrical hazards: frayed or damaged cords, cords under rugs, too many power strips chained together, outlets near water, and missing outlet covers.', 'Water and electricity are a dangerous mix: dry your hands before touching switches or plugs.', 'Pull plugs by the plug, never by the cord.', 'Report hazards to an adult; don\'t try to fix wiring yourself. Electricians and inspectors do this professionally.'],
+          act: { t: 'Home safety audit', hands: true, safety: 'Look only and report. Don\'t unplug, move or fix anything yourself; show your grown-up what you find.', steps: ['Check each room for: frayed cords, cords under rugs, chained power strips, crowded outlets, and anything electrical near water.', 'Record what you find in a table: room, hazard, how to fix it.', 'With your grown-up, press the TEST button on a smoke alarm.', 'Share your report with your family and agree on one fix.'] },
+          q: [['Which is an electrical hazard?', 'A frayed cord', 'A closed cabinet', 'A wooden chair', 'A dry towel'], ['Why shouldn\'t cords run under rugs?', 'They can overheat and get damaged without anyone seeing', 'They look nice', 'It saves energy', 'Rugs conduct electricity'], ['How should you unplug something?', 'Pull the plug, not the cord', 'Yank the cord', 'Use wet hands', 'Cut the cord'], ['Plugging power strips into other power strips is…', 'A hazard that can overload the outlet', 'Recommended', 'Required by code', 'Safe for heaters'], ['If you find a hazard, you should…', 'Tell an adult', 'Fix the wiring yourself', 'Ignore it', 'Hide it'], ['How often should smoke alarms be tested?', 'Monthly', 'Every 10 years', 'Never', 'Only during a fire']] },
+        { id: 'careers', t: 'Careers in the electrical trade', hd: 'Electricity: Careers', min: 7,
+          kw: [['Apprentice', 'A learner who trains on the job under a licensed electrician while taking classes'], ['Journeyman', 'An electrician who has finished an apprenticeship and passed a license exam'], ['Master electrician', 'An experienced electrician who can plan jobs and often run a business'], ['License', 'Official permission from a state to do electrical work']],
+          l: ['Electricians install, maintain and repair wiring, lighting and control systems in homes, businesses and factories.', 'Most start with a high school diploma and learn through a paid 4- or 5-year apprenticeship that mixes on-the-job training and classes.', 'Most U.S. states require a license exam on the electrical code.', 'Useful skills: math, reading blueprints, problem-solving, careful attention to safety, and good customer service.'],
+          act: { t: 'Could I do this job?', hands: false, steps: ['Read the career card below with your grown-up.', 'Write 3 things about the job that sound interesting, and 1 that sounds hard.', 'If you can, ask an electrician (or anyone in a trade) one question about their work.', 'Which school subjects would help you most? Why?'] },
+          career: { title: 'Electrician', stats: [['Median pay (U.S., May 2025)', '$63,190 per year · $30.38 per hour'], ['Jobs in the U.S. (2025)', 'About 821,000'], ['Job outlook 2025–2035', '+9%, much faster than average · about 72,700 openings a year'], ['Education to start', 'High school diploma, then a 4- or 5-year paid apprenticeship'], ['License', 'Required in most states (exam on the electrical code)']], qualities: ['Color vision (wires are color-coded)', 'Critical thinking and troubleshooting', 'Physical stamina and strength', 'Customer service'], src: ['U.S. Bureau of Labor Statistics, Occupational Outlook Handbook: Electricians', 'https://www.bls.gov/ooh/construction-and-extraction/electricians.htm'] },
+          q: [['How do most electricians learn the trade?', 'A paid apprenticeship', 'A 2-week online class', 'Watching videos only', 'A medical degree'], ['About how long is a typical electrical apprenticeship?', '4–5 years', '2 weeks', '6 months', '10 years'], ['An electrician who finished an apprenticeship and passed a license exam is a…', 'Journeyman', 'Beginner', 'Tourist', 'Customer'], ['Why is color vision important for electricians?', 'Wires are identified by color', 'To pick paint colors', 'To read comics', 'It isn\'t important'], ['Which school subject helps electricians most every day?', 'Math', 'Only art', 'Only music', 'Only gym'], ['Most states require electricians to have a…', 'License', 'Pilot\'s certificate', 'Law degree', 'Boat permit']] },
+        { id: 'close', t: 'Closing and review', hd: 'Electricity: Closing', min: 1,
+          kw: [['Review', 'Looking back at the big ideas to lock them in']],
+          l: ['Electricity is the flow of charge; voltage pushes it, wires carry it, and loads use it.', 'Breakers, fuses, GFCIs and grounding keep people safe.', 'Never touch wiring, outlets or panels; report hazards to an adult.', 'Electricians are skilled, licensed professionals with a growing career path.'],
+          act: { t: 'Teach it back', hands: false, steps: ['Make a one-page "Electricity Safety" poster with 5 rules.', 'Teach your poster to a family member in 2 minutes.', 'Hang it near your breaker panel or in the kitchen.'] },
+          q: [['Which keeps people safe from shocks near water?', 'A GFCI outlet', 'A longer cord', 'A dimmer', 'A power strip'], ['A circuit needs…', 'A complete loop', 'An open gap', 'Water', 'Only a switch'], ['What trips to stop too much current?', 'A circuit breaker', 'A light bulb', 'A meter', 'A transformer'], ['What should you do if you see a frayed cord?', 'Tell an adult', 'Tape it yourself', 'Keep using it', 'Pull it by the cord'], ['Which is a conductor?', 'Copper', 'Rubber', 'Plastic', 'Glass'], ['Homes are wired mostly in…', 'Parallel', 'Series', 'One loop', 'No circuits'], ['How do most electricians start their careers?', 'An apprenticeship', 'A lottery', 'A video game', 'A medical school'], ['What does a generator do?', 'Turns motion into electricity', 'Stores water', 'Measures use', 'Lowers voltage']] }
+      ]
+    }],
+    // The parent's to-do list in the Skills Explorers educator account (entries, survey, report, badge).
+    parentItems: [
+      { id: 'explore8', t: 'Explore All 8 Trade Pathways', d: 'Open the introduction module in each of the 8 trade pathways, then open this milestone for 150 bonus entries.' },
+      { id: 'el-complete', t: 'Electricity: Trade Pathway Completion', d: 'After all required Electricity modules are opened in your Skills Explorers account, open this milestone for 25 bonus entries.', track: 'el' },
+      { id: 'el-survey', t: 'Course Completion Survey (required)', d: 'Complete the satisfaction and student attendance survey after the course.', track: 'el' },
+      { id: 'el-report', t: 'Electricity: Reporting Submission Check', d: 'Submit the electricity pathway report, then confirm your submission here.', track: 'el' },
+      { id: 'el-badge', t: 'Electricity: Badge and certificate', d: 'Download your certificate and save it for your records.', track: 'el' },
+      { id: 'all8', t: 'Complete All 8 Trade Pathways', d: 'Final milestone after all eight pathways: 150 bonus entries.' }
+    ]
+  };
+})();
+
 /* Lantern Homeschool — 2nd grade, expanded to the full grade-level course (Common Core math & ELA, NGSS science,
    and the social studies most strong schools teach in 2nd grade). New lessons are appended so saved progress
    stays matched; `order` lists every lesson easiest → hardest, and every lesson in the order is required.
@@ -4768,7 +4857,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
-    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'other', n: 'Other' }
+    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'cte', n: 'Career & technical (trades)' }, { k: 'other', n: 'Other' }
   ];
   const SUBJ_NAME = Object.fromEntries([...SUBJ, ...EXTRA].map((s) => [s.k, s.n]));
   const COLORS = ['#3461C1', '#C2453A', '#2F8A57', '#7B4FA6', '#C27A12', '#1F8A8A', '#B23A7A', '#5B6B2F'];
@@ -4794,7 +4883,8 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     { id: 'planner', n: 'Plan finisher', d: 'Finished 5 daily plans' },
     { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' },
     { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' },
-    { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' }
+    { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' },
+    { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -5018,6 +5108,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
     const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
+    earn('trades', Object.values(dd.car || {}).some((t) => t && t.done));
     earn('weekly', Object.values(dd.weeks || {}).filter((w) => w.quiz && w.quiz.first.score >= 80).length >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
@@ -5068,11 +5159,11 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest, career: viewCareer
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest', 'career'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -5306,7 +5397,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
         h('div', { class: 'stat-row' },
           stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
-    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); }
+    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); if (carOn(k)) main.appendChild(carCard(k)); }
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
@@ -5454,10 +5545,10 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['careers', 'Career paths'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
-    const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
+    const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, careers: pCareers, tutor: pTutor, settings: pSettings }[S.ptab]();
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
@@ -5547,6 +5638,9 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     for (let g = 9; g <= 12; g++) SUBJ.forEach((s) => { const st = courseStats(k.id, g, s.k); if (st.tried || st.mastered) { const c = course(g, s.k); rows.push({ g, title: c.t, pct: st.pct, letter: LETTER(st.avg), done: st.pct === 100, credit: st.pct === 100 ? c.credit || 1 : 0 }); } });
     const L = langDoc(k.id);
     if (L.doneAt && L.doneGrade >= 9) { const bs = ES.units.map((u) => ((L.units || {})[u.id] || {}).best).filter((x) => x != null); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null; rows.push({ g: L.doneGrade, title: 'Spanish 1: Beginner (Language Lab)', pct: 100, letter: LETTER(avg), done: true, credit: 0.5 }); }
+    const CT = (window.LH_CAREERS || { tracks: [] }).tracks, cd = (dayDoc(k.id).car || {}), tDone = CT.filter((tr) => (cd[tr.id] || {}).done);
+    if (k.grade >= 9 && tDone.length) { const bs = []; tDone.forEach((tr) => tr.mods.forEach((m) => { const r = ((cd[tr.id] || {}).m || {})[m.id]; if (r && r.best != null) bs.push(r.best); })); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null;
+      rows.push({ g: k.grade, title: 'Career Exploration: Skilled Trades (' + tDone.length + ' of 8 pathways)', pct: Math.round((tDone.length / 8) * 100), letter: LETTER(avg), done: tDone.length >= 8, credit: tDone.length >= 8 ? 0.5 : 0 }); }
     const done = rows.filter((r) => r.done && r.letter !== '—');
     const gpa = done.length ? (done.reduce((a, r) => a + POINTS[r.letter], 0) / done.length).toFixed(2) : null;
     return { rows, gpa, credits: rows.reduce((a, r) => a + r.credit, 0) };
@@ -6558,6 +6652,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     if (dow === 2 || dow === 4) { const qp = questProgress(k.id);
       if (qp && qp.next >= 0) items.push({ id: 'quest', kind: 'quest', t: 'Quest: ' + qp.q.steps[qp.next].t, min: [15, 20, 25, 30][pb] });
       else if (!qp && !(questDoc(k.id).hist || []).length) items.push({ id: 'quest', kind: 'quest', t: 'Choose your first Quest', min: 10 }); }
+    if ((dow === 1 || dow === 3) && carOn(k)) { const cn = carNext(k); if (cn) items.push({ id: 'trade', kind: 'trade', t: 'Trades: ' + cn.m.t, min: [15, 20, 20, 25][pb] }); }
     items.push({ id: 'read', kind: 'read', t: 'Read a book', min: [15, 20, 25, 30][pb] });
     if (pb < 3 || trickyDue(k.id).length) items.push({ id: 'spell', kind: 'spell', t: trickyDue(k.id).length ? 'Spelling: review tricky words' : 'Spelling practice', min: 10 });
     const wk = weekStart(), cu = conundrumFor(k);
@@ -6601,6 +6696,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     if (it.kind === 'span') { S.es = null; return go('spanish'); }
     if (it.kind === 'con') return go('conundrum');
     if (it.kind === 'quest') return go('quest');
+    if (it.kind === 'trade') { const cn = carNext(k); S.carT = cn ? CAR.tracks.indexOf(cn.tr) : 0; S.carM = cn ? cn.i : null; return go('career'); }
   }
   function todayCard(k) {
     const items = buildPlan(k), r = dayRec(k.id); const done = items.filter((it) => itemDone(k, it));
@@ -6680,6 +6776,7 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
     const k = kidById(S.who), M = S.mq; if (!k || !M) return viewKidHome();
     const main = h('main', { class: 'wrap quiz' });
     if (M.done && M.kind === 'wq') { main.appendChild(wqResult(k, M)); return h('div', null, kidBar(), main); }
+    if (M.done && M.kind === 'car') { main.appendChild(carResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done) {
       const weak = Object.entries(M.per).filter(([key, [r, t]]) => r < Math.ceil(t * 0.67)).map(([key]) => unitOf(key));
       main.appendChild(h('section', { class: 'result-card ' + (M.right >= M.qs.length * 0.67 ? 'pass' : 'retry') }, ring(Math.round((M.right / M.qs.length) * 100), M.right + ' of ' + M.qs.length, 'lg'),
@@ -6695,11 +6792,11 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
       return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; markSeen(S.who, item); const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[M.picked] === item.a;
-    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
+    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'car' ? 'Career Paths' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
     const hear = (item.sayText || item.esSay) && Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => (item.esSay ? sayEs(item.esSay) : say(item.sayText, 0.85)) }, icon('voice'), item.esSay ? ' Escuchar' : ' Hear the sentence') : null;
     main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), item.esIt ? h('div', { class: 'wq-es' }, esPic(item.esIt, true)) : null, hear, choices,
       answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? pick(CHEER) : 'Not quite. The answer is ' + item.a + '.')) : null,
-      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
+      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else if (M.kind === 'car') finishCar(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
     return h('div', null, kidBar(), main);
   }
 
@@ -6926,6 +7023,109 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
   const QUESTS = window.LH_QUESTS || [];
   const questDoc = (kidId) => { const d = dayDoc(kidId); return d.q || (d.q = { active: null, hist: [] }); };
   const questById = (id) => QUESTS.find((x) => x.id === id);
+  /* ─────────────── Career Paths: Skilled Trades ───────────────
+     Each module pairs with a Home Depot Skills Explorers lesson (opened from the parent's educator account).
+     Lantern adds key words, a safe home activity, a quiz and teach-back; hands-on activities need a grown-up's sign-off.
+     Progress lives in day-{kidId}.car = { trackId: { m: { modId: { w, act, sign, best, last, tries, at, xp, done } }, done } }. */
+  const CAR = window.LH_CAREERS || { tracks: [], parentItems: [] };
+  const carOn = (k) => !!(k && CAR.tracks.length && (kidPlan(k.id).careers === true || (kidPlan(k.id).careers !== false && k.grade >= (CAR.minGrade || 6))));
+  const carDoc = (kidId) => { const d = dayDoc(kidId); return d.car || (d.car = {}); };
+  const carRec = (kidId, tr, m) => { const c = carDoc(kidId); c[tr.id] = c[tr.id] || { m: {} }; c[tr.id].m = c[tr.id].m || {}; return c[tr.id].m[m.id] || (c[tr.id].m[m.id] = {}); };
+  const carPeek = (kidId, tr, m) => (((carDoc(kidId)[tr.id] || {}).m || {})[m.id]) || {};
+  const carPassed = (r) => !!r && (r.best || 0) >= settings().passMark;
+  const carKidDone = (r) => !!(r.w && carPassed(r) && r.act); // everything the learner does
+  const carModDone = (kidId, tr, m) => { const r = carPeek(kidId, tr, m); return carKidDone(r) && (!m.act.hands || !!r.sign); };
+  const carUnlocked = (kidId, tr, i) => i === 0 || carPassed(carPeek(kidId, tr, tr.mods[i - 1]));
+  function carProgress(kidId, tr) { const done = tr.mods.filter((m) => carModDone(kidId, tr, m)).length; return { done, total: tr.mods.length, complete: done === tr.mods.length, waiting: tr.mods.filter((m) => m.act.hands && carKidDone(carPeek(kidId, tr, m)) && !carPeek(kidId, tr, m).sign).length }; }
+  function carNext(k) { for (const tr of CAR.tracks) { const i = tr.mods.findIndex((m, j) => carUnlocked(k.id, tr, j) && !carKidDone(carPeek(k.id, tr, m))); if (i >= 0) return { tr, i, m: tr.mods[i] }; } return null; }
+  function carUpdate(k, tr) {
+    const c = carDoc(k.id)[tr.id]; tr.mods.forEach((m) => { const r = carPeek(k.id, tr, m); if (!r.done && carModDone(k.id, tr, m)) r.done = Date.now(); });
+    if (c && !c.done && carProgress(k.id, tr).complete) { c.done = Date.now(); saveDay(k.id); checkBadges(k.id); setTimeout(confetti, 100); toast('You finished the ' + tr.t + ' pathway! ' + tr.e); }
+  }
+  function carCard(k) {
+    const box = h('section', { class: 'card car-card' }, h('div', { class: 'card-head' }, h('h3', null, 'Career Paths: Trades'), h('span', { class: 'small muted' }, 'with Home Depot Skills Explorers')));
+    CAR.tracks.forEach((tr) => { const p = carProgress(k.id, tr); box.appendChild(h('div', { class: 'quest-row' }, h('span', { class: 'quest-e', 'aria-hidden': 'true' }, tr.e), h('div', null, h('b', null, tr.t), h('div', { class: 'small muted' }, p.complete ? 'Pathway complete! 🏅' : p.done + ' of ' + p.total + ' modules done' + (p.waiting ? ' · ' + p.waiting + ' waiting for sign-off' : ''))))); box.appendChild(bar(Math.round((p.done / p.total) * 100), 'sci')); });
+    box.appendChild(h('button', { class: 'btn primary sm', onclick: () => { S.carM = null; go('career'); } }, 'Open Career Paths'));
+    return box;
+  }
+  function viewCareer() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'cte') Timer.start(k.id, 'cte');
+    const tr = CAR.tracks[S.carT || 0]; const main = h('main', { class: 'wrap career' });
+    if (S.carM == null) {
+      main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => go('home') }, '← Dashboard'));
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Career Paths · Skilled Trades'), h('h1', null, tr.e + ' ' + tr.t), h('p', { class: 'lede' }, tr.blurb), h('p', { class: 'small muted' }, 'Each module goes with a lesson in ' + CAR.program + '. Watch it with your grown-up, try the activity, then pass the quick check to unlock the next module.')));
+      const p = carProgress(k.id, tr); main.appendChild(h('div', { class: 'car-prog' }, bar(Math.round((p.done / p.total) * 100), 'sci'), h('span', { class: 'small' }, p.done + ' of ' + p.total + ' modules complete')));
+      main.appendChild(h('ol', { class: 'units' }, tr.mods.map((m, i) => { const r = carPeek(k.id, tr, m), open = carUnlocked(k.id, tr, i), done = carModDone(k.id, tr, m), wait = !done && carKidDone(r);
+        const st = done ? ['mastered', 'Complete'] : wait ? ['open', 'Waiting for grown-up sign-off'] : !open ? ['new', '🔒 Pass the previous module first'] : r.best != null ? ['trying', 'Best ' + r.best + '% · keep going'] : r.w ? ['open', 'Started'] : ['new', 'Not started'];
+        return h('li', { class: 'unit ' + st[0] }, h('button', { class: 'unit-btn', disabled: open ? null : true, onclick: () => { S.carM = i; render(); } }, h('span', { class: 'unit-n' }, 'Module ' + (i + 1) + ' · ' + m.min + ' min video'), h('span', { class: 'unit-t' }, m.t), h('span', { class: 'watched-tag' }, m.act.hands ? 'Hands-on' : ''), h('span', { class: 'pill ' + st[0] }, st[1]))); })));
+      return h('div', null, kidBar(), main);
+    }
+    const i = S.carM, m = tr.mods[i], r = carRec(k.id, tr, m), passed = carPassed(r);
+    const step = (n, title, ...kids) => h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, n + '. ' + title), ...kids);
+    main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.carM = null; render(); } }, '← ' + tr.t + ' modules'));
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, tr.e + ' ' + tr.t + ' · Module ' + (i + 1) + ' of ' + tr.mods.length), h('h1', null, m.t), h('p', { class: 'small muted' }, 'Goes with Skills Explorers: "' + m.hd + '" (' + m.min + ' min)')));
+    main.appendChild(step(1, 'Key words', h('dl', { class: 'car-kw' }, m.kw.map(([w, d]) => h('div', null, h('dt', null, w), h('dd', null, d))))));
+    main.appendChild(step(2, 'Watch together', h('p', { class: 'small' }, 'Your grown-up opens "' + m.hd + '" in Skills Explorers (it uses their account). Watch it together.'),
+      h('div', { class: 'actions' }, h('a', { class: 'btn ghost sm', href: CAR.url, target: '_blank', rel: 'noopener noreferrer' }, 'Open Skills Explorers ↗'),
+        r.w ? h('span', { class: 'done-pill' }, '✓ Watched') : h('button', { class: 'btn primary sm', onclick: () => { r.w = Date.now(); markAct(k.id, 'trade'); saveDay(k.id); render(); } }, 'We watched it ✓'))));
+    main.appendChild(step(3, 'Big ideas', h('ul', { class: 'points' }, m.l.map((x) => h('li', null, x))), Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => say(m.l.join(' '), 0.95) }, icon('voice'), ' Read it to me') : null));
+    const actBox = step(4, 'Try it: ' + m.act.t, m.act.safety ? h('div', { class: 'car-safety', role: 'note' }, h('b', null, '⚠️ Safety first: '), m.act.safety) : null, h('ol', { class: 'points' }, m.act.steps.map((x) => h('li', null, x))));
+    actBox.appendChild(r.act ? h('p', { class: 'small' }, '✓ Done' + (m.act.hands ? (r.sign ? ' · signed off by your grown-up' : ' · waiting for your grown-up to sign off in the Parent portal') : '')) : h('button', { class: 'btn primary sm', onclick: () => { r.act = Date.now(); markAct(k.id, 'trade'); saveDay(k.id); carUpdate(k, tr); render(); } }, m.act.hands ? 'I did it with my grown-up' : 'I did it'));
+    main.appendChild(actBox);
+    if (m.career) { const c = m.career; main.appendChild(h('section', { class: 'card car-career' }, h('p', { class: 'eyebrow' }, 'Career card'), h('h2', null, '🛠️ ' + c.title), h('dl', { class: 'facts' }, c.stats.map(([a, b]) => h('div', null, h('dt', null, a), h('dd', null, b)))), h('p', { class: 'small' }, h('b', null, 'Important qualities: '), c.qualities.join(' · ')), h('p', { class: 'small muted' }, 'Source: ', extLink(c.src)))); }
+    main.appendChild(step(5, 'Quick check', h('p', { class: 'small' }, (passed ? '✓ Passed with ' + r.best + '%. ' : r.best != null ? 'Best so far: ' + r.best + '%. ' : '') + 'Score ' + settings().passMark + '% or higher to unlock the next module. You get different questions each try.'),
+      r.w ? h('button', { class: 'btn primary sm', onclick: () => startCarQuiz(k, tr, i) }, passed ? 'Practice again' : 'Start the quick check') : h('p', { class: 'small muted' }, 'Watch the lesson first, then the quick check opens.')));
+    if (passed) { const ta = h('textarea', { id: 'car-xp', rows: 2, maxlength: 400, placeholder: 'In my own words…' }, r.xp || '');
+      main.appendChild(step(6, 'Explain it back', h('form', { class: 'explain-box', onsubmit: (e) => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; r.xp = t; saveDay(k.id); toast('Saved!'); render(); } }, h('label', { for: 'car-xp' }, 'What is the most important thing you learned in this module?'), ta, h('button', { class: 'btn ghost sm', type: 'submit' }, r.xp ? 'Update' : 'Save')))); }
+    const nxt = i + 1 < tr.mods.length && carUnlocked(k.id, tr, i + 1) ? i + 1 : null;
+    main.appendChild(h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => { S.carM = i - 1; render(); } }, '← Previous module') : h('span'), nxt != null ? h('button', { class: 'btn primary sm', onclick: () => { S.carM = nxt; render(); } }, 'Next module →') : h('span')));
+    return h('div', null, kidBar(), main);
+  }
+  function startCarQuiz(k, tr, i) {
+    const m = tr.mods[i]; const qs = buildQuestions({ q: m.q }, k.id, 5).map((q) => Object.assign(q, { key: 'car:' + tr.id + ':' + m.id, from: tr.t + ' · ' + m.t }));
+    S.mq = { kind: 'car', qs, at: 0, right: 0, picked: null, per: {}, tr: CAR.tracks.indexOf(tr), mi: i }; go('mq');
+  }
+  function finishCar(k) {
+    const M = S.mq, tr = CAR.tracks[M.tr], m = tr.mods[M.mi], r = carRec(k.id, tr, m), score = Math.round((M.right / M.qs.length) * 100), was = carPassed(r);
+    Object.assign(r, { best: Math.max(score, r.best || 0), last: score, tries: (r.tries || 0) + 1, at: Date.now() });
+    markAct(k.id, 'trade'); saveDay(k.id); carUpdate(k, tr); Timer.accrue(); Timer.flush(); checkBadges(k.id);
+    M.done = true; M.res = { score, pass: score >= settings().passMark, newly: !was && score >= settings().passMark }; if (M.res.pass) setTimeout(confetti, 50); render();
+  }
+  function carResult(k, M) {
+    const tr = CAR.tracks[M.tr], i = M.mi, res = M.res, nxt = i + 1 < tr.mods.length ? i + 1 : null;
+    return h('section', { class: 'result-card ' + (res.pass ? 'pass' : 'retry') }, ring(res.score, M.right + ' of ' + M.qs.length, 'lg'),
+      lumi(res.pass ? 'cheer' : 'think', res.pass ? (res.newly && nxt != null ? 'Module passed! The next one is unlocked.' : 'Great job!') : 'Review the big ideas and try again. You\'ll get different questions.'),
+      h('h1', null, res.pass ? 'Quick check passed' : 'Almost there'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => { S.mq = null; S.carM = i; go('career'); } }, res.pass ? 'Back to the module' : 'Review the module'),
+        res.pass && nxt != null ? h('button', { class: 'btn ghost', onclick: () => { S.mq = null; S.carM = nxt; go('career'); } }, 'Next: ' + tr.mods[nxt].t) : null));
+  }
+  function pCareers() {
+    const wrap = h('section', { class: 'car-parent' }, h('h1', { class: 'p-title' }, 'Career paths'),
+      h('p', { class: 'lede' }, 'Lantern pairs each module with a lesson in ' + CAR.program + ' (your free educator account). Your learners watch with you, do a safe home activity, and pass a quick check. You sign off on hands-on activities.'),
+      h('p', null, h('a', { class: 'btn ghost sm', href: CAR.url, target: '_blank', rel: 'noopener noreferrer' }, 'Open Skills Explorers ↗')));
+    const f = fam(); f.car = f.car || { checks: {} }; const ck = f.car.checks || (f.car.checks = {});
+    const trackDone = (tid) => kids().filter((k) => { const c = carDoc(k.id)[tid]; return c && c.done; });
+    wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Your Skills Explorers checklist'),
+      h('p', { class: 'small muted' }, 'These steps are done in your Skills Explorers account, not in Lantern. Opening each module there while you watch with your kids is what counts it. Check items off here so you don\'t miss entries, the survey or the report.'),
+      h('ul', { class: 'car-checks' }, CAR.parentItems.map((it) => { const ready = it.track && trackDone(it.track).length; return h('li', null, h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: ck[it.id] ? true : null, onchange: (e) => { if (e.target.checked) ck[it.id] = Date.now(); else delete ck[it.id]; saveFamily(); render(); } }), ' ', h('b', null, it.t)), h('div', { class: 'small muted' }, it.d), !ck[it.id] && ready ? h('div', { class: 'small ready-tag' }, '✓ Ready: ' + trackDone(it.track).map((k) => k.name).join(' and ') + ' finished this pathway in Lantern') : null); }))));
+    kids().forEach((k) => {
+      const on = carOn(k), box = h('article', { class: 'card' }, h('div', { class: 'card-head' }, h('h3', null, k.name + ' · ' + GRADE_NAME(k.grade)),
+        h('label', { class: 'check small' }, h('input', { type: 'checkbox', checked: on ? true : null, onchange: (e) => { k.plan = Object.assign(kidPlan(k.id), { careers: e.target.checked }); saveFamily(); render(); } }), ' Show Career Paths')));
+      if (!on) { box.appendChild(h('p', { class: 'small muted' }, 'Skills Explorers is designed for ages 11–17 (grades 6–12). Turn it on if ' + k.name + ' is ready.')); wrap.appendChild(box); return; }
+      CAR.tracks.forEach((tr) => {
+        const p = carProgress(k.id, tr); box.appendChild(h('p', null, h('b', null, tr.e + ' ' + tr.t), ' · ' + p.done + ' of ' + p.total + ' modules complete' + (p.complete ? ' · finished ' + fmtDate(todayStr(new Date(carDoc(k.id)[tr.id].done))) : '')));
+        box.appendChild(h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Module', 'Watched', 'Activity', 'Quick check', 'In their words'].map((t) => h('th', { scope: 'col' }, t)))),
+          h('tbody', null, tr.mods.map((m) => { const r = carPeek(k.id, tr, m);
+            const act = !r.act ? '—' : !m.act.hands ? '✓' : r.sign ? '✓ signed' : h('button', { class: 'btn primary xs', onclick: () => { const rr = carRec(k.id, tr, m); rr.sign = Date.now(); saveDay(k.id); carUpdate(k, tr); render(); } }, 'Sign off');
+            return h('tr', null, h('td', null, m.t, m.act.hands ? h('span', { class: 'bonus-tag' }, 'Hands-on') : null), h('td', null, r.w ? '✓' : '—'), h('td', null, act), h('td', { class: 'num' }, r.best != null ? r.best + '%' + (carPassed(r) ? ' ✓' : '') : '—'), h('td', { class: 'small' }, r.xp ? '“' + r.xp + '”' : '')); })))));
+      });
+      box.appendChild(h('p', { class: 'small muted' }, 'Sign off only after you saw the hands-on activity done safely. On Mondays and Wednesdays, the next module appears in ' + k.name + '\'s plan.'));
+      wrap.appendChild(box);
+    });
+    return wrap;
+  }
+
   function questProgress(kidId) { const a = questDoc(kidId).active; if (!a) return null; const q = questById(a.id); if (!q) return null; const done = q.steps.filter((s, i) => a.steps[i]).length; return { q, a, done, total: q.steps.length, next: q.steps.findIndex((s, i) => !a.steps[i]) }; }
   function questCard(k) {
     const p = questProgress(k.id), hist = questDoc(k.id).hist || [];

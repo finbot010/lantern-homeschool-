@@ -3,7 +3,7 @@
 import os
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
 r = lambda f: open(os.path.join(here, f), encoding='utf-8').read()
-FILES = ['content-1-4.js', 'content-5-8.js', 'content-9-12.js', 'content-more-1-6.js', 'content-more-7-12.js', 'content-ai.js', 'content-fin.js', 'content-spell.js', 'content-books.js', 'content-spanish.js', 'content-conundrums.js', 'content-quests.js', 'content-g2.js', 'content-g3.js', 'content-g8.js', 'content-g9.js', 'generators.js', 'generators-fin.js', 'generators-2-8.js', 'generators-3-9.js', 'visuals.js']
+FILES = ['content-1-4.js', 'content-5-8.js', 'content-9-12.js', 'content-more-1-6.js', 'content-more-7-12.js', 'content-ai.js', 'content-fin.js', 'content-spell.js', 'content-books.js', 'content-spanish.js', 'content-conundrums.js', 'content-quests.js', 'content-careers.js', 'content-g2.js', 'content-g3.js', 'content-g8.js', 'content-g9.js', 'generators.js', 'generators-fin.js', 'generators-2-8.js', 'generators-3-9.js', 'visuals.js']
 shell = r('shell.html')
 content = '\n'.join(r(f) for f in FILES)
 app = r('app.js')

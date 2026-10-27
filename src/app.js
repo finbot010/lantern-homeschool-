@@ -24,7 +24,7 @@
   ];
   const EXTRA = [
     { k: 'read', n: 'Independent reading' }, { k: 'pe', n: 'Physical education' }, { k: 'art', n: 'Art & music' },
-    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'other', n: 'Other' }
+    { k: 'field', n: 'Field trip' }, { k: 'life', n: 'Life skills' }, { k: 'span', n: 'Spanish' }, { k: 'quest', n: 'Projects (Quests)' }, { k: 'cte', n: 'Career & technical (trades)' }, { k: 'other', n: 'Other' }
   ];
   const SUBJ_NAME = Object.fromEntries([...SUBJ, ...EXTRA].map((s) => [s.k, s.n]));
   const COLORS = ['#3461C1', '#C2453A', '#2F8A57', '#7B4FA6', '#C27A12', '#1F8A8A', '#B23A7A', '#5B6B2F'];
@@ -50,7 +50,8 @@
     { id: 'planner', n: 'Plan finisher', d: 'Finished 5 daily plans' },
     { id: 'thinker', n: 'Big thinker', d: 'Answered 4 conundrums' },
     { id: 'quest', n: 'Quest hero', d: 'Finished a Quest and its Show Day' },
-    { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' }
+    { id: 'weekly', n: 'Friday champion', d: 'Scored 80% or more on 4 weekly quizzes' },
+    { id: 'trades', n: 'Trades explorer', d: 'Finished a Career Paths trade pathway' }
   ];
 
   /* ─────────────── tiny helpers ─────────────── */
@@ -274,6 +275,7 @@
     earn('bookworm', booksFinished(kidId) >= 5); earn('author', (lit.jr || []).length >= 5);
     earn('hola', esMastered(kidId) >= 4);
     const dd = dayDoc(kidId); earn('planner', Object.values(dd.days || {}).filter((r) => r.celebrated).length >= 5); earn('thinker', Object.keys(dd.con || {}).length >= 4); earn('quest', ((dd.q || {}).hist || []).length >= 1);
+    earn('trades', Object.values(dd.car || {}).some((t) => t && t.done));
     earn('weekly', Object.values(dd.weeks || {}).filter((w) => w.quiz && w.quiz.first.score >= 80).length >= 4);
     if (got.length) { saveKid(kidId); got.forEach((id) => toast('Badge earned: ' + BADGES.find((b) => b.id === id).n, 'badge')); }
   }
@@ -324,11 +326,11 @@
     const root = $('#app'); root.innerHTML = '';
     const scr = {
       loading: viewLoading, auth: viewAuth, setup: viewSetup, picker: viewPicker, pin: viewPin,
-      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest
+      home: viewKidHome, course: viewCourse, lesson: viewLesson, quiz: viewQuiz, result: viewResult, parent: viewParent, spell: viewSpell, reading: viewReading, journal: viewJournal, spanish: viewSpanish, mq: viewMQ, conundrum: viewConundrum, quest: viewQuest, career: viewCareer
     }[S.screen] || viewPicker;
     if (S.who) Player.applyKid(S.who);
     root.appendChild(scr());
-    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest'].includes(S.screen) ? kidTheme(S.who) : null;
+    const th = S.who && ['home', 'course', 'lesson', 'quiz', 'result', 'spell', 'reading', 'journal', 'spanish', 'mq', 'conundrum', 'quest', 'career'].includes(S.screen) ? kidTheme(S.who) : null;
     if (th) document.body.dataset.kidtheme = th; else delete document.body.dataset.kidtheme;
     updateTimerChip();
   }
@@ -562,7 +564,7 @@
         h('div', { class: 'stat-row' },
           stat(st + (st === 1 ? ' day' : ' days'), 'streak'), stat(fmtHours(wk) + ' / ' + goalFor(k.id) + ' h', 'this week'), stat(Object.keys(kd.badges || {}).length + '/' + BADGES.length, 'badges')),
         settings().freeRoam ? h('div', { class: 'grade-switch' }, h('label', { for: 'gsel' }, 'Grade'), h('select', { id: 'gsel', onchange: (e) => { S.view.grade = Number(e.target.value); render(); } }, Array.from({ length: 12 }, (_, i) => h('option', { value: i + 1, selected: g === i + 1 ? true : null }, GRADE_NAME(i + 1) + (i + 1 === k.grade ? ' (my grade)' : ''))))) : null)));
-    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); }
+    if (g === k.grade) { main.appendChild(todayCard(k)); main.appendChild(h('div', { class: 'two-col' }, weekCard(k), questCard(k))); if (carOn(k)) main.appendChild(carCard(k)); }
     main.appendChild(h('h2', { class: 'sec' }, 'Your subjects'));
     main.appendChild(h('div', { class: 'subjects' }, SUBJ.map((s, i) => {
       const c = course(g, s.k), cs = gs.courses[i]; const nextU = cs.next >= 0 ? c.u[cs.next] : null;
@@ -710,10 +712,10 @@
 
   /* ── parent portal ── */
   function viewParent() {
-    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
+    const tabs = [['overview', 'Overview'], ['week', 'Weekly check-in'], ['reports', 'Report cards'], ['hours', 'Hours log'], ['literacy', 'Reading & languages'], ['curriculum', 'Curriculum'], ['careers', 'Career paths'], ['tutor', 'AI tutor'], ['settings', 'Settings']];
     const main = h('main', { class: 'wrap' }, modeBanner(),
       h('nav', { class: 'tabs', role: 'tablist' }, tabs.map(([k, n]) => h('button', { role: 'tab', 'aria-selected': S.ptab === k ? 'true' : 'false', class: 'tab' + (S.ptab === k ? ' on' : ''), onclick: () => { S.ptab = k; render(); } }, n))));
-    const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, tutor: pTutor, settings: pSettings }[S.ptab]();
+    const body = { overview: pOverview, week: pWeek, reports: pReports, hours: pHours, literacy: pLiteracy, curriculum: pCurriculum, careers: pCareers, tutor: pTutor, settings: pSettings }[S.ptab]();
     main.appendChild(body);
     return h('div', null, topbar([h('span', { class: 'chip parent-chip' }, 'Parent'), h('button', { class: 'btn ghost sm', onclick: () => go('picker') }, 'Lock portal'), Store.provider === 'firebase' ? h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out') : null]), main);
   }
@@ -803,6 +805,9 @@
     for (let g = 9; g <= 12; g++) SUBJ.forEach((s) => { const st = courseStats(k.id, g, s.k); if (st.tried || st.mastered) { const c = course(g, s.k); rows.push({ g, title: c.t, pct: st.pct, letter: LETTER(st.avg), done: st.pct === 100, credit: st.pct === 100 ? c.credit || 1 : 0 }); } });
     const L = langDoc(k.id);
     if (L.doneAt && L.doneGrade >= 9) { const bs = ES.units.map((u) => ((L.units || {})[u.id] || {}).best).filter((x) => x != null); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null; rows.push({ g: L.doneGrade, title: 'Spanish 1: Beginner (Language Lab)', pct: 100, letter: LETTER(avg), done: true, credit: 0.5 }); }
+    const CT = (window.LH_CAREERS || { tracks: [] }).tracks, cd = (dayDoc(k.id).car || {}), tDone = CT.filter((tr) => (cd[tr.id] || {}).done);
+    if (k.grade >= 9 && tDone.length) { const bs = []; tDone.forEach((tr) => tr.mods.forEach((m) => { const r = ((cd[tr.id] || {}).m || {})[m.id]; if (r && r.best != null) bs.push(r.best); })); const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null;
+      rows.push({ g: k.grade, title: 'Career Exploration: Skilled Trades (' + tDone.length + ' of 8 pathways)', pct: Math.round((tDone.length / 8) * 100), letter: LETTER(avg), done: tDone.length >= 8, credit: tDone.length >= 8 ? 0.5 : 0 }); }
     const done = rows.filter((r) => r.done && r.letter !== '—');
     const gpa = done.length ? (done.reduce((a, r) => a + POINTS[r.letter], 0) / done.length).toFixed(2) : null;
     return { rows, gpa, credits: rows.reduce((a, r) => a + r.credit, 0) };
@@ -1814,6 +1819,7 @@
     if (dow === 2 || dow === 4) { const qp = questProgress(k.id);
       if (qp && qp.next >= 0) items.push({ id: 'quest', kind: 'quest', t: 'Quest: ' + qp.q.steps[qp.next].t, min: [15, 20, 25, 30][pb] });
       else if (!qp && !(questDoc(k.id).hist || []).length) items.push({ id: 'quest', kind: 'quest', t: 'Choose your first Quest', min: 10 }); }
+    if ((dow === 1 || dow === 3) && carOn(k)) { const cn = carNext(k); if (cn) items.push({ id: 'trade', kind: 'trade', t: 'Trades: ' + cn.m.t, min: [15, 20, 20, 25][pb] }); }
     items.push({ id: 'read', kind: 'read', t: 'Read a book', min: [15, 20, 25, 30][pb] });
     if (pb < 3 || trickyDue(k.id).length) items.push({ id: 'spell', kind: 'spell', t: trickyDue(k.id).length ? 'Spelling: review tricky words' : 'Spelling practice', min: 10 });
     const wk = weekStart(), cu = conundrumFor(k);
@@ -1857,6 +1863,7 @@
     if (it.kind === 'span') { S.es = null; return go('spanish'); }
     if (it.kind === 'con') return go('conundrum');
     if (it.kind === 'quest') return go('quest');
+    if (it.kind === 'trade') { const cn = carNext(k); S.carT = cn ? CAR.tracks.indexOf(cn.tr) : 0; S.carM = cn ? cn.i : null; return go('career'); }
   }
   function todayCard(k) {
     const items = buildPlan(k), r = dayRec(k.id); const done = items.filter((it) => itemDone(k, it));
@@ -1936,6 +1943,7 @@
     const k = kidById(S.who), M = S.mq; if (!k || !M) return viewKidHome();
     const main = h('main', { class: 'wrap quiz' });
     if (M.done && M.kind === 'wq') { main.appendChild(wqResult(k, M)); return h('div', null, kidBar(), main); }
+    if (M.done && M.kind === 'car') { main.appendChild(carResult(k, M)); return h('div', null, kidBar(), main); }
     if (M.done) {
       const weak = Object.entries(M.per).filter(([key, [r, t]]) => r < Math.ceil(t * 0.67)).map(([key]) => unitOf(key));
       main.appendChild(h('section', { class: 'result-card ' + (M.right >= M.qs.length * 0.67 ? 'pass' : 'retry') }, ring(Math.round((M.right / M.qs.length) * 100), M.right + ' of ' + M.qs.length, 'lg'),
@@ -1951,11 +1959,11 @@
       return h('button', { class: cls, disabled: answered ? true : null, onclick: () => { M.picked = n; markSeen(S.who, item); const ok = ch === item.a; item.ok = ok; if (ok) M.right++; const p = M.per[item.key] || (M.per[item.key] = [0, 0]); p[1]++; if (ok) p[0]++; render(); } }, h('span', { class: 'letter' }, 'ABCD'[n]), h('span', null, ch));
     }));
     const ok = answered && item.choices[M.picked] === item.a;
-    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
+    main.appendChild(h('div', { class: 'quiz-head' }, h('p', { class: 'eyebrow' }, (M.kind === 'wq' ? 'Weekly quiz' : M.kind === 'car' ? 'Career Paths' : M.kind === 'chal' ? 'Daily challenge' : 'Warm-up') + ' · ' + item.from), h('div', { class: 'q-progress' }, 'Question ' + (M.at + 1) + ' of ' + M.qs.length), bar(Math.round((M.at / M.qs.length) * 100), 'sci')));
     const hear = (item.sayText || item.esSay) && Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => (item.esSay ? sayEs(item.esSay) : say(item.sayText, 0.85)) }, icon('voice'), item.esSay ? ' Escuchar' : ' Hear the sentence') : null;
     main.appendChild(h('section', { class: 'q-card' }, h('h1', { class: 'q-text' }, item.q), pic(item.v), item.esIt ? h('div', { class: 'wq-es' }, esPic(item.esIt, true)) : null, hear, choices,
       answered ? h('div', { class: 'feedback ' + (ok ? 'ok' : 'no'), role: 'status' }, lumi(ok ? 'cheer' : 'oops', ok ? pick(CHEER) : 'Not quite. The answer is ' + item.a + '.')) : null,
-      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
+      h('div', { class: 'q-actions' }, h('button', { class: 'btn ghost sm', onclick: () => { S.mq = null; go('home'); } }, 'Leave'), answered ? h('button', { class: 'btn primary', onclick: () => { if (M.at < M.qs.length - 1) { M.at++; M.picked = null; render(); } else if (M.kind === 'wq') finishWQ(k); else if (M.kind === 'car') finishCar(k); else finishMQ(k); } }, M.at < M.qs.length - 1 ? 'Next question' : 'See my score') : null)));
     return h('div', null, kidBar(), main);
   }
 
@@ -2182,6 +2190,109 @@
   const QUESTS = window.LH_QUESTS || [];
   const questDoc = (kidId) => { const d = dayDoc(kidId); return d.q || (d.q = { active: null, hist: [] }); };
   const questById = (id) => QUESTS.find((x) => x.id === id);
+  /* ─────────────── Career Paths: Skilled Trades ───────────────
+     Each module pairs with a Home Depot Skills Explorers lesson (opened from the parent's educator account).
+     Lantern adds key words, a safe home activity, a quiz and teach-back; hands-on activities need a grown-up's sign-off.
+     Progress lives in day-{kidId}.car = { trackId: { m: { modId: { w, act, sign, best, last, tries, at, xp, done } }, done } }. */
+  const CAR = window.LH_CAREERS || { tracks: [], parentItems: [] };
+  const carOn = (k) => !!(k && CAR.tracks.length && (kidPlan(k.id).careers === true || (kidPlan(k.id).careers !== false && k.grade >= (CAR.minGrade || 6))));
+  const carDoc = (kidId) => { const d = dayDoc(kidId); return d.car || (d.car = {}); };
+  const carRec = (kidId, tr, m) => { const c = carDoc(kidId); c[tr.id] = c[tr.id] || { m: {} }; c[tr.id].m = c[tr.id].m || {}; return c[tr.id].m[m.id] || (c[tr.id].m[m.id] = {}); };
+  const carPeek = (kidId, tr, m) => (((carDoc(kidId)[tr.id] || {}).m || {})[m.id]) || {};
+  const carPassed = (r) => !!r && (r.best || 0) >= settings().passMark;
+  const carKidDone = (r) => !!(r.w && carPassed(r) && r.act); // everything the learner does
+  const carModDone = (kidId, tr, m) => { const r = carPeek(kidId, tr, m); return carKidDone(r) && (!m.act.hands || !!r.sign); };
+  const carUnlocked = (kidId, tr, i) => i === 0 || carPassed(carPeek(kidId, tr, tr.mods[i - 1]));
+  function carProgress(kidId, tr) { const done = tr.mods.filter((m) => carModDone(kidId, tr, m)).length; return { done, total: tr.mods.length, complete: done === tr.mods.length, waiting: tr.mods.filter((m) => m.act.hands && carKidDone(carPeek(kidId, tr, m)) && !carPeek(kidId, tr, m).sign).length }; }
+  function carNext(k) { for (const tr of CAR.tracks) { const i = tr.mods.findIndex((m, j) => carUnlocked(k.id, tr, j) && !carKidDone(carPeek(k.id, tr, m))); if (i >= 0) return { tr, i, m: tr.mods[i] }; } return null; }
+  function carUpdate(k, tr) {
+    const c = carDoc(k.id)[tr.id]; tr.mods.forEach((m) => { const r = carPeek(k.id, tr, m); if (!r.done && carModDone(k.id, tr, m)) r.done = Date.now(); });
+    if (c && !c.done && carProgress(k.id, tr).complete) { c.done = Date.now(); saveDay(k.id); checkBadges(k.id); setTimeout(confetti, 100); toast('You finished the ' + tr.t + ' pathway! ' + tr.e); }
+  }
+  function carCard(k) {
+    const box = h('section', { class: 'card car-card' }, h('div', { class: 'card-head' }, h('h3', null, 'Career Paths: Trades'), h('span', { class: 'small muted' }, 'with Home Depot Skills Explorers')));
+    CAR.tracks.forEach((tr) => { const p = carProgress(k.id, tr); box.appendChild(h('div', { class: 'quest-row' }, h('span', { class: 'quest-e', 'aria-hidden': 'true' }, tr.e), h('div', null, h('b', null, tr.t), h('div', { class: 'small muted' }, p.complete ? 'Pathway complete! 🏅' : p.done + ' of ' + p.total + ' modules done' + (p.waiting ? ' · ' + p.waiting + ' waiting for sign-off' : ''))))); box.appendChild(bar(Math.round((p.done / p.total) * 100), 'sci')); });
+    box.appendChild(h('button', { class: 'btn primary sm', onclick: () => { S.carM = null; go('career'); } }, 'Open Career Paths'));
+    return box;
+  }
+  function viewCareer() {
+    const k = kidById(S.who); if (!k) return viewPicker();
+    if (!Timer.on || Timer.on.kidId !== k.id || Timer.on.subj !== 'cte') Timer.start(k.id, 'cte');
+    const tr = CAR.tracks[S.carT || 0]; const main = h('main', { class: 'wrap career' });
+    if (S.carM == null) {
+      main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => go('home') }, '← Dashboard'));
+      main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, 'Career Paths · Skilled Trades'), h('h1', null, tr.e + ' ' + tr.t), h('p', { class: 'lede' }, tr.blurb), h('p', { class: 'small muted' }, 'Each module goes with a lesson in ' + CAR.program + '. Watch it with your grown-up, try the activity, then pass the quick check to unlock the next module.')));
+      const p = carProgress(k.id, tr); main.appendChild(h('div', { class: 'car-prog' }, bar(Math.round((p.done / p.total) * 100), 'sci'), h('span', { class: 'small' }, p.done + ' of ' + p.total + ' modules complete')));
+      main.appendChild(h('ol', { class: 'units' }, tr.mods.map((m, i) => { const r = carPeek(k.id, tr, m), open = carUnlocked(k.id, tr, i), done = carModDone(k.id, tr, m), wait = !done && carKidDone(r);
+        const st = done ? ['mastered', 'Complete'] : wait ? ['open', 'Waiting for grown-up sign-off'] : !open ? ['new', '🔒 Pass the previous module first'] : r.best != null ? ['trying', 'Best ' + r.best + '% · keep going'] : r.w ? ['open', 'Started'] : ['new', 'Not started'];
+        return h('li', { class: 'unit ' + st[0] }, h('button', { class: 'unit-btn', disabled: open ? null : true, onclick: () => { S.carM = i; render(); } }, h('span', { class: 'unit-n' }, 'Module ' + (i + 1) + ' · ' + m.min + ' min video'), h('span', { class: 'unit-t' }, m.t), h('span', { class: 'watched-tag' }, m.act.hands ? 'Hands-on' : ''), h('span', { class: 'pill ' + st[0] }, st[1]))); })));
+      return h('div', null, kidBar(), main);
+    }
+    const i = S.carM, m = tr.mods[i], r = carRec(k.id, tr, m), passed = carPassed(r);
+    const step = (n, title, ...kids) => h('section', { class: 'card car-step' }, h('h2', { class: 'mini' }, n + '. ' + title), ...kids);
+    main.appendChild(h('button', { class: 'btn ghost sm back', onclick: () => { S.carM = null; render(); } }, '← ' + tr.t + ' modules'));
+    main.appendChild(h('header', { class: 'lit-head' }, h('p', { class: 'eyebrow' }, tr.e + ' ' + tr.t + ' · Module ' + (i + 1) + ' of ' + tr.mods.length), h('h1', null, m.t), h('p', { class: 'small muted' }, 'Goes with Skills Explorers: "' + m.hd + '" (' + m.min + ' min)')));
+    main.appendChild(step(1, 'Key words', h('dl', { class: 'car-kw' }, m.kw.map(([w, d]) => h('div', null, h('dt', null, w), h('dd', null, d))))));
+    main.appendChild(step(2, 'Watch together', h('p', { class: 'small' }, 'Your grown-up opens "' + m.hd + '" in Skills Explorers (it uses their account). Watch it together.'),
+      h('div', { class: 'actions' }, h('a', { class: 'btn ghost sm', href: CAR.url, target: '_blank', rel: 'noopener noreferrer' }, 'Open Skills Explorers ↗'),
+        r.w ? h('span', { class: 'done-pill' }, '✓ Watched') : h('button', { class: 'btn primary sm', onclick: () => { r.w = Date.now(); markAct(k.id, 'trade'); saveDay(k.id); render(); } }, 'We watched it ✓'))));
+    main.appendChild(step(3, 'Big ideas', h('ul', { class: 'points' }, m.l.map((x) => h('li', null, x))), Player.synth ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => say(m.l.join(' '), 0.95) }, icon('voice'), ' Read it to me') : null));
+    const actBox = step(4, 'Try it: ' + m.act.t, m.act.safety ? h('div', { class: 'car-safety', role: 'note' }, h('b', null, '⚠️ Safety first: '), m.act.safety) : null, h('ol', { class: 'points' }, m.act.steps.map((x) => h('li', null, x))));
+    actBox.appendChild(r.act ? h('p', { class: 'small' }, '✓ Done' + (m.act.hands ? (r.sign ? ' · signed off by your grown-up' : ' · waiting for your grown-up to sign off in the Parent portal') : '')) : h('button', { class: 'btn primary sm', onclick: () => { r.act = Date.now(); markAct(k.id, 'trade'); saveDay(k.id); carUpdate(k, tr); render(); } }, m.act.hands ? 'I did it with my grown-up' : 'I did it'));
+    main.appendChild(actBox);
+    if (m.career) { const c = m.career; main.appendChild(h('section', { class: 'card car-career' }, h('p', { class: 'eyebrow' }, 'Career card'), h('h2', null, '🛠️ ' + c.title), h('dl', { class: 'facts' }, c.stats.map(([a, b]) => h('div', null, h('dt', null, a), h('dd', null, b)))), h('p', { class: 'small' }, h('b', null, 'Important qualities: '), c.qualities.join(' · ')), h('p', { class: 'small muted' }, 'Source: ', extLink(c.src)))); }
+    main.appendChild(step(5, 'Quick check', h('p', { class: 'small' }, (passed ? '✓ Passed with ' + r.best + '%. ' : r.best != null ? 'Best so far: ' + r.best + '%. ' : '') + 'Score ' + settings().passMark + '% or higher to unlock the next module. You get different questions each try.'),
+      r.w ? h('button', { class: 'btn primary sm', onclick: () => startCarQuiz(k, tr, i) }, passed ? 'Practice again' : 'Start the quick check') : h('p', { class: 'small muted' }, 'Watch the lesson first, then the quick check opens.')));
+    if (passed) { const ta = h('textarea', { id: 'car-xp', rows: 2, maxlength: 400, placeholder: 'In my own words…' }, r.xp || '');
+      main.appendChild(step(6, 'Explain it back', h('form', { class: 'explain-box', onsubmit: (e) => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; r.xp = t; saveDay(k.id); toast('Saved!'); render(); } }, h('label', { for: 'car-xp' }, 'What is the most important thing you learned in this module?'), ta, h('button', { class: 'btn ghost sm', type: 'submit' }, r.xp ? 'Update' : 'Save')))); }
+    const nxt = i + 1 < tr.mods.length && carUnlocked(k.id, tr, i + 1) ? i + 1 : null;
+    main.appendChild(h('nav', { class: 'lesson-nav' }, i > 0 ? h('button', { class: 'btn ghost sm', onclick: () => { S.carM = i - 1; render(); } }, '← Previous module') : h('span'), nxt != null ? h('button', { class: 'btn primary sm', onclick: () => { S.carM = nxt; render(); } }, 'Next module →') : h('span')));
+    return h('div', null, kidBar(), main);
+  }
+  function startCarQuiz(k, tr, i) {
+    const m = tr.mods[i]; const qs = buildQuestions({ q: m.q }, k.id, 5).map((q) => Object.assign(q, { key: 'car:' + tr.id + ':' + m.id, from: tr.t + ' · ' + m.t }));
+    S.mq = { kind: 'car', qs, at: 0, right: 0, picked: null, per: {}, tr: CAR.tracks.indexOf(tr), mi: i }; go('mq');
+  }
+  function finishCar(k) {
+    const M = S.mq, tr = CAR.tracks[M.tr], m = tr.mods[M.mi], r = carRec(k.id, tr, m), score = Math.round((M.right / M.qs.length) * 100), was = carPassed(r);
+    Object.assign(r, { best: Math.max(score, r.best || 0), last: score, tries: (r.tries || 0) + 1, at: Date.now() });
+    markAct(k.id, 'trade'); saveDay(k.id); carUpdate(k, tr); Timer.accrue(); Timer.flush(); checkBadges(k.id);
+    M.done = true; M.res = { score, pass: score >= settings().passMark, newly: !was && score >= settings().passMark }; if (M.res.pass) setTimeout(confetti, 50); render();
+  }
+  function carResult(k, M) {
+    const tr = CAR.tracks[M.tr], i = M.mi, res = M.res, nxt = i + 1 < tr.mods.length ? i + 1 : null;
+    return h('section', { class: 'result-card ' + (res.pass ? 'pass' : 'retry') }, ring(res.score, M.right + ' of ' + M.qs.length, 'lg'),
+      lumi(res.pass ? 'cheer' : 'think', res.pass ? (res.newly && nxt != null ? 'Module passed! The next one is unlocked.' : 'Great job!') : 'Review the big ideas and try again. You\'ll get different questions.'),
+      h('h1', null, res.pass ? 'Quick check passed' : 'Almost there'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary', onclick: () => { S.mq = null; S.carM = i; go('career'); } }, res.pass ? 'Back to the module' : 'Review the module'),
+        res.pass && nxt != null ? h('button', { class: 'btn ghost', onclick: () => { S.mq = null; S.carM = nxt; go('career'); } }, 'Next: ' + tr.mods[nxt].t) : null));
+  }
+  function pCareers() {
+    const wrap = h('section', { class: 'car-parent' }, h('h1', { class: 'p-title' }, 'Career paths'),
+      h('p', { class: 'lede' }, 'Lantern pairs each module with a lesson in ' + CAR.program + ' (your free educator account). Your learners watch with you, do a safe home activity, and pass a quick check. You sign off on hands-on activities.'),
+      h('p', null, h('a', { class: 'btn ghost sm', href: CAR.url, target: '_blank', rel: 'noopener noreferrer' }, 'Open Skills Explorers ↗')));
+    const f = fam(); f.car = f.car || { checks: {} }; const ck = f.car.checks || (f.car.checks = {});
+    const trackDone = (tid) => kids().filter((k) => { const c = carDoc(k.id)[tid]; return c && c.done; });
+    wrap.appendChild(h('article', { class: 'card' }, h('h3', null, 'Your Skills Explorers checklist'),
+      h('p', { class: 'small muted' }, 'These steps are done in your Skills Explorers account, not in Lantern. Opening each module there while you watch with your kids is what counts it. Check items off here so you don\'t miss entries, the survey or the report.'),
+      h('ul', { class: 'car-checks' }, CAR.parentItems.map((it) => { const ready = it.track && trackDone(it.track).length; return h('li', null, h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: ck[it.id] ? true : null, onchange: (e) => { if (e.target.checked) ck[it.id] = Date.now(); else delete ck[it.id]; saveFamily(); render(); } }), ' ', h('b', null, it.t)), h('div', { class: 'small muted' }, it.d), !ck[it.id] && ready ? h('div', { class: 'small ready-tag' }, '✓ Ready: ' + trackDone(it.track).map((k) => k.name).join(' and ') + ' finished this pathway in Lantern') : null); }))));
+    kids().forEach((k) => {
+      const on = carOn(k), box = h('article', { class: 'card' }, h('div', { class: 'card-head' }, h('h3', null, k.name + ' · ' + GRADE_NAME(k.grade)),
+        h('label', { class: 'check small' }, h('input', { type: 'checkbox', checked: on ? true : null, onchange: (e) => { k.plan = Object.assign(kidPlan(k.id), { careers: e.target.checked }); saveFamily(); render(); } }), ' Show Career Paths')));
+      if (!on) { box.appendChild(h('p', { class: 'small muted' }, 'Skills Explorers is designed for ages 11–17 (grades 6–12). Turn it on if ' + k.name + ' is ready.')); wrap.appendChild(box); return; }
+      CAR.tracks.forEach((tr) => {
+        const p = carProgress(k.id, tr); box.appendChild(h('p', null, h('b', null, tr.e + ' ' + tr.t), ' · ' + p.done + ' of ' + p.total + ' modules complete' + (p.complete ? ' · finished ' + fmtDate(todayStr(new Date(carDoc(k.id)[tr.id].done))) : '')));
+        box.appendChild(h('div', { class: 'table-wrap' }, h('table', { class: 'report' }, h('thead', null, h('tr', null, ['Module', 'Watched', 'Activity', 'Quick check', 'In their words'].map((t) => h('th', { scope: 'col' }, t)))),
+          h('tbody', null, tr.mods.map((m) => { const r = carPeek(k.id, tr, m);
+            const act = !r.act ? '—' : !m.act.hands ? '✓' : r.sign ? '✓ signed' : h('button', { class: 'btn primary xs', onclick: () => { const rr = carRec(k.id, tr, m); rr.sign = Date.now(); saveDay(k.id); carUpdate(k, tr); render(); } }, 'Sign off');
+            return h('tr', null, h('td', null, m.t, m.act.hands ? h('span', { class: 'bonus-tag' }, 'Hands-on') : null), h('td', null, r.w ? '✓' : '—'), h('td', null, act), h('td', { class: 'num' }, r.best != null ? r.best + '%' + (carPassed(r) ? ' ✓' : '') : '—'), h('td', { class: 'small' }, r.xp ? '“' + r.xp + '”' : '')); })))));
+      });
+      box.appendChild(h('p', { class: 'small muted' }, 'Sign off only after you saw the hands-on activity done safely. On Mondays and Wednesdays, the next module appears in ' + k.name + '\'s plan.'));
+      wrap.appendChild(box);
+    });
+    return wrap;
+  }
+
   function questProgress(kidId) { const a = questDoc(kidId).active; if (!a) return null; const q = questById(a.id); if (!q) return null; const done = q.steps.filter((s, i) => a.steps[i]).length; return { q, a, done, total: q.steps.length, next: q.steps.findIndex((s, i) => !a.steps[i]) }; }
   function questCard(k) {
     const p = questProgress(k.id), hist = questDoc(k.id).hist || [];

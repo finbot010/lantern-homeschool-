@@ -610,6 +610,15 @@ ul.chips .chip-word { padding: 4px 10px; border-radius: 99px; border: 1px solid 
 .focus-chip .fc-time { font: 800 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
 .focus-chip .btn.ghost { color: inherit; border-color: currentColor; }
 .week-card { display: grid; gap: 10px; margin-bottom: 18px; } .week-card h3 { margin: 0; }
+.car-parent { display: grid; gap: 14px; } .car-parent > * { margin: 0; }
+.car-card { margin-bottom: 18px; display: grid; gap: 10px; } .car-card h3 { margin: 0; }
+.car-prog { display: grid; gap: 6px; margin: 8px 0 14px; }
+.car-step { margin: 12px 0; display: grid; gap: 10px; } .car-step .mini { margin: 0; }
+.car-kw { display: grid; gap: 8px; margin: 0; } .car-kw div { display: grid; grid-template-columns: minmax(110px, 180px) 1fr; gap: 10px; } .car-kw dt { font-weight: 700; } .car-kw dd { margin: 0; }
+@media (max-width: 560px) { .car-kw div { grid-template-columns: 1fr; gap: 2px; } }
+.car-safety { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--fin, #C27A12) 14%, transparent); border: 1px solid color-mix(in srgb, var(--fin, #C27A12) 45%, transparent); font-size: .92rem; }
+.car-career { margin: 12px 0; display: grid; gap: 8px; } .car-career h2 { margin: 0; }
+.car-checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; } .car-checks .ready-tag { color: var(--sci); font-weight: 600; }
 .expand-nudge { display: grid; gap: 6px; margin: 8px 0 14px; } .expand-nudge ul { margin: 0; padding-left: 18px; } .expand-nudge p { margin: 0; }
 .ahead-note { margin: 4px 0 8px; font-size: .9rem; color: var(--sci); font-weight: 600; }
 .wq-cta { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--sci) 10%, transparent); border: 1px solid color-mix(in srgb, var(--sci) 35%, transparent); }
