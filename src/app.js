@@ -1398,7 +1398,10 @@
 
   /* ── book picks: free curated books + the family bookshelf (e.g. Kindle titles the parent adds) ── */
   const BOOKS = window.LH_BOOKS || [];
-  const WHERE = { kindle: 'Kindle', home: 'Book at home', library: 'Library book', online: 'Online' };
+  const WHERE = { kindle: 'Kindle', hoopla: 'Hoopla', home: 'Book at home', library: 'Library book', online: 'Online' };
+  const HOOPLA_URL = 'https://www.hoopladigital.com/';
+  const hooplaSearch = (t) => HOOPLA_URL + 'search?q=' + encodeURIComponent(t) + '&scope=everything';
+  async function hooplaOpen(b) { try { await navigator.clipboard.writeText(b.t); toast('Opening Hoopla. "' + b.t + '" is copied, so you can paste it into Hoopla\'s search if it doesn\'t show up.'); } catch (e) { toast('Opening Hoopla. Search for "' + b.t + '".'); } }
   const KINDLE_URL = 'https://read.amazon.com/kindle-library';
   const shelfFor = (kidId) => ((fam() && fam().shelf) || []).filter((b) => !b.kids || !b.kids.length || b.kids.includes(kidId));
   function pickBook(b) {
@@ -1433,6 +1436,7 @@
         h('p', null, h('b', null, 'Open the Kindle app'), ' — if it didn\'t open by itself, find Kindle in your app launcher (or tap Open on the Play Store page). Then find "' + S.kindleTip + '" in your library.' + (S.kindleCopied ? ' The title is copied, so you can paste it into Kindle\'s search.' : '')),
         h('p', { class: 'small' }, 'Come back here when you finish reading to log your minutes. Never sign in to Amazon yourself — ask your grown-up.'),
         h('button', { type: 'button', class: 'btn ghost xs', onclick: () => { S.kindleTip = null; render(); } }, 'Got it')) : null,
+      settings().hoopla ? h('div', { class: 'hoopla-bar' }, h('span', null, '📚 ', h('b', null, 'Hoopla'), ' · free e-books, read-alongs, comics and audiobooks from your library'), h('a', { class: 'btn ghost xs', href: HOOPLA_URL, target: '_blank', rel: 'noopener noreferrer' }, 'Browse Hoopla', h('span', { class: 'sr-only' }, ' (opens in a new tab)')), h('span', { class: 'small muted' }, 'Tip: tap KIDS at the top of Hoopla to see only kids\' books. Ask your grown-up before you borrow — your library allows a few borrows each month.')) : null,
       h('div', { class: 'bf-tabs', role: 'tablist' }, tabs.map(([key, n]) => h('button', { type: 'button', role: 'tab', 'aria-selected': mode === key ? 'true' : 'false', class: 'gchip' + (mode === key ? ' on' : ''), onclick: () => { S.bf = key; render(); } }, n))),
       list.length ? h('ul', { class: 'bf-grid' }, list.map((b) => { const fin = done[b.t.trim().toLowerCase()];
         return h('li', { class: 'bf-card ' + (b.k || 'other') + (fin ? ' read' : '') },
@@ -1440,10 +1444,11 @@
           b.mine ? null : h('span', { class: 'small' }, b.d), b.note ? h('span', { class: 'small bf-note' }, b.note) : null,
           h('div', { class: 'bf-actions' },
             b.k === 'kindle' && !b.u ? h('button', { type: 'button', class: 'btn ghost xs', onclick: () => kindleApp(b) }, 'Read in Kindle app') : null,
+            b.k === 'hoopla' ? h('a', { class: 'btn ghost xs', href: b.u || hooplaSearch(b.t), target: '_blank', rel: 'noopener noreferrer', onclick: () => { if (!b.u) hooplaOpen(b); } }, b.u ? 'Open in Hoopla' : 'Find on Hoopla', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
             b.k === 'video' ? h('a', { class: 'btn ghost xs', href: 'https://www.youtubekids.com/search?q=' + encodeURIComponent('Storyline Online ' + b.t), target: '_blank', rel: 'noopener noreferrer' }, 'YouTube Kids', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
-            b.u ? h('a', { class: 'btn ghost xs', href: b.u, target: '_blank', rel: 'noopener noreferrer' }, b.k === 'video' ? 'Watch & read' : b.k === 'kindle' ? 'Open Kindle' : 'Open book', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
+            b.u && b.k !== 'hoopla' ? h('a', { class: 'btn ghost xs', href: b.u, target: '_blank', rel: 'noopener noreferrer' }, b.k === 'video' ? 'Watch & read' : b.k === 'kindle' ? 'Open Kindle' : 'Open book', h('span', { class: 'sr-only' }, ' (opens in a new tab)')) : null,
             h('button', { type: 'button', class: 'btn primary xs', onclick: () => pickBook(b) }, 'I\'m reading this'))); }))
-        : h('p', { class: 'muted small' }, mode === 'shelf' ? 'No books here yet. Ask your grown-up to add books from your home or Kindle library.' : 'No books in this list.'),
+        : h('p', { class: 'muted small' }, mode === 'shelf' ? 'No books here yet. Ask your grown-up to add books from home, Kindle or Hoopla.' : 'No books in this list.'),
       list.some((b) => b.k === 'video') ? h('p', { class: 'small muted' }, 'Video says "try watching in YouTube Kids"? Tap the YouTube Kids button on that book instead.') : null);
   }
 
@@ -1544,7 +1549,14 @@
   function familyShelf() {
     const f = fam(); f.shelf = f.shelf || []; const shelf = f.shelf;
     const box = h('article', { class: 'card family-shelf' }, h('h3', null, 'Family bookshelf'),
-      h('p', { class: 'hint' }, 'Add books your children can choose from — Kindle books, books at home or library books. They appear under "Our bookshelf" on the learner\'s reading page.'),
+      h('p', { class: 'hint' }, 'Add books your children can choose from — Kindle or Hoopla books, books at home or library books. They appear under "Our bookshelf" on the learner\'s reading page.'),
+      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: settings().hoopla ? true : null, onchange: (e) => { f.settings = Object.assign({}, f.settings, { hoopla: e.target.checked }); saveFamily(); toast(e.target.checked ? 'Hoopla is now on your children\'s reading page.' : 'Hoopla link hidden.'); render(); } }), ' We have Hoopla (show a "Browse Hoopla" button on my children\'s reading page)'),
+      h('details', { class: 'kindle-help' }, h('summary', null, 'How to use Hoopla with Lantern'),
+        h('ol', { class: 'small' },
+          h('li', null, 'Sign in at ', h('a', { href: HOOPLA_URL, target: '_blank', rel: 'noopener noreferrer' }, 'hoopladigital.com'), ' with your library card on the computer your children use (or install the Hoopla app from the Play Store on a Chromebook). Sign in once yourself; children shouldn\'t handle the library card.'),
+          h('li', null, 'Turn on Kids Mode (tap KIDS at the top, or in Settings) so only children\'s titles show.'),
+          h('li', null, 'Add titles below with "Where is it?" set to Hoopla. Lantern gives each one a "Find on Hoopla" button. To open a book directly, paste its Hoopla page address after the title.'),
+          h('li', null, 'Your library sets a monthly borrowing limit (often about 8 titles), and books usually return themselves after about 3 weeks. Picking books together helps the borrows last the month. Read-along books are great for young readers, and audiobooks count as reading time too.'))),
       h('details', { class: 'kindle-help' }, h('summary', null, 'How to add your Kindle books'),
         h('ol', { class: 'small' },
           h('li', null, 'On a computer, sign in at ', h('a', { href: KINDLE_URL, target: '_blank', rel: 'noopener noreferrer' }, 'read.amazon.com'), ' (Kindle for Web), or open the Kindle app, and go to your Library.'),
